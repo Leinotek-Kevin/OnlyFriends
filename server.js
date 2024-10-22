@@ -8,7 +8,7 @@ const cors = require("cors");
 const port = process.env.PORT || 8080;
 const admin = require("./utils/checkAdmin-util");
 const passport = require("passport");
-require("./config/passport")(passport);
+require("./config/passport")();
 
 //連結 mongoDB
 mongoose
@@ -27,11 +27,7 @@ app.use(cors());
 
 //Handle Router
 app.use("/api/auth", routes.auth);
-app.use(
-  "/api/user",
-  passport.authenticate("jwt", { session: false }),
-  routes.user
-);
+app.use("/api/user", routes.user);
 
 //監聽 http request
 app.listen(port, () => {

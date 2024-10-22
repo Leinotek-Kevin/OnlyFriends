@@ -1,12 +1,14 @@
 const router = require("express").Router();
 const User = require("../models").user;
 const jwt = require("jsonwebtoken");
+const passport = require("passport");
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 auth 有關的請求");
   next();
 });
 
+//A-1 帳號驗證登入
 router.post("/login", async (req, res) => {
   let { userID, userEmail, userName, userPhoto } = req.body;
 
@@ -36,17 +38,16 @@ router.post("/login", async (req, res) => {
     const findUser = await User.findOne({ userEmail });
 
     if (findUser) {
-      //如果接收的 userID 和 資料庫的一樣，表示這是已存在的用戶，那就直接製作 JWT
-      //如果不一樣，就更新 userID
-
-      if (userID !== findUser.userID) {
-        await User.updateOne({ userID: findUser.userID }, { userID });
-        console.log("驗證登入" + "UserId 已更新");
-      } else {
-        console.log("驗證登入" + "UserId 已存在");
-      }
+      await User.updateOne({ userEmail }, { userID, isLogin: true });
+      console.log("驗證登入" + "User 已更新");
     } else {
-      await User.create({ userID, userName, userEmail, userPhoto });
+      await User.create({
+        userID,
+        userName,
+        userEmail,
+        userPhoto,
+        isLogin: true,
+      });
       console.log("驗證登入" + "User 已建立");
     }
 
@@ -66,6 +67,76 @@ router.post("/login", async (req, res) => {
       e,
     });
   }
+});
+
+//A-2 登出帳號 -> 確保有使用者
+router.post("/logout", (req, res) => {
+  passport.authenticate("jwt", { session: false }, async (err, user, info) => {
+    if (err) {
+      return res.status(500).json({ status: false, message: "Server Error" });
+    }
+
+    if (!user) {
+      // 這裡返回自定義訊息
+      return res
+        .status(200)
+        .json({ status: true, message: "登出失敗！查無此用戶" });
+    }
+
+    try {
+      let { userEmail, isLogin } = user;
+
+      if (isLogin) {
+        const data = await User.updateOne({ userEmail }, { isLogin: false });
+        return res.status(200).send({
+          status: true,
+          message: "登出成功！",
+        });
+      } else {
+        return res.status(200).send({
+          status: true,
+          message: "登出早就登出！",
+        });
+      }
+    } catch (e) {
+      return res.status(500).send({
+        status: false,
+        message: "Server Error",
+      });
+    }
+  })(req, res);
+});
+
+//A-3 刪除帳號 -> 確保有使用者
+router.post("/delete", (req, res) => {
+  passport.authenticate("jwt", { session: false }, async (err, user, info) => {
+    if (err) {
+      return res.status(500).json({ status: false, message: "Server Error" });
+    }
+
+    if (!user) {
+      // 這裡返回自定義訊息
+      return res
+        .status(200)
+        .json({ status: true, message: "刪除失敗！找不到使用者！" });
+    }
+
+    try {
+      let { userEmail, userID } = user;
+
+      await User.deleteOne({ userEmail, userID });
+
+      return res.status(200).send({
+        status: true,
+        message: "使用者帳號已刪除",
+      });
+    } catch (e) {
+      return res.status(500).send({
+        status: false,
+        message: "Server Error",
+      });
+    }
+  })(req, res);
 });
 
 module.exports = router;

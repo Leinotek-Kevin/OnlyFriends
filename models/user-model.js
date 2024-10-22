@@ -21,6 +21,10 @@ const userSchema = new Schema({
   userPhoto: {
     type: String,
   },
+
+  isLogin: {
+    type: Boolean,
+  },
 });
 
 userSchema.index({ userID: 1, userMail: 1 }, { unique: true });
