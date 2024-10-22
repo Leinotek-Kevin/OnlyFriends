@@ -6,6 +6,9 @@ dotenv.config();
 const routes = require("./routes");
 const cors = require("cors");
 const port = process.env.PORT || 8080;
+const admin = require("./utils/checkAdmin-util");
+const passport = require("passport");
+require("./config/passport")(passport);
 
 //連結 mongoDB
 mongoose
@@ -23,7 +26,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 //Handle Router
-//app.use("/api/lotto", routes.lotto);
+app.use("/api/auth", routes.auth);
+app.use(
+  "/api/user",
+  passport.authenticate("jwt", { session: false }),
+  routes.user
+);
 
 //監聽 http request
 app.listen(port, () => {
