@@ -25,9 +25,41 @@ router.use((req, res, next) => {
 
 //B-1 獲取使用者資訊
 router.post("/info", async (req, res) => {
-  return res
-    .status(200)
-    .send({ status: true, message: "用戶驗證成功", data: req.user });
+  try {
+    let { action, userName, userPhoto } = req.body;
+    let { userEmail, userID } = req.user;
+
+    if (action == 0) {
+      return res.status(200).send({
+        status: true,
+        message: "成功讀取用戶資訊",
+        data: req.user,
+      });
+    }
+
+    if (action == 1) {
+      tmpName = !userName ? req.user.userName : userName;
+      tmpPhoto = !userPhoto ? req.user.userPhoto : userPhoto;
+
+      await User.updateOne(
+        { userEmail, userID },
+        {
+          userName: tmpName,
+          userPhoto: tmpPhoto,
+        }
+      );
+
+      return res.status(200).send({
+        status: true,
+        message: "更新用戶資訊",
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: true,
+      message: "Server Error!",
+    });
+  }
 });
 
 module.exports = router;
