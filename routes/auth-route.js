@@ -59,12 +59,15 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   let { userEmail } = req.body;
 
+  let message = "";
+
   try {
     const findUser = await User.findOne({ userEmail });
     let userID = "";
 
     if (findUser) {
       userID = findUser.userID;
+      message = "你已經註冊過了";
     } else {
       //如果使用者不存在
       const uuid = uuidv4(); // 生成 UUID v4
@@ -83,6 +86,8 @@ router.post("/register", async (req, res) => {
         deviceToken,
         isLogin: true,
       });
+
+      message = "註冊成功！";
     }
 
     //製作 json web token
@@ -91,7 +96,7 @@ router.post("/register", async (req, res) => {
 
     return res.status(200).send({
       status: true,
-      message: "用戶註冊或登入成功",
+      message,
       token: "JWT " + token, //返回 JWT token
     });
   } catch (e) {
