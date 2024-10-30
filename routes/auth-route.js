@@ -3,14 +3,13 @@ const User = require("../models").user;
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
-const { types } = require("joi");
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 auth 有關的請求");
   next();
 });
 
-//A-1 帳號驗證登入
+//A-2 帳號驗證登入
 //暱稱 年齡 性別 頭貼 email 必填
 router.post("/login", async (req, res) => {
   let { userEmail, deviceToken } = req.body;
@@ -55,7 +54,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-//註冊使用者
+//A-1 註冊使用者
 router.post("/register", async (req, res) => {
   let { userEmail } = req.body;
 
@@ -72,7 +71,7 @@ router.post("/register", async (req, res) => {
       //如果使用者不存在
       const uuid = uuidv4(); // 生成 UUID v4
       // 移除非數字的字符，只保留數字，並取前 10 位
-      let userID = uuid.replace(/\D/g, "").slice(0, 10);
+      userID = uuid.replace(/\D/g, "").slice(0, 10);
 
       let { userName, userGender, userAge, userPhoto, deviceToken } = req.body;
 

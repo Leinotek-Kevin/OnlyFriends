@@ -20,7 +20,7 @@ const userSchema = new Schema({
 
   userGender: {
     type: String,
-    enum: ["0", "1"], //0：女生 1：男生 2:特殊
+    enum: ["0", "1", "2"], //0：女生 1：男生 2:特殊
     required: true,
   },
 

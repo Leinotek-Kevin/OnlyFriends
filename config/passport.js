@@ -12,8 +12,10 @@ module.exports = () => {
   passport.use(
     new JwtStrategy(opts, async function (jwt_payload, done) {
       try {
+        console.log(jwt_payload);
         let foundUser = await User.findOne({
           userID: jwt_payload.userID,
+          userEmail: jwt_payload.userEmail,
         }).exec();
 
         if (foundUser) {
