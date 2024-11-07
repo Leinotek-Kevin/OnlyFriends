@@ -1,6 +1,9 @@
 const router = require("express").Router();
 const User = require("../models").user;
 const passport = require("passport");
+const axios = require("axios");
+const dotenv = require("dotenv");
+dotenv.config();
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -26,7 +29,18 @@ router.use((req, res, next) => {
 //B-1 獲取使用者資訊
 router.post("/info", async (req, res) => {
   try {
-    let { action, userName, userPhoto } = req.body;
+    let {
+      action,
+      userName,
+      userPhoto,
+      userRegion,
+      userMBTI,
+      emotion,
+      interested,
+      traits,
+      friendStatus,
+      loveExperience,
+    } = req.body;
     let { userEmail, userID } = req.user;
 
     if (action == 0) {
@@ -38,26 +52,148 @@ router.post("/info", async (req, res) => {
     }
 
     if (action == 1) {
-      tmpName = !userName ? req.user.userName : userName;
-      tmpPhoto = !userPhoto ? req.user.userPhoto : userPhoto;
+      //用戶可以改暱稱,頭貼,地區,感情狀態,興趣愛好,個人特質,交友動態,情場經歷
+      let tmpName = !userName ? req.user.userName : userName;
+      let tmpPhoto = !userPhoto ? req.user.userPhoto : userPhoto;
+      let tmpRegion = !userRegion ? req.user.userRegion : userRegion;
+      let tmpMBTI = !userMBTI ? req.user.userMBTI : userMBTI;
+      let tmpEmotion = !emotion ? req.user.userAttribute.emotion : emotion;
+      let tmpInterested = !interested
+        ? req.user.userAttribute.interested
+        : interested;
+      let tmpTraits = !traits ? req.user.userAttribute.traits : traits;
+      let tmpFriendStatus = !friendStatus
+        ? req.user.userAttribute.friendStatus
+        : friendStatus;
+      let tmpLoveExperience = !loveExperience
+        ? req.user.userAttribute.loveExperience
+        : loveExperience;
 
-      await User.updateOne(
+      const data = await User.findOneAndUpdate(
         { userEmail, userID },
         {
+          userAttribute: {
+            emotion: tmpEmotion,
+            interested: tmpInterested,
+            traits: tmpTraits,
+            friendStatus: tmpFriendStatus,
+            loveExperience: tmpLoveExperience,
+          },
           userName: tmpName,
+          userMBTI: tmpMBTI,
+          userRegion: tmpRegion,
           userPhoto: tmpPhoto,
+        },
+        {
+          new: true,
+          upsert: true,
         }
       );
 
       return res.status(200).send({
         status: true,
-        message: "更新用戶資訊",
+        message: "更新用戶資訊成功",
+        data,
       });
     }
   } catch (e) {
     return res.status(500).send({
       status: true,
       message: "Server Error!",
+    });
+  }
+});
+
+//B-2 獲取本日配對的對象資訊
+router.post("/today-match", async (req, res) => {
+  try {
+    let { userID } = req.user;
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+//B-3 加入與配對對象的聊天室
+router.post("/join-room", async (req, res) => {
+  try {
+    let { userID } = req.user;
+    let { objectUserID } = req.body;
+
+    const objectUser = await User.findOne({ userID: objectUserID });
+
+    // SendBird API URL
+    const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels`;
+
+    // API Token
+    const apiToken = process.env.SENDBIRD_API_TOKEN;
+
+    // Request Headers
+    const headers = {
+      "Content-Type": "application/json, charset=utf8",
+      "Api-Token": apiToken,
+    };
+
+    const channel_url =
+      userID > objectUserID
+        ? `${objectUserID}_${userID}`
+        : `${userID}_${objectUserID}`;
+
+    // Request Body (JSON data)
+    const data = {
+      name: `${req.user.userName}&${objectUser.userName}的房間`,
+      channel_url,
+      cover_url: "https://sendbird.com/main/img/cover/cover_08.jpg",
+      custom_type: "chat",
+      is_distinct: true,
+      user_ids: [req.user.userID, req.body.userID],
+      operator_ids: ["7884269005"],
+    };
+
+    const response = await axios.post(url, data, { headers });
+
+    return res.status(200).send({
+      status: true,
+      message: "房間建立成功",
+      data: response.data.channel,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+//後端使用 SendBird 不開放前端
+router.post("/delete-room", async (req, res) => {
+  let { channelUrl } = req.body; //刪除的群組頻道 URL
+  const apiToken = process.env.SENDBIRD_API_TOKEN;
+
+  // API 請求 URL
+  const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels/${channelUrl}`;
+
+  // Request Headers
+  const headers = {
+    "Api-Token": apiToken,
+  };
+
+  try {
+    const response = await axios.delete(url, { headers });
+    return res.status(200).send({
+      status: true,
+      message: "刪除成功",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      error,
     });
   }
 });

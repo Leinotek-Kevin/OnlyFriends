@@ -3,34 +3,7 @@ const { Schema } = mongoose;
 
 //製作會員 Schema
 const userSchema = new Schema({
-  userID: {
-    type: String,
-    required: true,
-  },
-
-  deviceToken: {
-    type: String,
-  },
-
-  userName: {
-    type: String,
-    length: 10,
-    required: true,
-  },
-
-  userGender: {
-    type: String,
-    enum: ["0", "1", "2"], //0：女生 1：男生 2:特殊
-    required: true,
-  },
-
-  userAge: {
-    type: String,
-    min: 18,
-    max: 120,
-    required: true,
-  },
-
+  //用戶 mail
   userEmail: {
     type: String,
     required: true,
@@ -38,13 +11,122 @@ const userSchema = new Schema({
     match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
   },
 
+  //用戶 ID
+  userID: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+
+  //用戶暱稱
+  userName: {
+    type: String,
+    length: 10,
+    required: true,
+  },
+
+  //用戶性別
+  userGender: {
+    type: String,
+    enum: ["0", "1", "2"], //0：女生 1：男生 2:特殊
+    required: true,
+  },
+
+  //用戶性別 1993/01/28
+  userBirthday: {
+    type: String,
+    required: true,
+  },
+
+  //用戶年齡
+  userAge: {
+    type: String,
+  },
+
+  //用戶星座
+  // 1: 白羊座 2: 金牛座 3:雙子座 4:巨蟹座 5:獅子座 6:處女座
+  // 7: 天秤座 8: 天蠍座 9:射手座 10:摩羯座 11:水瓶座 12:雙魚座
+  userZodiac: {
+    type: String,
+    default: "",
+  },
+
+  //用戶 MBTI
+  userMBTI: {
+    type: String,
+    default: "",
+  },
+
+  //用戶頭貼
   userPhoto: {
     type: String,
     required: true,
   },
 
-  isLogin: {
+  //用戶所在地區
+  userRegion: {
+    type: String,
+    required: true,
+  },
+
+  //用戶裝置 id
+  deviceToken: {
+    type: String,
+    default: "",
+  },
+
+  //用戶屬性
+  userAttribute: {
+    //感情狀態
+    emotion: {
+      type: String,
+      default: "",
+    },
+    //興趣愛好
+    interested: {
+      type: String,
+      default: "",
+    },
+    //個人特質
+    traits: {
+      type: String,
+      default: "",
+    },
+    //交友動機
+    friendStatus: {
+      type: String,
+      default: "",
+    },
+    //情場經歷
+    loveExperience: {
+      type: String,
+      default: "",
+    },
+  },
+
+  //用戶系統設備
+  osType: {
+    type: String,
+    enum: ["0", "1"],
+  },
+
+  //是否是機器人
+  identity: {
+    type: String,
+    required: true,
+    enum: ["0", "1", "2"], //0:假人 1:真人 2:官方指定
+  },
+
+  //該用戶是否有訂閱
+  isSubscription: {
     type: Boolean,
+    default: false,
+  },
+
+  //該用戶是否存活
+  isAlive: {
+    type: Boolean,
+    default: false,
   },
 });
 

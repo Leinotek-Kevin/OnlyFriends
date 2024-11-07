@@ -28,7 +28,7 @@ app.use(cors());
 //Handle Router
 app.use("/api/auth", routes.auth);
 app.use("/api/user", routes.user);
-app.use("/api/test", routes.test);
+app.use("/api/system", routes.system);
 
 //監聽 http request
 app.listen(port, () => {

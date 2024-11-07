@@ -3,25 +3,103 @@ const User = require("../models").user;
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
+const ageUtil = require("../utils/caluAge-util");
+const zodiacUtil = require("../utils/caluZodiac-util");
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 auth 有關的請求");
   next();
 });
 
+//A-1 註冊使用者
+router.post("/register", async (req, res) => {
+  let {
+    userEmail,
+    userName,
+    userGender,
+    userBirthday,
+    userPhoto,
+    userRegion,
+    deviceToken,
+    identity,
+    osType,
+  } = req.body;
+
+  let message = "";
+
+  try {
+    const findUser = await User.findOne({ userEmail });
+    let userID = "";
+
+    if (findUser) {
+      userID = findUser.userID;
+      message = "你已經註冊過了";
+    } else {
+      //如果使用者不存在
+      const uuid = uuidv4(); // 生成 UUID v4
+      // 移除非數字的字符，只保留數字，並取前 10 位
+      userID = uuid.replace(/\D/g, "").slice(0, 10);
+
+      //用戶年齡與星座解析
+      const userAge = ageUtil(userBirthday);
+      const userZodiac = zodiacUtil(userBirthday);
+
+      await User.create({
+        userEmail,
+        userID,
+        userName,
+        userGender,
+        userBirthday,
+        userAge,
+        userZodiac,
+        userPhoto,
+        userRegion,
+        deviceToken,
+        isAlive: true,
+        identity,
+        osType,
+      });
+
+      message = "註冊成功！";
+    }
+
+    //製作 json web token
+    const tokenObject = { userID, userEmail };
+    const token = jwt.sign(tokenObject, process.env.PASSPORT_SECRET);
+
+    return res.status(200).send({
+      status: true,
+      message,
+      token: "JWT " + token, //返回 JWT token
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
 //A-2 帳號驗證登入
 //暱稱 年齡 性別 頭貼 email 必填
 router.post("/login", async (req, res) => {
-  let { userEmail, deviceToken } = req.body;
+  let { userEmail, deviceToken, osType } = req.body;
   let userID = "";
 
   try {
     const findUser = await User.findOne({ userEmail });
 
+    let tmpToken = !deviceToken ? req.user.deviceToken : deviceToken;
+    let tmpOsType = !osType ? req.user.osType : osType;
+
     if (findUser) {
       //如果有使用者
       userID = findUser.userID;
-      await User.updateOne({ userEmail }, { deviceToken, isLogin: true });
+      await User.updateOne(
+        { userEmail },
+        { deviceToken: tmpToken, osType: tmpOsType, isAlive: true }
+      );
     } else {
       //資料庫不存在使用者
       return res.status(200).send({
@@ -54,60 +132,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-//A-1 註冊使用者
-router.post("/register", async (req, res) => {
-  let { userEmail } = req.body;
-
-  let message = "";
-
-  try {
-    const findUser = await User.findOne({ userEmail });
-    let userID = "";
-
-    if (findUser) {
-      userID = findUser.userID;
-      message = "你已經註冊過了";
-    } else {
-      //如果使用者不存在
-      const uuid = uuidv4(); // 生成 UUID v4
-      // 移除非數字的字符，只保留數字，並取前 10 位
-      userID = uuid.replace(/\D/g, "").slice(0, 10);
-
-      let { userName, userGender, userAge, userPhoto, deviceToken } = req.body;
-
-      await User.create({
-        userID,
-        userName,
-        userGender,
-        userAge,
-        userPhoto,
-        userEmail,
-        deviceToken,
-        isLogin: true,
-      });
-
-      message = "註冊成功！";
-    }
-
-    //製作 json web token
-    const tokenObject = { userID, userEmail };
-    const token = jwt.sign(tokenObject, process.env.PASSPORT_SECRET);
-
-    return res.status(200).send({
-      status: true,
-      message,
-      token: "JWT " + token, //返回 JWT token
-    });
-  } catch (e) {
-    return res.status(500).send({
-      status: false,
-      message: "Server Error",
-      e,
-    });
-  }
-});
-
-//A-2 登出帳號 -> 確保有使用者
+//A-3 登出帳號 -> 確保有使用者
 router.post("/logout", (req, res) => {
   passport.authenticate("jwt", { session: false }, async (err, user, info) => {
     if (err) {
@@ -122,18 +147,13 @@ router.post("/logout", (req, res) => {
     }
 
     try {
-      let { userEmail, isLogin } = user;
+      let { userEmail, isAlive } = user;
 
-      if (isLogin) {
-        const data = await User.updateOne({ userEmail }, { isLogin: false });
+      if (isAlive) {
+        const data = await User.updateOne({ userEmail }, { isAlive: false });
         return res.status(200).send({
           status: true,
           message: "登出成功！",
-        });
-      } else {
-        return res.status(200).send({
-          status: true,
-          message: "登出早就登出！",
         });
       }
     } catch (e) {
@@ -145,7 +165,7 @@ router.post("/logout", (req, res) => {
   })(req, res);
 });
 
-//A-3 刪除帳號 -> 確保有使用者
+//A-4 刪除帳號 -> 確保有使用者
 router.post("/delete", (req, res) => {
   passport.authenticate("jwt", { session: false }, async (err, user, info) => {
     if (err) {
