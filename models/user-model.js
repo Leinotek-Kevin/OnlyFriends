@@ -128,6 +128,12 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+
+  //最近一次登入時間
+  lastLoginTime: {
+    type: Number,
+    required: true,
+  },
 });
 
 userSchema.index({ userID: 1, userMail: 1 }, { unique: true });

@@ -52,38 +52,50 @@ router.post("/info", async (req, res) => {
     }
 
     if (action == 1) {
+      // 準備要更新的資料
+      let updateData = {};
+
       //用戶可以改暱稱,頭貼,地區,感情狀態,興趣愛好,個人特質,交友動態,情場經歷
-      let tmpName = !userName ? req.user.userName : userName;
-      let tmpPhoto = !userPhoto ? req.user.userPhoto : userPhoto;
-      let tmpRegion = !userRegion ? req.user.userRegion : userRegion;
-      let tmpMBTI = !userMBTI ? req.user.userMBTI : userMBTI;
-      let tmpEmotion = !emotion ? req.user.userAttribute.emotion : emotion;
-      let tmpInterested = !interested
-        ? req.user.userAttribute.interested
-        : interested;
-      let tmpTraits = !traits ? req.user.userAttribute.traits : traits;
-      let tmpFriendStatus = !friendStatus
-        ? req.user.userAttribute.friendStatus
-        : friendStatus;
-      let tmpLoveExperience = !loveExperience
-        ? req.user.userAttribute.loveExperience
-        : loveExperience;
+      // 如果有提供 userName，才將其加入更新資料中
+      if (userName != null) {
+        updateData.userName = userName;
+      }
+
+      if (userPhoto != null) {
+        updateData.userPhoto = userPhoto;
+      }
+
+      if (userRegion != null) {
+        updateData.userRegion = userRegion;
+      }
+
+      if (userMBTI != null) {
+        updateData.userRegion = userMBTI;
+      }
+
+      if (emotion != null) {
+        updateData.userAttribute.emotion = emotion;
+      }
+
+      if (interested != null) {
+        updateData.userAttribute.interested = interested;
+      }
+
+      if (traits != null) {
+        updateData.userAttribute.traits = traits;
+      }
+
+      if (friendStatus != null) {
+        updateData.userAttribute.friendStatus = friendStatus;
+      }
+
+      if (loveExperience != null) {
+        updateData.userAttribute.loveExperience = loveExperience;
+      }
 
       const data = await User.findOneAndUpdate(
         { userEmail, userID },
-        {
-          userAttribute: {
-            emotion: tmpEmotion,
-            interested: tmpInterested,
-            traits: tmpTraits,
-            friendStatus: tmpFriendStatus,
-            loveExperience: tmpLoveExperience,
-          },
-          userName: tmpName,
-          userMBTI: tmpMBTI,
-          userRegion: tmpRegion,
-          userPhoto: tmpPhoto,
-        },
+        { $set: updateData },
         {
           new: true,
           upsert: true,

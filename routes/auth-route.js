@@ -44,7 +44,8 @@ router.post("/register", async (req, res) => {
       const userAge = ageUtil(userBirthday);
       const userZodiac = zodiacUtil(userBirthday);
 
-      await User.create({
+      // 準備要更新的資料
+      let createData = {
         userEmail,
         userID,
         userName,
@@ -54,11 +55,22 @@ router.post("/register", async (req, res) => {
         userZodiac,
         userPhoto,
         userRegion,
-        deviceToken,
         isAlive: true,
         identity,
-        osType,
-      });
+        lastLoginTime: Date.now(),
+      };
+
+      // 如果有提供 deviceToken，才將其加入更新資料中
+      if (deviceToken != null) {
+        createData.deviceToken = deviceToken;
+      }
+
+      // 如果有提供 osType，才將其加入更新資料中
+      if (osType != null) {
+        createData.osType = osType;
+      }
+
+      await User.create(createData);
 
       message = "註冊成功！";
     }
@@ -90,16 +102,25 @@ router.post("/login", async (req, res) => {
   try {
     const findUser = await User.findOne({ userEmail });
 
-    let tmpToken = !deviceToken ? req.user.deviceToken : deviceToken;
-    let tmpOsType = !osType ? req.user.osType : osType;
+    // 準備要更新的資料
+    let updateData = {
+      isAlive: true,
+    };
+
+    // 如果有提供 deviceToken，才將其加入更新資料中
+    if (deviceToken != null) {
+      updateData.deviceToken = deviceToken;
+    }
+
+    // 如果有提供 deviceToken，才將其加入更新資料中
+    if (osType != null) {
+      updateData.osType = osType;
+    }
 
     if (findUser) {
       //如果有使用者
       userID = findUser.userID;
-      await User.updateOne(
-        { userEmail },
-        { deviceToken: tmpToken, osType: tmpOsType, isAlive: true }
-      );
+      await User.updateOne({ userEmail }, { $set: updateData });
     } else {
       //資料庫不存在使用者
       return res.status(200).send({
@@ -124,6 +145,7 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",
