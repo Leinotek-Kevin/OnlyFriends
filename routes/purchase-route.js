@@ -24,45 +24,76 @@ router.post("/report", (req, res) => {
     }
 
     try {
-      let { purchaseType, purchaseToken, purchaseReceipt, osType } = req.body;
       let { userID, userEmail } = user;
+      let { action, purchaseType, purchaseToken, purchaseReceipt, osType } =
+        req.body;
 
-      const record = await Purchase.findOne({
-        userID,
-        purchaseType,
-        purchaseToken,
-      });
+      if (action === "0") {
+        //刪除購買紀錄
+        const result = await Purchase.deleteOne({
+          userID,
+          purchaseType,
+          osType,
+        });
 
-      if (record != null) {
+        if (result.deletedCount > 0) {
+          if (purchaseType === "0") {
+            //如果是訂閱，就取消該用戶訂閱
+            await User.updateOne(
+              { userID, userEmail },
+              { isSubscription: false }
+            );
+          }
+
+          return res.status(200).send({
+            status: true,
+            message: "購買紀錄已刪除",
+          });
+        } else {
+          return res.status(200).send({
+            status: true,
+            message: "查無任何購買紀錄",
+          });
+        }
+      } else {
+        //新增購買紀錄
+        const record = await Purchase.findOne({
+          userID,
+          purchaseType,
+          purchaseToken,
+        });
+
+        if (record != null) {
+          return res.status(200).send({
+            status: true,
+            message: "購買紀錄已存在！",
+            data: record,
+          });
+        }
+
+        // 準備要更新的資料
+        let createData = {
+          userID,
+          osType,
+          purchaseType,
+          purchaseToken,
+        };
+
+        if (purchaseReceipt != null) {
+          createData.purchaseReceipt = purchaseReceipt;
+        }
+
+        const data = await Purchase.create(createData);
+
+        if (data) {
+          await User.updateOne({ userID, userEmail }, { isSubscription: true });
+        }
+
         return res.status(200).send({
           status: true,
-          message: "購買紀錄已存在！",
-          data: record,
+          message: "購買紀錄已儲存",
         });
       }
-
-      // 準備要更新的資料
-      let createData = {
-        userID,
-        osType,
-        purchaseType,
-        purchaseToken,
-      };
-
-      if (purchaseReceipt != null) {
-        createData.purchaseReceipt = purchaseReceipt;
-      }
-
-      const data = await Purchase.create(createData);
-
-      if (data) {
-        await User.updateOne({ userID, userEmail }, { isSubscription: true });
-      }
-
-      return res.status(200).send({
-        status: true,
-        message: "購買紀錄已儲存",
-      });
     } catch (e) {
       return res.status(500).send({
         status: false,
