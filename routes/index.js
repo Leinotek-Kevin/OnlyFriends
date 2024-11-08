@@ -2,4 +2,5 @@ module.exports = {
   auth: require("./auth-route"),
   user: require("./user-route"),
   system: require("./system-route"),
+  purchase: require("./purchase-route"),
 };

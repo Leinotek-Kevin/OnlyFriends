@@ -116,6 +116,9 @@ router.post("/info", async (req, res) => {
   }
 });
 
+//B-2 申報使用者訂閱狀態
+router.post("/report-sub", async (req, res) => {});
+
 //B-2 獲取本日配對的對象資訊
 router.post("/today-match", async (req, res) => {
   try {

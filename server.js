@@ -29,6 +29,7 @@ app.use(cors());
 app.use("/api/auth", routes.auth);
 app.use("/api/user", routes.user);
 app.use("/api/system", routes.system);
+app.use("/api/purchase", routes.purchase);
 
 //監聽 http request
 app.listen(port, () => {
