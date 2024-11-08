@@ -9,7 +9,7 @@ router.use((req, res, next) => {
   next();
 });
 
-//申報用戶購買紀錄
+//C-1 申報用戶購買紀錄
 router.post("/report", (req, res) => {
   passport.authenticate("jwt", { session: false }, async (err, user, info) => {
     if (err) {
@@ -62,7 +62,6 @@ router.post("/report", (req, res) => {
       return res.status(200).send({
         status: true,
         message: "購買紀錄已儲存",
-        data,
       });
     } catch (e) {
       return res.status(500).send({
@@ -73,7 +72,7 @@ router.post("/report", (req, res) => {
   })(req, res);
 });
 
-//獲取用戶的購買紀錄
+//C-2 獲取用戶的購買紀錄
 router.get("/record", async (req, res) => {
   let { userID, purchaseType } = req.body;
 
@@ -102,6 +101,7 @@ router.get("/record", async (req, res) => {
   }
 });
 
+//C-2 刪除指定的購買紀錄
 router.delete("/record", async (req, res) => {
   let { userID, purchaseToken } = req.body;
 
