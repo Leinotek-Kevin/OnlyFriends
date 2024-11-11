@@ -28,6 +28,18 @@ const matchNewestSchema = new Schema({
     ref: "User",
     required: true,
   },
+
+  //SendBird
+  sendbird: {
+    url: {
+      type: String,
+      default: "",
+    },
+    isChecked: {
+      type: Boolean,
+      default: false,
+    },
+  },
 });
 
 matchNewestSchema.index({ user1ID: 1, user2ID: 1 });

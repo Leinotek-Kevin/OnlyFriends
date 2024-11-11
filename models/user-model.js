@@ -104,6 +104,12 @@ const userSchema = new Schema({
     },
   },
 
+  //用戶提問
+  userQuestion: {
+    type: String,
+    default: "嗨！很高興認識你！你是哪裡人呢？",
+  },
+
   //用戶系統設備
   osType: {
     type: String,

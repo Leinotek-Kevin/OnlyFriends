@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const User = require("../models").user;
+const MatchNeswest = require("../models").matchNewest;
 const passport = require("passport");
 const axios = require("axios");
 const dotenv = require("dotenv");
@@ -35,6 +36,7 @@ router.post("/info", async (req, res) => {
       userPhoto,
       userRegion,
       userMBTI,
+      userQuestion,
       emotion,
       interested,
       traits,
@@ -55,7 +57,7 @@ router.post("/info", async (req, res) => {
       // 準備要更新的資料
       let updateData = {};
 
-      //用戶可以改暱稱,頭貼,地區,感情狀態,興趣愛好,個人特質,交友動態,情場經歷
+      //用戶可以改暱稱,頭貼,地區,感情狀態,興趣愛好,個人特質,交友動態,情場經歷, 提問
       // 如果有提供 userName，才將其加入更新資料中
       if (userName != null) {
         updateData.userName = userName;
@@ -71,6 +73,10 @@ router.post("/info", async (req, res) => {
 
       if (userMBTI != null) {
         updateData.userRegion = userMBTI;
+      }
+
+      if (userQuestion != null) {
+        updateData.userQuestion = userQuestion;
       }
 
       if (emotion != null) {
@@ -120,9 +126,45 @@ router.post("/info", async (req, res) => {
 router.post("/report-sub", async (req, res) => {});
 
 //B-2 獲取本日配對的對象資訊
-router.post("/today-match", async (req, res) => {
+router.post("/today-matches", async (req, res) => {
   try {
     let { userID } = req.user;
+
+    const result = await MatchNeswest.find({
+      $or: [{ user1ID: userID }, { user2ID: userID }],
+    })
+      .populate("user1_ID", ["userName", "userID", "userPhoto", "userQuestion"])
+      .populate("user2_ID", [
+        "userName",
+        "userID",
+        "userPhoto",
+        "userQuestion",
+      ]);
+
+    const data = [];
+
+    if (result.length > 0) {
+      result.forEach((match) => {
+        const matchObject = {
+          matchUser: match.user1ID === userID ? match.user2_ID : match.user1_ID,
+          sendbird: match.sendbird,
+        };
+
+        data.push(matchObject);
+      });
+
+      return res.status(200).send({
+        status: true,
+        message: "成功獲取配對對象列表",
+        data,
+      });
+    } else {
+      return res.status(200).send({
+        status: true,
+        message: "目前沒有對象",
+        data,
+      });
+    }
   } catch (e) {
     return res.status(500).send({
       status: false,
