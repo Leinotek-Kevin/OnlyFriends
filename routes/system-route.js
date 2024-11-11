@@ -145,7 +145,7 @@ router.post("/match", async (req, res) => {
         $or: [{ user1ID: currentUser.userID }, { user2ID: currentUser.userID }],
       });
 
-      獲取與 currentUser 最近48hr配對過的用戶ID
+      // 獲取與 currentUser 最近48hr配對過的用戶ID
       const lastMatchedUserIds = lastMatches.map((match) =>
         match.user1ID === currentUser.userID ? match.user2ID : match.user1ID
       );
@@ -203,8 +203,8 @@ router.post("/match", async (req, res) => {
         limitMatches--;
       }
 
-      // await MatchNewest.insertMany(matches);
-      // await MatchHistory.insertMany(matches);
+      await MatchNewest.insertMany(matches);
+      await MatchHistory.insertMany(matches);
     }
 
     return res.status(200).send({
