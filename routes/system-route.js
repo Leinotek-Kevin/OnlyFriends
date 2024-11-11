@@ -127,8 +127,6 @@ router.post("/match", async (req, res) => {
     for (let i = 0; i < aliveSubUsers.length; i++) {
       const currentUser = aliveSubUsers[i];
 
-      todayMatches.find(currentUser);
-
       //檢查這個用戶是不是已經達到本日配對次數
       const matchs = await MatchNewest.find({
         $or: [{ user1ID: currentUser.userID }, { user2ID: currentUser.userID }],
