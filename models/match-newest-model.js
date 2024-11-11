@@ -30,15 +30,9 @@ const matchNewestSchema = new Schema({
   },
 
   //SendBird
-  sendbird: {
-    url: {
-      type: String,
-      default: "",
-    },
-    isChecked: {
-      type: Boolean,
-      default: false,
-    },
+  sendbirdUrl: {
+    type: String,
+    default: "",
   },
 });
 

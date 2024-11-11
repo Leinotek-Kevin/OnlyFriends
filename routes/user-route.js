@@ -147,7 +147,7 @@ router.post("/today-matches", async (req, res) => {
       result.forEach((match) => {
         const matchObject = {
           matchUser: match.user1ID === userID ? match.user2_ID : match.user1_ID,
-          sendbird: match.sendbird,
+          sendbirdUrl: match.sendbirdUrl,
         };
 
         data.push(matchObject);
