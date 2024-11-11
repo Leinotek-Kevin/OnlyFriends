@@ -137,6 +137,7 @@ const userSchema = new Schema({
 });
 
 userSchema.index({ userID: 1, userMail: 1 }, { unique: true });
+userSchema.index({ isAlive: 1, userID: 1 });
 
 //隱藏 _id,__v
 userSchema.set("toJSON", {

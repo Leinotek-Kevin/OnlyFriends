@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-//製作配對歷史 Schema
-const matchHistorySchema = new Schema({
+//製作本日配對模組 Schema
+const matchNewestSchema = new Schema({
   //用戶1 ID
   user1ID: {
     type: String,
@@ -28,17 +28,12 @@ const matchHistorySchema = new Schema({
     ref: "User",
     required: true,
   },
-
-  matchDate: {
-    type: Number,
-    default: Date.now,
-  },
 });
 
-matchHistorySchema.index({ matchDate: -1, user1ID: 1, user2ID: 1 });
+matchNewestSchema.index({ user1ID: 1, user2ID: 1 });
 
 //隱藏 _id,__v
-matchHistorySchema.set("toJSON", {
+matchNewestSchema.set("toJSON", {
   transform: (doc, ret, options) => {
     delete ret._id;
     delete ret.__v;
@@ -47,4 +42,4 @@ matchHistorySchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("MatchHistory", matchHistorySchema);
+module.exports = mongoose.model("MatchNeswest", matchNewestSchema);
