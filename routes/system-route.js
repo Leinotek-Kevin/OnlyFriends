@@ -104,18 +104,11 @@ router.post("/match-last", async (req, res) => {
 //存活的訂閱 -> 存活沒訂閱
 router.post("/match", async (req, res) => {
   const RE_MATCH_DELAY = 48 * 60 * 60 * 1000;
+  const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
 
   try {
     //清空最近的配對列表
     await MatchNewest.deleteMany({});
-
-    //過去48小時的配對
-    // const recentMatches = await MatchHistory.find({
-    //   matchDate: { $gte: Date.now() - RE_MATCH_DELAY }, // 過去48小時的配對
-    // });
-
-    //目前本日配對列表
-    const todayMatches = [];
 
     //先處理有存活的訂閱用戶
     const aliveSubUsers = await User.find({
@@ -141,7 +134,7 @@ router.post("/match", async (req, res) => {
 
       //查詢這個用戶最近48hr的配對紀錄
       const lastMatches = await MatchHistory.find({
-        matchDate: { $gte: Date.now() - RE_MATCH_DELAY }, // 過去48小時的配對
+        matchDate: { $gte: time48HoursAgo }, // 過去48小時到現在的配對
         $or: [{ user1ID: currentUser.userID }, { user2ID: currentUser.userID }],
       });
 
@@ -149,13 +142,6 @@ router.post("/match", async (req, res) => {
       const lastMatchedUserIds = lastMatches.map((match) =>
         match.user1ID === currentUser.userID ? match.user2ID : match.user1ID
       );
-
-      //存入內存,獲取與 currentUser 最近48hr配對過的用戶ID
-      // const lastMatchedUserIds = new Set(
-      //   recentMatches.map((match) =>
-      //     match.user1ID === currentUser.userID ? match.user2ID : match.user1ID
-      //   )
-      // );
 
       const targetUsers = await User.find({
         userID: {
@@ -167,7 +153,7 @@ router.post("/match", async (req, res) => {
 
       const matches = [];
 
-      //如果有訂閱可以三次, 沒有訂閱只能一次
+      //檢查準備要與這個用戶配對的對象的配對次數是不是ok
       for (let i = 0; i < targetUsers.length; i++) {
         if (limitMatches == 0) {
           break;
@@ -232,6 +218,23 @@ router.get("/match-newest", async (req, res) => {
       status: true,
       message: "成功獲取本日配對列表",
       data: matchNewest,
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: true,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+router.delete("/match-newest", async (req, res) => {
+  try {
+    await MatchNewest.deleteMany({});
+
+    return res.status(200).send({
+      status: true,
+      message: "已刪除本日所有配對紀錄",
     });
   } catch (e) {
     return res.status(500).send({
