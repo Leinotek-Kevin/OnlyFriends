@@ -110,9 +110,9 @@ router.post("/match", async (req, res) => {
     await MatchNewest.deleteMany({});
 
     //過去48小時的配對
-    const recentMatches = await MatchHistory.find({
-      matchDate: { $gte: Date.now() - RE_MATCH_DELAY }, // 過去48小時的配對
-    });
+    // const recentMatches = await MatchHistory.find({
+    //   matchDate: { $gte: Date.now() - RE_MATCH_DELAY }, // 過去48小時的配對
+    // });
 
     //目前本日配對列表
     const todayMatches = [];
@@ -139,23 +139,23 @@ router.post("/match", async (req, res) => {
         continue;
       }
 
-      // //查詢這個用戶最近48hr的配對紀錄
-      // const lastMatches = await MatchHistory.find({
-      //   matchDate: { $gte: Date.now() - RE_MATCH_DELAY }, // 過去48小時的配對
-      //   $or: [{ user1ID: currentUser.userID }, { user2ID: currentUser.userID }],
-      // });
+      //查詢這個用戶最近48hr的配對紀錄
+      const lastMatches = await MatchHistory.find({
+        matchDate: { $gte: Date.now() - RE_MATCH_DELAY }, // 過去48小時的配對
+        $or: [{ user1ID: currentUser.userID }, { user2ID: currentUser.userID }],
+      });
 
-      // 獲取與 currentUser 最近48hr配對過的用戶ID
-      // const lastMatchedUserIds = lastMatches.map((match) =>
-      //   match.user1ID === currentUser.userID ? match.user2ID : match.user1ID
-      // );
+      獲取與 currentUser 最近48hr配對過的用戶ID
+      const lastMatchedUserIds = lastMatches.map((match) =>
+        match.user1ID === currentUser.userID ? match.user2ID : match.user1ID
+      );
 
       //存入內存,獲取與 currentUser 最近48hr配對過的用戶ID
-      const lastMatchedUserIds = new Set(
-        recentMatches.map((match) =>
-          match.user1ID === currentUser.userID ? match.user2ID : match.user1ID
-        )
-      );
+      // const lastMatchedUserIds = new Set(
+      //   recentMatches.map((match) =>
+      //     match.user1ID === currentUser.userID ? match.user2ID : match.user1ID
+      //   )
+      // );
 
       const targetUsers = await User.find({
         userID: {
