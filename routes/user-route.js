@@ -130,7 +130,7 @@ router.post("/today-matches", async (req, res) => {
   try {
     let { userID } = req.user;
 
-    const result = await MatchNeswest.find({
+    const newestMatches = await MatchNeswest.find({
       $or: [{ user1ID: userID }, { user2ID: userID }],
     })
       .populate("user1_ID", ["userName", "userID", "userPhoto", "userQuestion"])
@@ -143,11 +143,12 @@ router.post("/today-matches", async (req, res) => {
 
     const data = [];
 
-    if (result.length > 0) {
-      result.forEach((match) => {
+    if (newestMatches.length > 0) {
+      //整理要輸出給全端的配對資料
+      newestMatches.forEach(async (match) => {
         const matchObject = {
           matchUser: match.user1ID === userID ? match.user2_ID : match.user1_ID,
-          sendbirdUrl: match.sendbirdUrl,
+          sendbirdUrl: match.sendbird.url,
         };
 
         data.push(matchObject);
@@ -174,53 +175,88 @@ router.post("/today-matches", async (req, res) => {
   }
 });
 
-//B-3 加入與配對對象的聊天室
-router.post("/join-room", async (req, res) => {
+//B-3 檢查用戶聊天渠道
+router.post("/check-channel", async (req, res) => {
   try {
-    let { userID } = req.user;
-    let { objectUserID } = req.body;
+    let { channelUrl } = req.body;
 
-    const objectUser = await User.findOne({ userID: objectUserID });
+    //房間配對對象
+    let [user1ID, user2ID] = channelUrl.split("_");
 
-    // SendBird API URL
-    const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels`;
+    const [user1, user2] = await Promise.all([
+      User.findOne({ userID: user1ID }),
+      User.findOne({ userID: user2ID }),
+    ]);
 
-    // API Token
-    const apiToken = process.env.SENDBIRD_API_TOKEN;
-
-    // Request Headers
-    const headers = {
-      "Content-Type": "application/json, charset=utf8",
-      "Api-Token": apiToken,
-    };
-
-    const channel_url =
-      userID > objectUserID
-        ? `${objectUserID}_${userID}`
-        : `${userID}_${objectUserID}`;
-
-    // Request Body (JSON data)
-    const data = {
-      name: `${req.user.userName}&${objectUser.userName}的房間`,
-      channel_url,
-      cover_url: "https://sendbird.com/main/img/cover/cover_08.jpg",
-      custom_type: "chat",
-      is_distinct: true,
-      user_ids: [req.user.userID, req.body.userID],
-      operator_ids: ["7884269005"],
-    };
-
-    const response = await axios.post(url, data, { headers });
-
-    return res.status(200).send({
-      status: true,
-      message: "房間建立成功",
-      data: response.data.channel,
+    const match = await MatchNeswest.findOne({
+      "sendbird.url": channelUrl,
     });
+
+    if (match.sendbird.isChecked) {
+      return res.status(200).send({
+        status: true,
+        message: "這個渠道已經檢查過嚕！",
+      });
+    } else {
+      // SendBird API URL
+      const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels`;
+
+      // API Token
+      const apiToken = process.env.SENDBIRD_API_TOKEN;
+
+      // Request Headers
+      const headers = {
+        "Content-Type": "application/json, charset=utf8",
+        "Api-Token": apiToken,
+      };
+
+      // Request Body (JSON data)
+      const data = {
+        name: user1.userName + "&" + user2.userName + "的房間",
+        channel_url: channelUrl,
+        //cover_url: "https://sendbird.com/main/img/cover/cover_08.jpg",
+        custom_type: "chat",
+        is_distinct: true,
+        user_ids: [user1ID, user2ID],
+        operator_ids: [process.env.SENDBIRD_OPERATOR_ID],
+      };
+
+      axios
+        .post(url, data, { headers })
+        .then(async (response) => {
+          if (response.status === 200) {
+            await MatchNeswest.findOneAndUpdate(
+              {
+                "sendbird.url": channelUrl,
+              },
+              {
+                "sendbird.isChecked": true,
+              }
+            );
+
+            return res.status(200).send({
+              status: true,
+              message: "渠道檢查完成",
+            });
+          } else {
+            return res.status(200).send({
+              status: true,
+              message: "渠道檢查有問題",
+            });
+          }
+        })
+        .catch((e) => {
+          return res.status(200).send({
+            status: true,
+            message: "渠道檢查有問題",
+            e,
+          });
+        });
+    }
   } catch (e) {
     console.log(e);
     return res.status(500).send({
-      status: false,
+      status: true,
       message: "Server Error",
       e,
     });

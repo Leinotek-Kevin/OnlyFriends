@@ -243,4 +243,34 @@ router.post("/get-match", async (req, res) => {
   }
 });
 
+//取得指定用戶的資料
+router.get("/get-user", async (req, res) => {
+  try {
+    let { userID } = req.body;
+    const data = await User.findOne({
+      userID,
+    });
+
+    if (data) {
+      return res.status(200).send({
+        status: true,
+        message: "成功找到用戶",
+        data,
+      });
+    } else {
+      return res.status(200).send({
+        status: true,
+        message: "查無用戶",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
 module.exports = router;

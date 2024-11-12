@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const ageUtil = require("../utils/caluAge-util");
 const zodiacUtil = require("../utils/caluZodiac-util");
+const SendBird = require("sendbird");
+const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 auth 有關的請求");
@@ -43,6 +45,9 @@ router.post("/register", async (req, res) => {
       //用戶年齡與星座解析
       const userAge = ageUtil(userBirthday);
       const userZodiac = zodiacUtil(userBirthday);
+
+      // 連接並設置 Sendbird 用戶暱稱
+      await connectAndSetNickname(userID, userName);
 
       // 準備要更新的資料
       let createData = {
@@ -235,5 +240,25 @@ router.post("/delete-all", async (req, res) => {
     });
   }
 });
+
+//ConnectUser And userName
+const connectAndSetNickname = async (userID, userName) => {
+  return new Promise((resolve, reject) => {
+    // 先連接 SendBird，用戶不存在則創建
+    sb.connect(userID, function (user, error) {
+      if (error) {
+        return reject(error);
+      }
+
+      // 連接成功後，立即更新暱稱
+      sb.updateCurrentUserInfo(userName, null, function (response, error) {
+        if (error) {
+          return reject(error);
+        }
+        resolve(response); // 暱稱更新成功
+      });
+    });
+  });
+};
 
 module.exports = router;

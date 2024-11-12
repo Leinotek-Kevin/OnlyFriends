@@ -30,13 +30,22 @@ const matchNewestSchema = new Schema({
   },
 
   //SendBird
-  sendbirdUrl: {
-    type: String,
-    default: "",
+  sendbird: {
+    url: {
+      type: String,
+      default: "",
+    },
+    isChecked: {
+      type: Boolean,
+      default: false,
+    },
   },
 });
 
 matchNewestSchema.index({ user1ID: 1, user2ID: 1 });
+matchNewestSchema.index({
+  "sendbird.url": 1,
+});
 
 //隱藏 _id,__v
 matchNewestSchema.set("toJSON", {
