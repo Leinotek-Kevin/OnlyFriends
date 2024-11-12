@@ -16,82 +16,87 @@ router.post("/match", async (req, res) => {
   const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
 
   try {
+    let time = Date.now();
+
     //清空最近的配對列表
     await MatchNewest.deleteMany({});
+
+    //儲存配對次數已用完的用戶
+    let consumeUsers = new Set();
+
     //先處理有存活
     const aliveUsers = await User.find({
       isAlive: true,
     });
+
     // //執行有存活的訂閱用戶(訂閱用戶可以配對三個存活用戶/非訂閱只能一個)
     for (let i = 0; i < aliveUsers.length; i++) {
       const currentUser = aliveUsers[i];
-      //檢查這個用戶是不是已經達到本日配對次數
-      let time3 = Date.now();
-      const matchs = await MatchNewest.find({
-        $or: [{ user1ID: currentUser.userID }, { user2ID: currentUser.userID }],
-      });
-      console.log(
-        "檢查這個用戶是不是已經達到本日配對次數",
-        (Date.now() - time3) / 1000
-      );
-      //可用的配對次數
-      const allowMatches = currentUser.isSubscription ? 3 : 1;
-      //剩下配對的次數
-      let limitMatches = allowMatches - matchs.length;
-      //如果已經用完了，就直接進行下一個
-      if (limitMatches == 0) {
+
+      //如果這個用戶已經用完配對次數，就換下一個用戶執行
+      if (consumeUsers.has(currentUser.userID)) {
         continue;
       }
+
       //查詢這個用戶最近48hr的配對紀錄
-      let time2 = Date.now();
       const lastMatches = await MatchHistory.find({
         matchDate: { $gte: time48HoursAgo }, // 過去48小時到現在的配對
         $or: [{ user1ID: currentUser.userID }, { user2ID: currentUser.userID }],
       });
-      console.log(
-        "查詢這個用戶最近48hr的配對紀錄",
-        (Date.now() - time2) / 1000
-      );
-      // 獲取與 currentUser 最近48hr配對過的用戶ID
+
+      // 提取與 currentUser 最近48hr配對過的用戶ID
       const lastMatchedUserIds = lastMatches.map((match) =>
         match.user1ID === currentUser.userID ? match.user2ID : match.user1ID
       );
-      let time1 = Date.now();
+
+      //檢查目前這個用戶還剩下多少配對次數,沒訂閱不用檢查,因為只有一次
+      let targetUserCount = 0;
+
+      if (currentUser.isSubscription) {
+        //檢查訂閱用戶剩餘次數
+        const matchs = await MatchNewest.find({
+          $or: [
+            { user1ID: currentUser.userID },
+            { user2ID: currentUser.userID },
+          ],
+        });
+        //剩下配對的次數
+        targetUserCount = 3 - matchs.length;
+      } else {
+        targetUserCount = 1;
+      }
+
+      //合併排除的對象
+      const consumeSetArray = Array.from(consumeUsers);
+      const combinedArray = [...lastMatchedUserIds, ...consumeSetArray];
+
       const targetUsers = await User.find({
         userID: {
           $ne: currentUser.userID,
-          $nin: Array.from(lastMatchedUserIds),
-        }, // 排除自己和已匹配過的用戶
+          $nin: Array.from(combinedArray),
+        }, // 排除自己和已匹配過與不合適的用戶
         isAlive: true,
-      });
-      console.log("排除自己和已匹配過的用戶", (Date.now() - time1) / 1000);
+      }).limit(targetUserCount);
+
+      if (currentUser.isSubscription && targetUserCount == 3) {
+        consumeUsers.add(currentUser.userID);
+      }
+
+      if (!currentUser.isSubscription && targetUserCount == 1) {
+        consumeUsers.add(currentUser.userID);
+      }
+
       const matches = [];
-      //檢查準備要與這個用戶配對的對象的配對次數是不是ok
-      let time = Date.now();
+
+      //紀錄配對
       for (let i = 0; i < targetUsers.length; i++) {
-        if (limitMatches == 0) {
-          break;
-        }
         let targetUser = targetUsers[i];
-        const matchPoints = await MatchNewest.find({
-          $or: [{ user1ID: targetUser.userID }, { user2ID: targetUser.userID }],
-        });
-        //如果要配對的對象是有訂閱,且已經達到配對次數
-        //如果配對對象是沒有訂閱,且已經達到配對次數
-        //這兩個條件都排除
-        if (targetUser.isSubscription) {
-          if (matchPoints.length === 3) {
-            continue;
-          }
-        } else {
-          if (matchPoints.length === 1) {
-            continue;
-          }
-        }
+
         let url =
           Number(currentUser.userID) > Number(targetUser.userID)
             ? `${targetUser.userID}_${currentUser.userID}`
             : `${currentUser.userID}_${targetUser.userID}`;
+
         let match = {
           user1ID: currentUser.userID, // 確保存儲 user1ID
           user2ID: targetUser.userID, // 確保存儲 user2ID
@@ -102,19 +107,38 @@ router.post("/match", async (req, res) => {
             isChecked: false,
           },
         };
+
+        if (targetUser.isSubscription) {
+          //如果目標對象是訂閱用戶，就要額外檢查他的配對次數
+          const targetAlreadyMatches = await MatchNewest.find({
+            $or: [
+              { user1ID: targetUser.userID },
+              { user2ID: targetUser.userID },
+            ],
+          });
+
+          if (targetAlreadyMatches.length == 2) {
+            //如果這個用戶已經兩次了，那這個迴圈就是他的最後一次機會,就加入 consumeSet
+            consumeUsers.add(targetUser.userID);
+          }
+        } else {
+          //如果目標對象是非訂閱用戶，直接加入 consumeSet 即可,因為他只有一次機會
+          consumeUsers.add(targetUser.userID);
+        }
+
         matches.push(match);
-        limitMatches--;
       }
-      console.log(
-        "檢查準備要與這個用戶配對的對象的配對次數是不是ok",
-        (Date.now() - time) / 1000
-      );
+
       await MatchNewest.insertMany(matches);
       await MatchHistory.insertMany(matches);
     }
+
+    let finishTime = (Date.now() - time) / 1000.0;
+
     return res.status(200).send({
       status: true,
       message: "已完成配對！",
+      useTime: finishTime,
     });
   } catch (error) {
     console.log(error);
@@ -269,145 +293,6 @@ router.get("/get-user", async (req, res) => {
       status: false,
       message: "Server Error",
       e,
-    });
-  }
-});
-
-router.post("/match-opt", async (req, res) => {
-  const RE_MATCH_DELAY = 48 * 60 * 60 * 1000;
-  const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
-
-  try {
-    let time = Date.now();
-
-    //清空最近的配對列表
-    await MatchNewest.deleteMany({});
-
-    //儲存配對次數已用完的用戶
-    let consumeUsers = new Set();
-
-    //先處理有存活
-    const aliveUsers = await User.find({
-      isAlive: true,
-    });
-
-    // //執行有存活的訂閱用戶(訂閱用戶可以配對三個存活用戶/非訂閱只能一個)
-    for (let i = 0; i < aliveUsers.length; i++) {
-      const currentUser = aliveUsers[i];
-
-      //如果這個用戶已經用完配對次數，就換下一個用戶執行
-      if (consumeUsers.has(currentUser.userID)) {
-        continue;
-      }
-
-      //查詢這個用戶最近48hr的配對紀錄
-      const lastMatches = await MatchHistory.find({
-        matchDate: { $gte: time48HoursAgo }, // 過去48小時到現在的配對
-        $or: [{ user1ID: currentUser.userID }, { user2ID: currentUser.userID }],
-      });
-
-      // 提取與 currentUser 最近48hr配對過的用戶ID
-      const lastMatchedUserIds = lastMatches.map((match) =>
-        match.user1ID === currentUser.userID ? match.user2ID : match.user1ID
-      );
-
-      //檢查目前這個用戶還剩下多少配對次數,沒訂閱不用檢查,因為只有一次
-      let targetUserCount = 0;
-
-      if (currentUser.isSubscription) {
-        //檢查訂閱用戶剩餘次數
-        const matchs = await MatchNewest.find({
-          $or: [
-            { user1ID: currentUser.userID },
-            { user2ID: currentUser.userID },
-          ],
-        });
-        //剩下配對的次數
-        targetUserCount = 3 - matchs.length;
-      } else {
-        targetUserCount = 1;
-      }
-
-      //合併排除的對象
-      const consumeSetArray = Array.from(consumeUsers);
-      const combinedArray = [...lastMatchedUserIds, ...consumeSetArray];
-
-      const targetUsers = await User.find({
-        userID: {
-          $ne: currentUser.userID,
-          $nin: Array.from(combinedArray),
-        }, // 排除自己和已匹配過與不合適的用戶
-        isAlive: true,
-      }).limit(targetUserCount);
-
-      if (currentUser.isSubscription && targetUserCount == 3) {
-        consumeUsers.add(currentUser.userID);
-      }
-
-      if (!currentUser.isSubscription && targetUserCount == 1) {
-        consumeUsers.add(currentUser.userID);
-      }
-
-      const matches = [];
-
-      //紀錄配對
-      for (let i = 0; i < targetUsers.length; i++) {
-        let targetUser = targetUsers[i];
-
-        let url =
-          Number(currentUser.userID) > Number(targetUser.userID)
-            ? `${targetUser.userID}_${currentUser.userID}`
-            : `${currentUser.userID}_${targetUser.userID}`;
-
-        let match = {
-          user1ID: currentUser.userID, // 確保存儲 user1ID
-          user2ID: targetUser.userID, // 確保存儲 user2ID
-          user1_ID: currentUser._id, // 確保存儲 user1_ID
-          user2_ID: targetUser._id, // 確保存儲 user2_ID
-          sendbird: {
-            url,
-            isChecked: false,
-          },
-        };
-
-        if (targetUser.isSubscription) {
-          //如果目標對象是訂閱用戶，就要額外檢查他的配對次數
-          const targetAlreadyMatches = await MatchNewest.find({
-            $or: [
-              { user1ID: targetUser.userID },
-              { user2ID: targetUser.userID },
-            ],
-          });
-
-          if (targetAlreadyMatches.length == 2) {
-            //如果這個用戶已經兩次了，那這個迴圈就是他的最後一次機會,就加入 consumeSet
-            consumeUsers.add(targetUser.userID);
-          }
-        } else {
-          //如果目標對象是非訂閱用戶，直接加入 consumeSet 即可,因為他只有一次機會
-          consumeUsers.add(targetUser.userID);
-        }
-
-        matches.push(match);
-      }
-
-      await MatchNewest.insertMany(matches);
-      await MatchHistory.insertMany(matches);
-    }
-
-    let finishTime = (Date.now() - time) / 1000;
-
-    return res.status(200).send({
-      status: true,
-      message: "已完成配對！",
-      useTime: finishTime,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send({
-      status: false,
-      message: "Server Error",
-      error,
     });
   }
 });
