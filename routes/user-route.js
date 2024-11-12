@@ -180,14 +180,6 @@ router.post("/check-channel", async (req, res) => {
   try {
     let { channelUrl } = req.body;
 
-    //房間配對對象
-    let [user1ID, user2ID] = channelUrl.split("_");
-
-    const [user1, user2] = await Promise.all([
-      User.findOne({ userID: user1ID }),
-      User.findOne({ userID: user2ID }),
-    ]);
-
     const match = await MatchNeswest.findOne({
       "sendbird.url": channelUrl,
     });
@@ -198,6 +190,9 @@ router.post("/check-channel", async (req, res) => {
         message: "這個渠道已經檢查過嚕！",
       });
     } else {
+      //房間配對對象
+      let [user1ID, user2ID] = channelUrl.split("_");
+
       // SendBird API URL
       const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels`;
 
@@ -212,7 +207,7 @@ router.post("/check-channel", async (req, res) => {
 
       // Request Body (JSON data)
       const data = {
-        name: user1.userName + "&" + user2.userName + "的房間",
+        name: user1ID + "&" + user2ID + "的房間",
         channel_url: channelUrl,
         //cover_url: "https://sendbird.com/main/img/cover/cover_08.jpg",
         custom_type: "chat",
