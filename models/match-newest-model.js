@@ -33,6 +33,7 @@ const matchNewestSchema = new Schema({
   sendbird: {
     url: {
       type: String,
+      unique: true,
       default: "",
     },
     isChecked: {
