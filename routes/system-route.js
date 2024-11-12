@@ -278,6 +278,8 @@ router.post("/match-opt", async (req, res) => {
   const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
 
   try {
+    let time = Date.now();
+
     //清空最近的配對列表
     await MatchNewest.deleteMany({});
 
@@ -393,9 +395,12 @@ router.post("/match-opt", async (req, res) => {
       await MatchHistory.insertMany(matches);
     }
 
+    let finishTime = (Date.now() - time) / 1000;
+
     return res.status(200).send({
       status: true,
       message: "已完成配對！",
+      useTime: finishTime,
     });
   } catch (error) {
     console.log(error);
