@@ -232,11 +232,17 @@ router.post("/check-channel", async (req, res) => {
             return res.status(200).send({
               status: true,
               message: "渠道檢查完成",
+              data: {
+                isChecked: true,
+              },
             });
           } else {
             return res.status(200).send({
               status: true,
               message: "渠道檢查有問題",
+              data: {
+                isChecked: false,
+              },
             });
           }
         })
@@ -244,7 +250,9 @@ router.post("/check-channel", async (req, res) => {
           return res.status(200).send({
             status: true,
             message: "渠道檢查有問題",
-            e,
+            data: {
+              isChecked: false,
+            },
           });
         });
     }
