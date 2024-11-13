@@ -70,13 +70,67 @@ router.post("/match", async (req, res) => {
       const consumeSetArray = Array.from(consumeUsers);
       const combinedArray = [...lastMatchedUserIds, ...consumeSetArray];
 
-      const targetUsers = await User.find({
-        userID: {
-          $ne: currentUser.userID,
-          $nin: Array.from(combinedArray),
-        }, // 排除自己和已匹配過與不合適的用戶
-        isAlive: true,
-      }).limit(targetUserCount);
+      // const targetUsers = await User.find({
+      //   userID: {
+      //     $ne: currentUser.userID,
+      //     $nin: Array.from(combinedArray),
+      //   }, // 排除自己和已匹配過與不合適的用戶
+      //   isAlive: true,
+      // }).limit(targetUserCount);
+
+      //用戶篩選條件
+      let {
+        objectCondition: {
+          objectGender,
+          objectAge: { maxAge, minAge },
+          objectRegion,
+        },
+      } = currentUser;
+
+      maxAge = maxAge == 50 ? 200 : maxAge;
+
+      //聚合篩選條件
+      const targetUsers = await User.aggregate([
+        {
+          $match: {
+            userID: {
+              $ne: currentUser.userID,
+              $nin: Array.from(combinedArray), //排除曾經配對及已經用光配對次數的用戶
+            },
+            isAlive: true,
+          },
+        },
+        {
+          $addFields: {
+            genderScore: {
+              $cond: [{ $eq: ["$userGender", objectGender] }, 1, 0],
+            },
+            ageScore: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ["$userAge", minAge] },
+                    { $lte: ["$userAge", maxAge] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+            regionScore: {
+              $cond: [{ $eq: ["$userRegion", objectRegion] }, 1, 0],
+            },
+          },
+        },
+        {
+          $sort: {
+            genderScore: -1, //性別匹配的加權分數，降序
+            ageScore: -1, // 年齡匹配的加權分數，降序
+            regionScore: -1, // 地區匹配的加權分數，降序
+          },
+        },
+        { $limit: targetUserCount },
+      ]);
 
       if (currentUser.isSubscription && targetUserCount == 3) {
         consumeUsers.add(currentUser.userID);

@@ -116,7 +116,6 @@ const userSchema = new Schema({
     objectGender: {
       type: String,
       enum: ["0", "1", "2", "-1"],
-      default: " -1",
     },
 
     //希望年齡
