@@ -40,7 +40,7 @@ const userSchema = new Schema({
 
   //用戶年齡
   userAge: {
-    type: String,
+    type: Number,
   },
 
   //用戶星座
@@ -75,6 +75,12 @@ const userSchema = new Schema({
     default: "",
   },
 
+  //用戶提問
+  userQuestion: {
+    type: String,
+    default: "嗨！很高興認識你！你是哪裡人呢？",
+  },
+
   //用戶屬性
   userAttribute: {
     //感情狀態
@@ -104,10 +110,33 @@ const userSchema = new Schema({
     },
   },
 
-  //用戶提問
-  userQuestion: {
-    type: String,
-    default: "嗨！很高興認識你！你是哪裡人呢？",
+  //用戶篩選對象條件
+  objectCondition: {
+    //希望性別
+    objectGender: {
+      type: String,
+      enum: ["0", "1", "2", "-1"],
+      default: " -1",
+    },
+
+    //希望年齡
+    objectAge: {
+      maxAge: {
+        type: Number,
+        max: 50,
+        default: 50,
+      },
+      minAge: {
+        type: Number,
+        min: 18,
+        default: 18,
+      },
+    },
+    //希望地區
+    objectRegion: {
+      type: String,
+      default: "B",
+    },
   },
 
   //用戶系統設備

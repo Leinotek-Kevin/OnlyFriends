@@ -4,6 +4,7 @@ const MatchNeswest = require("../models").matchNewest;
 const passport = require("passport");
 const axios = require("axios");
 const dotenv = require("dotenv");
+const { updateOne } = require("../models/user-model");
 dotenv.config();
 
 //先驗證 user 是不是存在，並獲取 user info
@@ -262,6 +263,46 @@ router.post("/check-channel", async (req, res) => {
       status: true,
       message: "Server Error",
       e,
+    });
+  }
+});
+
+//B-4 更新配對的篩選條件
+router.post("/update-condition", async (req, res) => {
+  try {
+    let { userID, userEmail, isSubscription } = req.user;
+    let { gender, minAge, maxAge, region } = req.body;
+
+    let updateData = {
+      objectCondition: {
+        objectGender: gender,
+        objectAge: {
+          maxAge,
+          minAge,
+        },
+      },
+    };
+
+    if (isSubscription && region != null) {
+      updateData.objectCondition.objectRegion = region;
+    }
+
+    await User.updateOne(
+      { userID, userEmail },
+      {
+        $set: updateData,
+      }
+    );
+
+    return res.status(200).send({
+      status: true,
+      message: "成功修改配對條件",
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
     });
   }
 });

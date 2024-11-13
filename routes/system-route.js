@@ -298,3 +298,43 @@ router.get("/get-user", async (req, res) => {
 });
 
 module.exports = router;
+
+// const targetUsers = await User.aggregate([
+//   {
+//     $match: {
+//       userID: {
+//         $ne: currentUser.userID,
+//         $nin: Array.from(combinedArray), // 排除不合適的用戶
+//       },
+//       isAlive: true,
+//     },
+//   },
+//   {
+//     $addFields: {
+//       genderScore: { $cond: [{ $eq: ["$userGender", currentUser.userGender] }, 1, 0] },
+//       ageScore: {
+//         $cond: [
+//           {
+//             $and: [
+//               { $gte: ["$userAge", currentUser.userAge - 2] },
+//               { $lte: ["$userAge", currentUser.userAge + 2] },
+//             ],
+//           },
+//           1,
+//           0,
+//         ],
+//       },
+//       regionScore: { $cond: [{ $eq: ["$userRegion", currentUser.userRegion] }, 1, 0] },
+//     },
+//   },
+//   {
+//     $sort: {
+//       genderScore: -1, // 性別匹配的加權分數，降序
+//       ageScore: -1,    // 年齡匹配的加權分數，降序
+//       regionScore: -1, // 地區匹配的加權分數，降序
+//     },
+//   },
+//   {
+//     $limit: targetUserCount,
+//   },
+// ]);

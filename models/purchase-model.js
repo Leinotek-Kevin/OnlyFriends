@@ -7,7 +7,6 @@ const purchaseSchema = new Schema({
   userID: {
     type: String,
     required: true,
-    unique: true,
   },
 
   osType: {
@@ -18,13 +17,11 @@ const purchaseSchema = new Schema({
     type: String,
     enum: ["0", "1"], //0：訂閱 1:單購
     required: true,
-    unique: true,
   },
 
   purchaseToken: {
     type: String,
     required: true,
-    unique: true,
   },
 
   purchaseReceipt: {
@@ -37,7 +34,7 @@ const purchaseSchema = new Schema({
   },
 });
 
-purchaseSchema.index({ userID: 1, purchaseType: 1 }, { unique: true });
+purchaseSchema.index({ userID: 1, purchaseType: 1 });
 
 //隱藏 _id,__v
 purchaseSchema.set("toJSON", {
