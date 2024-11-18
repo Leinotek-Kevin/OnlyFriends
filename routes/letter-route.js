@@ -5,6 +5,7 @@ const passport = require("passport");
 const dotenv = require("dotenv");
 dotenv.config();
 const { v4: uuidv4 } = require("uuid");
+const { findOne, find } = require("../models/emotion-letter-model");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -71,6 +72,7 @@ router.post("/show-all", async (req, res) => {
     if (hasLetters && !isNotToday && likeLetters.length > 0) {
       data = data.map((letter) => {
         letter.likeStatus = likeLetters.includes(letter.letterID);
+        letter.likeCount = letter.likeCount < 0 ? 0 : letter.likeCount;
         return letter; // 確保返回每個 letter
       });
     }
@@ -143,6 +145,13 @@ router.post("/like-letter", async (req, res) => {
       likeLetters = [];
     }
 
+    //這則信封的案讚總量
+    const letterData = await EmotionLetter.findOne({
+      letterID,
+    });
+
+    let counts = letterData.likeCount;
+
     if (action === "0") {
       // 取消讚
       let letterSet = new Set(likeLetters);
@@ -150,20 +159,41 @@ router.post("/like-letter", async (req, res) => {
       letterSet.delete(letterID);
       // 將 Set 轉換回數組
       likeLetters = Array.from(letterSet);
+      counts--;
     } else if (action === "1") {
       //案讚
       likeLetters.push(letterID);
+      counts++;
     }
 
-    await User.updateOne(
-      {
-        userID: req.user.userID,
-      },
-      {
-        "emotionLetter.likeLetters": likeLetters,
-        "emotionLetter.updateDate": getToday(),
-      }
-    );
+    //防止變成 0
+    if (counts < 0) {
+      counts = 0;
+    }
+
+    //並行處理 user 和 letter 操作
+    await Promise.all([
+      // 更新這則信封的按讚總量
+      EmotionLetter.updateOne(
+        {
+          letterID,
+        },
+        {
+          likeCount: counts,
+        }
+      ),
+
+      // 更新用戶今天按讚的信封 ID
+      User.updateOne(
+        {
+          userID: req.user.userID,
+        },
+        {
+          "emotionLetter.likeLetters": likeLetters,
+          "emotionLetter.updateDate": getToday(),
+        }
+      ),
+    ]);
 
     return res.status(200).send({
       status: true,
