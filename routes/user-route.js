@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const User = require("../models").user;
 const MatchNeswest = require("../models").matchNewest;
+const Config = require("../models").config;
 const passport = require("passport");
 const axios = require("axios");
 const dotenv = require("dotenv");
@@ -184,6 +185,8 @@ router.post("/check-channel", async (req, res) => {
       "sendbird.url": channelUrl,
     });
 
+    let { chatCover } = await Config.findOne({});
+
     if (match.sendbird.isChecked) {
       return res.status(200).send({
         status: true,
@@ -209,12 +212,14 @@ router.post("/check-channel", async (req, res) => {
       const data = {
         name: user1ID + "&" + user2ID + "的房間",
         channel_url: channelUrl,
-        //cover_url: "https://sendbird.com/main/img/cover/cover_08.jpg",
+        cover_url: chatCover,
         custom_type: "chat",
         is_distinct: true,
         user_ids: [user1ID, user2ID],
         operator_ids: [process.env.SENDBIRD_OPERATOR_ID],
       };
+
+      console.log("檢查渠道", data);
 
       axios
         .post(url, data, { headers })

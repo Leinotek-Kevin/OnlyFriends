@@ -4,4 +4,5 @@ module.exports = {
   matchHistory: require("./match-history-model"),
   matchNewest: require("./match-newest-model"),
   purchase: require("./purchase-model"),
+  config: require("./config-model"),
 };

@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const User = require("../models").user;
-const UserBuffer = require("../models").userBuffer;
+const Config = require("../models").config;
 const MatchHistory = require("../models").matchHistory;
 const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
@@ -362,6 +362,40 @@ router.post("/delete-letters", async (req, res) => {
   } catch (e) {
     console.log(e);
     return res.status(500).send({ status: false, message: "Server Error", e });
+  }
+});
+
+//更新系統配置
+router.post("/config", async (req, res) => {
+  try {
+    let { chatCover } = req.body;
+
+    let updateData = {};
+
+    if (chatCover != null) {
+      updateData.chatCover = chatCover;
+    }
+
+    await Config.findOneAndUpdate(
+      {},
+      {
+        $set: updateData,
+      },
+      {
+        upsert: true,
+      }
+    );
+
+    return res.status(200).send({
+      status: true,
+      message: "系統配置更新成功！",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
   }
 });
 
