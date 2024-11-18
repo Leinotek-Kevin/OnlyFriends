@@ -3,6 +3,7 @@ const User = require("../models").user;
 const UserBuffer = require("../models").userBuffer;
 const MatchHistory = require("../models").matchHistory;
 const MatchNewest = require("../models").matchNewest;
+const EmotionLetter = require("../models").letter;
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 system 有關的請求");
@@ -69,14 +70,6 @@ router.post("/match", async (req, res) => {
       //合併排除的對象
       const consumeSetArray = Array.from(consumeUsers);
       const combinedArray = [...lastMatchedUserIds, ...consumeSetArray];
-
-      // const targetUsers = await User.find({
-      //   userID: {
-      //     $ne: currentUser.userID,
-      //     $nin: Array.from(combinedArray),
-      //   }, // 排除自己和已匹配過與不合適的用戶
-      //   isAlive: true,
-      // }).limit(targetUserCount);
 
       //用戶篩選條件
       let {
@@ -351,44 +344,25 @@ router.get("/get-user", async (req, res) => {
   }
 });
 
-module.exports = router;
+//刪除指定時間之前樹洞信封列表
+router.post("/delete-letters", async (req, res) => {
+  try {
+    let { flagTime } = req.body;
 
-// const targetUsers = await User.aggregate([
-//   {
-//     $match: {
-//       userID: {
-//         $ne: currentUser.userID,
-//         $nin: Array.from(combinedArray), // 排除不合適的用戶
-//       },
-//       isAlive: true,
-//     },
-//   },
-//   {
-//     $addFields: {
-//       genderScore: { $cond: [{ $eq: ["$userGender", currentUser.userGender] }, 1, 0] },
-//       ageScore: {
-//         $cond: [
-//           {
-//             $and: [
-//               { $gte: ["$userAge", currentUser.userAge - 2] },
-//               { $lte: ["$userAge", currentUser.userAge + 2] },
-//             ],
-//           },
-//           1,
-//           0,
-//         ],
-//       },
-//       regionScore: { $cond: [{ $eq: ["$userRegion", currentUser.userRegion] }, 1, 0] },
-//     },
-//   },
-//   {
-//     $sort: {
-//       genderScore: -1, // 性別匹配的加權分數，降序
-//       ageScore: -1,    // 年齡匹配的加權分數，降序
-//       regionScore: -1, // 地區匹配的加權分數，降序
-//     },
-//   },
-//   {
-//     $limit: targetUserCount,
-//   },
-// ]);
+    const result = await EmotionLetter.deleteMany({
+      createTime: { $lt: flagTime },
+    });
+
+    let everDelete = result.deletedCount > 0;
+
+    return res.status(200).send({
+      status: true,
+      message: everDelete ? "刪除成功" : "沒有資料可以刪除",
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({ status: false, message: "Server Error", e });
+  }
+});
+
+module.exports = router;

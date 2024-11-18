@@ -4,7 +4,6 @@ const MatchNeswest = require("../models").matchNewest;
 const passport = require("passport");
 const axios = require("axios");
 const dotenv = require("dotenv");
-const { updateOne } = require("../models/user-model");
 dotenv.config();
 
 //先驗證 user 是不是存在，並獲取 user info

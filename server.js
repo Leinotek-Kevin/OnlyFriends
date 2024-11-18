@@ -28,6 +28,7 @@ app.use(cors());
 //Handle Router
 app.use("/api/auth", routes.auth);
 app.use("/api/user", routes.user);
+app.use("/api/letter", routes.letter);
 app.use("/api/system", routes.system);
 app.use("/api/purchase", routes.purchase);
 
