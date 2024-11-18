@@ -219,8 +219,6 @@ router.post("/check-channel", async (req, res) => {
         operator_ids: [process.env.SENDBIRD_OPERATOR_ID],
       };
 
-      console.log("檢查渠道", data);
-
       axios
         .post(url, data, { headers })
         .then(async (response) => {

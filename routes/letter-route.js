@@ -30,40 +30,40 @@ router.use((req, res, next) => {
 
 //D-1 展示所有心情樹洞信封
 router.post("/show-all", async (req, res) => {
-  const loadCount = 20;
+  const loadCount = 30;
 
   try {
-    let { page } = req.body;
+    //let { page } = req.body;
     let { updateDate, likeLetters } = req.user.emotionLetter;
 
     let today = getToday();
     let isNotToday = updateDate !== today;
 
-    if (page == 1) {
-      if (isNotToday) {
-        likeLetters = [];
+    //if (page == 1) {
+    if (isNotToday) {
+      likeLetters = [];
 
-        await User.updateOne(
-          {
-            userID: req.user.userID,
-          },
-          {
-            "emotionLetter.likeLetters": likeLetters,
-            "emotionLetter.updateDate": today,
-          }
-        );
-      }
+      await User.updateOne(
+        {
+          userID: req.user.userID,
+        },
+        {
+          "emotionLetter.likeLetters": likeLetters,
+          "emotionLetter.updateDate": today,
+        }
+      );
     }
+    //}
 
     // 從請求中獲取 page ,並設置默認值
-    const queryPage = parseInt(page) || 1;
+    //const queryPage = parseInt(page) || 1;
 
     // 計算應該跳過的數據量 (用於分頁)
-    const skip = (queryPage - 1) * loadCount;
+    //const skip = (queryPage - 1) * loadCount;
 
     let data = await EmotionLetter.find({})
       .sort({ createTime: -1 })
-      .skip(skip)
+      //.skip(skip)
       .limit(loadCount)
       .populate("letterUser", ["userID", "userName", "userPhoto"]);
 
