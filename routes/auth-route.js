@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const ageUtil = require("../utils/caluAge-util");
 const zodiacUtil = require("../utils/caluZodiac-util");
+const dateUtil = require("../utils/date-util");
 const SendBird = require("sendbird");
 const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
 
@@ -123,10 +124,24 @@ router.post("/login", async (req, res) => {
       updateData.osType = osType;
     }
 
+    //檢查是否需要重置用戶互動資訊
+    let { updateDate } = findUser.userActives;
+
+    let today = dateUtil.getToday();
+    let isNotToday = updateDate !== today;
+
+    if (isNotToday) {
+      updateData.userActives = {
+        likeLetters: [],
+        unlockObjects: [],
+        updateDate: today,
+      };
+    }
+
     if (findUser) {
       //如果有使用者
       userID = findUser.userID;
-      await User.updateOne({ userEmail }, { $set: updateData });
+      await User.updateOne({ userID, userID }, { $set: updateData });
     } else {
       //資料庫不存在使用者
       return res.status(200).send({

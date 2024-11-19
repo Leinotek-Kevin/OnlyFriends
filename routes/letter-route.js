@@ -34,26 +34,7 @@ router.post("/show-all", async (req, res) => {
 
   try {
     //let { page } = req.body;
-    let { updateDate, likeLetters } = req.user.emotionLetter;
-
-    let today = dateUtil.getToday();
-    let isNotToday = updateDate !== today;
-
-    //if (page == 1) {
-    if (isNotToday) {
-      likeLetters = [];
-
-      await User.updateOne(
-        {
-          userID: req.user.userID,
-        },
-        {
-          "emotionLetter.likeLetters": likeLetters,
-          "emotionLetter.updateDate": today,
-        }
-      );
-    }
-    //}
+    let { likeLetters } = req.user.userActives;
 
     // 從請求中獲取 page ,並設置默認值
     //const queryPage = parseInt(page) || 1;
@@ -61,7 +42,7 @@ router.post("/show-all", async (req, res) => {
     // 計算應該跳過的數據量 (用於分頁)
     //const skip = (queryPage - 1) * loadCount;
 
-    let data = await EmotionLetter.find({})
+    let data = await EmotionLetter.find()
       .sort({ createTime: -1 })
       //.skip(skip)
       .limit(loadCount)
@@ -69,7 +50,7 @@ router.post("/show-all", async (req, res) => {
 
     let hasLetters = data != null && data.length > 0;
 
-    if (hasLetters && !isNotToday && likeLetters.length > 0) {
+    if (hasLetters && likeLetters.length > 0) {
       data = data.map((letter) => {
         letter.likeStatus = likeLetters.includes(letter.letterID);
         letter.likeCount = letter.likeCount < 0 ? 0 : letter.likeCount;
@@ -83,7 +64,6 @@ router.post("/show-all", async (req, res) => {
       data: hasLetters ? data : [],
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
@@ -138,12 +118,7 @@ router.post("/like-letter", async (req, res) => {
   try {
     let { action, letterID } = req.body; //0:取消 1:案讚
 
-    let { likeLetters, updateDate } = req.user.emotionLetter;
-
-    //如果用戶上次操作讚的日期不是今天,那將待更新的 letterArray 改為 [] 開始
-    if (updateDate !== dateUtil.getToday()) {
-      likeLetters = [];
-    }
+    let { likeLetters } = req.user.userActives;
 
     //這則信封的案讚總量
     const letterData = await EmotionLetter.findOne({
@@ -182,15 +157,14 @@ router.post("/like-letter", async (req, res) => {
           likeCount: counts,
         }
       ),
-
       // 更新用戶今天按讚的信封 ID
       User.updateOne(
         {
           userID: req.user.userID,
         },
         {
-          "emotionLetter.likeLetters": likeLetters,
-          "emotionLetter.updateDate": dateUtil.getToday(),
+          "userActives.likeLetters": likeLetters,
+          "userActives.updateDate": dateUtil.getToday(),
         }
       ),
     ]);
@@ -200,7 +174,6 @@ router.post("/like-letter", async (req, res) => {
       message: "信封案讚狀態已更新",
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({ status: false, message: "Server Error", e });
   }
 });

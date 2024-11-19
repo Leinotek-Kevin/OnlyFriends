@@ -60,7 +60,27 @@ router.post("/info", async (req, res) => {
     delete data._id;
     delete data.__v;
     delete data.emotionLetter;
+    delete data.isAlive;
 
+    let { updateDate } = req.user.userActives;
+
+    let today = dateUtil.getToday();
+    let isNotToday = updateDate !== today;
+
+    if (isNotToday) {
+      await User.updateOne(
+        {
+          userID: req.user.userID,
+        },
+        {
+          "userActives.likeLetters": [],
+          "userActives.unlockObjects": [],
+          "userActives.updateDate": today,
+        }
+      );
+    }
+
+    //讀取或更改用戶資料
     if (action == 0) {
       return res.status(200).send({
         status: true,

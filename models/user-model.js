@@ -151,12 +151,18 @@ const userSchema = new Schema({
     enum: ["0", "1", "2"], //0:假人 1:真人 2:官方指定
   },
 
-  //心情樹洞關聯資料
-  emotionLetter: {
+  //用戶當天互動資料集合
+  userActives: {
     likeLetters: {
       type: Array,
       default: [],
     },
+
+    unlockObjects: {
+      type: Array,
+      default: [],
+    },
+
     updateDate: {
       type: String,
       default: "",
