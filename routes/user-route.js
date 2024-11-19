@@ -161,6 +161,9 @@ router.post("/info", async (req, res) => {
 //B-2 獲取本日配對的對象資訊
 router.post("/today-matches", async (req, res) => {
   try {
+    let time = dateUtil.getYesterdayNight();
+    console.log(time);
+
     let { userID, isSubscription } = req.user;
     let { unlockObjects } = req.user.userActives;
 
@@ -208,6 +211,7 @@ router.post("/today-matches", async (req, res) => {
       });
     }
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",

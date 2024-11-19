@@ -124,23 +124,23 @@ router.post("/login", async (req, res) => {
       updateData.osType = osType;
     }
 
-    //檢查是否需要重置用戶互動資訊
-    let { updateDate } = findUser.userActives;
-
-    let today = dateUtil.getToday();
-    let isNotToday = updateDate !== today;
-
-    if (isNotToday) {
-      updateData.userActives = {
-        likeLetters: [],
-        unlockObjects: [],
-        updateDate: today,
-      };
-    }
-
     if (findUser) {
       //如果有使用者
       userID = findUser.userID;
+      //檢查是否需要重置用戶互動資訊
+      let { updateDate } = findUser.userActives;
+
+      let today = dateUtil.getToday();
+      let isNotToday = updateDate !== today;
+
+      if (isNotToday) {
+        updateData.userActives = {
+          likeLetters: [],
+          unlockObjects: [],
+          updateDate: today,
+        };
+      }
+
       await User.updateOne({ userID, userID }, { $set: updateData });
     } else {
       //資料庫不存在使用者

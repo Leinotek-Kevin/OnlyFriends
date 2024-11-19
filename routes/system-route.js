@@ -25,7 +25,7 @@ router.post("/match", async (req, res) => {
     //儲存配對次數已用完的用戶
     let consumeUsers = new Set();
 
-    //先處理有存活
+    //只有存活的用戶可以配對:昨天有上線的用戶即可
     const aliveUsers = await User.find({
       isAlive: true,
     });
