@@ -161,7 +161,7 @@ router.post("/info", async (req, res) => {
 //B-2 獲取本日配對的對象資訊
 router.post("/today-matches", async (req, res) => {
   try {
-    let { userID } = req.user;
+    let { userID, isSubscription } = req.user;
     let { unlockObjects } = req.user.userActives;
 
     const newestMatches = await MatchNeswest.find({
@@ -189,7 +189,8 @@ router.post("/today-matches", async (req, res) => {
 
         let outObject = { ...matchObject };
 
-        outObject.isUnlock = unlockObjects.indexOf(objectID) != -1;
+        outObject.isUnlock =
+          isSubscription || unlockObjects.indexOf(objectID) != -1;
 
         data.push(outObject);
       });
