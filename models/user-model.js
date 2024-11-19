@@ -69,6 +69,12 @@ const userSchema = new Schema({
     required: true,
   },
 
+  //用戶相簿
+  userAlbum: {
+    type: Array,
+    default: [],
+  },
+
   //用戶裝置 id
   deviceToken: {
     type: String,
@@ -194,7 +200,7 @@ const userSchema = new Schema({
 });
 
 userSchema.index({ userID: 1, userMail: 1 }, { unique: true });
-userSchema.index({ isAlive: 1, isSubscription: -1 });
+userSchema.index({ lastLoginTime: -1, isSubscription: -1 });
 
 //隱藏 _id,__v
 userSchema.set("toJSON", {

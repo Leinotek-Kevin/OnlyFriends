@@ -4,6 +4,7 @@ const Config = require("../models").config;
 const MatchHistory = require("../models").matchHistory;
 const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
+const dateUtil = require("../utils/date-util");
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 system 有關的請求");
@@ -15,6 +16,7 @@ router.use((req, res, next) => {
 router.post("/match", async (req, res) => {
   const RE_MATCH_DELAY = 48 * 60 * 60 * 1000;
   const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
+  const lastNightTimeStamp = dateUtil.getYesterdayNight();
 
   try {
     let time = Date.now();
@@ -27,7 +29,7 @@ router.post("/match", async (req, res) => {
 
     //只有存活的用戶可以配對:昨天有上線的用戶即可
     const aliveUsers = await User.find({
-      isAlive: true,
+      lastLoginTime: { $gte: lastNightTimeStamp },
     });
 
     // //執行有存活的訂閱用戶(訂閱用戶可以配對三個存活用戶/非訂閱只能一個)
@@ -90,7 +92,7 @@ router.post("/match", async (req, res) => {
               $ne: currentUser.userID,
               $nin: Array.from(combinedArray), //排除曾經配對及已經用光配對次數的用戶
             },
-            isAlive: true,
+            lastLoginTime: { $gte: lastNightTimeStamp },
           },
         },
         {
@@ -125,13 +127,7 @@ router.post("/match", async (req, res) => {
         { $limit: targetUserCount },
       ]);
 
-      if (currentUser.isSubscription && targetUserCount == 3) {
-        consumeUsers.add(currentUser.userID);
-      }
-
-      if (!currentUser.isSubscription && targetUserCount == 1) {
-        consumeUsers.add(currentUser.userID);
-      }
+      consumeUsers.add(currentUser.userID);
 
       const matches = [];
 
@@ -395,6 +391,76 @@ router.post("/config", async (req, res) => {
       status: false,
       message: "Server Error",
       e,
+    });
+  }
+});
+
+//強制激活被判定是非活躍的用戶
+router.post("/force-alive", async (req, res) => {
+  try {
+    const lastNightTimeStamp = dateUtil.getYesterdayNight();
+
+    // 更新這些用戶的 lastLoginTime
+    await User.updateMany(
+      {
+        lastLoginTime: { $lt: lastNightTimeStamp },
+      },
+      {
+        $set: { lastLoginTime: lastNightTimeStamp + 1 * 60 * 60 * 1000 },
+      }
+    );
+
+    res.status(200).send({
+      status: true,
+      message: "激活完畢",
+    });
+  } catch (e) {
+    res.status(500).send({
+      status: false,
+      message: "Server Error",
+    });
+  }
+});
+
+//檢查配對列表是不是正常
+router.post("/check-match", async (req, res) => {
+  try {
+    const users = await User.find({});
+
+    let errorUsers = [];
+
+    for (let i = 0; i < users.length; i++) {
+      let currentUser = users[i];
+
+      const matchs = await MatchNewest.find({
+        $or: [{ user1ID: currentUser.userID }, { user2ID: currentUser.userID }],
+      });
+
+      let correct =
+        (currentUser.isSubscription && matchs.length <= 3) ||
+        (!currentUser.isSubscription && matchs.length <= 1);
+
+      if (!correct) {
+        errorUsers.push(currentUser.userID);
+      }
+    }
+
+    if (errorUsers.length > 0) {
+      res.status(200).send({
+        status: true,
+        message: "檢查完畢！有異常",
+        data: errorUsers,
+      });
+    } else {
+      res.status(200).send({
+        status: true,
+        message: "檢查完畢!無異常！",
+      });
+    }
+  } catch (e) {
+    res.status(500).send({
+      status: false,
+      message: "Server Error",
     });
   }
 });
