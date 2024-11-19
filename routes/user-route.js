@@ -2,6 +2,7 @@ const router = require("express").Router();
 const User = require("../models").user;
 const MatchNeswest = require("../models").matchNewest;
 const Config = require("../models").config;
+const dateUtil = require("../utils/date-util");
 const passport = require("passport");
 const axios = require("axios");
 const dotenv = require("dotenv");
@@ -44,13 +45,27 @@ router.post("/info", async (req, res) => {
       friendStatus,
       loveExperience,
     } = req.body;
-    let { userEmail, userID } = req.user;
+
+    let { userEmail, userID, registerTime } = req.user;
+
+    let isTodayRegister = dateUtil.isToday(registerTime);
+
+    //拷貝 req.user，確保 output 是一個獨立 object
+    let data = {
+      ...req.user._doc,
+      isTodayRegister,
+    };
+
+    //刪掉不要的字段
+    delete data._id;
+    delete data.__v;
+    delete data.emotionLetter;
 
     if (action == 0) {
       return res.status(200).send({
         status: true,
         message: "成功讀取用戶資訊",
-        data: req.user,
+        data,
       });
     }
 

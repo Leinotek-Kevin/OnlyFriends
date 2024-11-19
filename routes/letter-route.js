@@ -5,7 +5,7 @@ const passport = require("passport");
 const dotenv = require("dotenv");
 dotenv.config();
 const { v4: uuidv4 } = require("uuid");
-const { findOne, find } = require("../models/emotion-letter-model");
+const dateUtil = require("../utils/date-util");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -36,7 +36,7 @@ router.post("/show-all", async (req, res) => {
     //let { page } = req.body;
     let { updateDate, likeLetters } = req.user.emotionLetter;
 
-    let today = getToday();
+    let today = dateUtil.getToday();
     let isNotToday = updateDate !== today;
 
     //if (page == 1) {
@@ -141,7 +141,7 @@ router.post("/like-letter", async (req, res) => {
     let { likeLetters, updateDate } = req.user.emotionLetter;
 
     //如果用戶上次操作讚的日期不是今天,那將待更新的 letterArray 改為 [] 開始
-    if (updateDate !== getToday()) {
+    if (updateDate !== dateUtil.getToday()) {
       likeLetters = [];
     }
 
@@ -190,7 +190,7 @@ router.post("/like-letter", async (req, res) => {
         },
         {
           "emotionLetter.likeLetters": likeLetters,
-          "emotionLetter.updateDate": getToday(),
+          "emotionLetter.updateDate": dateUtil.getToday(),
         }
       ),
     ]);
@@ -204,18 +204,5 @@ router.post("/like-letter", async (req, res) => {
     return res.status(500).send({ status: false, message: "Server Error", e });
   }
 });
-
-const getToday = () => {
-  const now = new Date();
-
-  const today =
-    now.getFullYear() +
-    "/" +
-    (now.getMonth() + 1).toString().padStart(2, "0") +
-    "/" +
-    now.getDate().toString().padStart(2, "0");
-
-  return today;
-};
 
 module.exports = router;

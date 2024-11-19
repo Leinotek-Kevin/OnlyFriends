@@ -175,6 +175,11 @@ const userSchema = new Schema({
     default: false,
   },
 
+  //用戶註冊時間
+  registerTime: {
+    type: Number,
+  },
+
   //最近一次登入時間
   lastLoginTime: {
     type: Number,

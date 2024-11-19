@@ -62,6 +62,7 @@ router.post("/register", async (req, res) => {
         userRegion,
         isAlive: true,
         identity,
+        registerTime: Date.now(),
         lastLoginTime: Date.now(),
       };
 
@@ -109,7 +110,7 @@ router.post("/login", async (req, res) => {
 
     // 準備要更新的資料
     let updateData = {
-      isAlive: true,
+      lastLoginTime: Date.now(),
     };
 
     // 如果有提供 deviceToken，才將其加入更新資料中
