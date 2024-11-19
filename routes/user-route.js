@@ -158,13 +158,11 @@ router.post("/info", async (req, res) => {
   }
 });
 
-//B-2 申報使用者訂閱狀態
-router.post("/report-sub", async (req, res) => {});
-
 //B-2 獲取本日配對的對象資訊
 router.post("/today-matches", async (req, res) => {
   try {
     let { userID } = req.user;
+    let { unlockObjects } = req.user.userActives;
 
     const newestMatches = await MatchNeswest.find({
       $or: [{ user1ID: userID }, { user2ID: userID }],
@@ -187,7 +185,13 @@ router.post("/today-matches", async (req, res) => {
           sendbird: match.sendbird,
         };
 
-        data.push(matchObject);
+        let objectID = matchObject.matchUser.userID;
+
+        let outObject = { ...matchObject };
+
+        outObject.isUnlock = unlockObjects.indexOf(objectID) != -1;
+
+        data.push(outObject);
       });
 
       return res.status(200).send({
@@ -340,6 +344,43 @@ router.post("/update-condition", async (req, res) => {
     return res.status(500).send({
       status: false,
       message: "Server Error",
+    });
+  }
+});
+
+//B-5 標記已經解鎖的對象用戶
+router.post("/sign-unlock", async (req, res) => {
+  try {
+    let { userID, userEmail } = req.user;
+    let { unlockObjects } = req.user.userActives;
+    let { objectID } = req.body;
+
+    if (unlockObjects.indexOf(objectID) == -1) {
+      unlockObjects.push(objectID);
+
+      await User.updateOne(
+        { userID, userEmail },
+        {
+          "userActives.unlockObjects": unlockObjects,
+          "userActives.updateDate": dateUtil.getToday(),
+        }
+      );
+
+      return res.status(200).send({
+        status: true,
+        message: "成功標記解鎖用戶！",
+      });
+    } else {
+      return res.status(200).send({
+        status: true,
+        message: "這個對象已經被標記解鎖過嚕！",
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
     });
   }
 });
