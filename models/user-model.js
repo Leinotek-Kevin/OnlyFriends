@@ -57,22 +57,16 @@ const userSchema = new Schema({
     default: "",
   },
 
-  //用戶頭貼
-  userPhoto: {
-    type: String,
-    required: true,
+  //用戶大頭貼集
+  userPhotos: {
+    type: Array,
+    default: [],
   },
 
   //用戶所在地區
   userRegion: {
     type: String,
     required: true,
-  },
-
-  //用戶相簿
-  userAlbum: {
-    type: Array,
-    default: [],
   },
 
   //用戶裝置 id

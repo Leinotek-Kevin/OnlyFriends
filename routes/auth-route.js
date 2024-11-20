@@ -21,8 +21,9 @@ router.post("/register", async (req, res) => {
     userName,
     userGender,
     userBirthday,
-    userPhoto,
+    userPhotos,
     userRegion,
+    userQuestion,
     deviceToken,
     identity,
     osType,
@@ -59,13 +60,17 @@ router.post("/register", async (req, res) => {
         userBirthday,
         userAge,
         userZodiac,
-        userPhoto,
         userRegion,
-        isAlive: true,
+        userQuestion,
         identity,
         registerTime: Date.now(),
         lastLoginTime: Date.now(),
       };
+
+      // 如果有提供 userPhoto，才將其加入更新資料中
+      if (Array.isArray(userPhotos)) {
+        createData.userPhotos = userPhotos;
+      }
 
       // 如果有提供 deviceToken，才將其加入更新資料中
       if (deviceToken != null) {
@@ -92,6 +97,7 @@ router.post("/register", async (req, res) => {
       token: "JWT " + token, //返回 JWT token
     });
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",

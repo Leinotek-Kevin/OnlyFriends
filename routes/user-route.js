@@ -35,7 +35,7 @@ router.post("/info", async (req, res) => {
     let {
       action,
       userName,
-      userPhoto,
+      userPhotos,
       userRegion,
       userMBTI,
       userQuestion,
@@ -99,8 +99,8 @@ router.post("/info", async (req, res) => {
         updateData.userName = userName;
       }
 
-      if (userPhoto != null) {
-        updateData.userPhoto = userPhoto;
+      if (userPhotos != null && Array.isArray(userPhotos)) {
+        updateData.userPhotos = userPhotos;
       }
 
       if (userRegion != null) {
@@ -170,11 +170,16 @@ router.post("/today-matches", async (req, res) => {
     const newestMatches = await MatchNeswest.find({
       $or: [{ user1ID: userID }, { user2ID: userID }],
     })
-      .populate("user1_ID", ["userName", "userID", "userPhoto", "userQuestion"])
+      .populate("user1_ID", [
+        "userName",
+        "userID",
+        "userPhotos",
+        "userQuestion",
+      ])
       .populate("user2_ID", [
         "userName",
         "userID",
-        "userPhoto",
+        "userPhotos",
         "userQuestion",
       ]);
 

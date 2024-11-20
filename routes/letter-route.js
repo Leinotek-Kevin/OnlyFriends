@@ -46,7 +46,7 @@ router.post("/show-all", async (req, res) => {
       .sort({ createTime: -1 })
       //.skip(skip)
       .limit(loadCount)
-      .populate("letterUser", ["userID", "userName", "userPhoto"]);
+      .populate("letterUser", ["userID", "userName", "userPhotos"]);
 
     let hasLetters = data != null && data.length > 0;
 

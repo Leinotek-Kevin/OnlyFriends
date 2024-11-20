@@ -24,7 +24,12 @@ router.post("/match", async (req, res) => {
     //清空最近的配對列表
     await MatchNewest.deleteMany({});
 
-    //儲存配對次數已用完的用戶
+    //刪除大於過去兩天的歷史配對紀錄
+    const result = await MatchHistory.deleteMany({
+      matchDate: { $lt: time48HoursAgo },
+    });
+
+    //儲存本次配對次數已用完的用戶
     let consumeUsers = new Set();
 
     //只有存活的用戶可以配對:昨天有上線的用戶即可
