@@ -428,6 +428,7 @@ router.post("/check-match", async (req, res) => {
     const users = await User.find({});
 
     let errorUsers = [];
+    let lostUsers = [];
 
     for (let i = 0; i < users.length; i++) {
       let currentUser = users[i];
@@ -439,6 +440,14 @@ router.post("/check-match", async (req, res) => {
       let correct =
         (currentUser.isSubscription && matchs.length <= 3) ||
         (!currentUser.isSubscription && matchs.length <= 1);
+
+      let hasLost =
+        (currentUser.isSubscription && matchs.length < 3) ||
+        (!currentUser.isSubscription && matchs.length < 1);
+
+      if (hasLost) {
+        lostUsers.push(currentUser.userID);
+      }
 
       if (!correct) {
         errorUsers.push(currentUser.userID);
@@ -452,10 +461,18 @@ router.post("/check-match", async (req, res) => {
         data: errorUsers,
       });
     } else {
-      res.status(200).send({
-        status: true,
-        message: "檢查完畢!無異常！",
-      });
+      if (lostUsers.length > 0) {
+        res.status(200).send({
+          status: true,
+          message: "檢查完畢!有人沒配對！",
+          data: lostUsers,
+        });
+      } else {
+        res.status(200).send({
+          status: true,
+          message: "檢查完畢!無異常！",
+        });
+      }
     }
   } catch (e) {
     res.status(500).send({
