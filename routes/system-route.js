@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const { v4: uuidv4 } = require("uuid");
 const User = require("../models").user;
 const Config = require("../models").config;
 const MatchHistory = require("../models").matchHistory;
@@ -9,6 +10,34 @@ const dateUtil = require("../utils/date-util");
 router.use((req, res, next) => {
   console.log("正在接收一個跟 system 有關的請求");
   next();
+});
+
+//顯示指定數量的身份用戶
+router.post("/show-users", async (req, res) => {
+  try {
+    let { count, identity } = req.body;
+    let data;
+
+    if (count == -1) {
+      data = await User.find({ identity });
+    } else {
+      data = await User.find({ identity }).limit(count);
+    }
+
+    return res.status(200).send({
+      status: true,
+      message: "成功獲取用戶列表",
+      data,
+      count: data.length,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
 });
 
 //執行用戶配對
@@ -345,61 +374,6 @@ router.get("/get-user", async (req, res) => {
   }
 });
 
-//刪除指定時間之前樹洞信封列表
-router.post("/delete-letters", async (req, res) => {
-  try {
-    let { flagTime } = req.body;
-
-    const result = await EmotionLetter.deleteMany({
-      createTime: { $lt: flagTime },
-    });
-
-    let everDelete = result.deletedCount > 0;
-
-    return res.status(200).send({
-      status: true,
-      message: everDelete ? "刪除成功" : "沒有資料可以刪除",
-    });
-  } catch (e) {
-    console.log(e);
-    return res.status(500).send({ status: false, message: "Server Error", e });
-  }
-});
-
-//更新系統配置
-router.post("/config", async (req, res) => {
-  try {
-    let { chatCover } = req.body;
-
-    let updateData = {};
-
-    if (chatCover != null) {
-      updateData.chatCover = chatCover;
-    }
-
-    await Config.findOneAndUpdate(
-      {},
-      {
-        $set: updateData,
-      },
-      {
-        upsert: true,
-      }
-    );
-
-    return res.status(200).send({
-      status: true,
-      message: "系統配置更新成功！",
-    });
-  } catch (e) {
-    return res.status(500).send({
-      status: false,
-      message: "Server Error",
-      e,
-    });
-  }
-});
-
 //強制激活被判定是非活躍的用戶
 router.post("/force-alive", async (req, res) => {
   try {
@@ -485,6 +459,115 @@ router.post("/check-match", async (req, res) => {
       message: "Server Error",
     });
   }
+});
+
+//刪除指定時間之前樹洞信封列表
+// router.post("/delete-letters", async (req, res) => {
+//   try {
+//     let { flagTime } = req.body;
+
+//     const result = await EmotionLetter.deleteMany({
+//       createTime: { $lt: flagTime },
+//     });
+
+//     let everDelete = result.deletedCount > 0;
+
+//     return res.status(200).send({
+//       status: true,
+//       message: everDelete ? "刪除成功" : "沒有資料可以刪除",
+//     });
+//   } catch (e) {
+//     console.log(e);
+//     return res.status(500).send({ status: false, message: "Server Error", e });
+//   }
+// });
+
+//更新系統配置
+router.post("/config", async (req, res) => {
+  try {
+    let { chatCover } = req.body;
+
+    let updateData = {};
+
+    if (chatCover != null) {
+      updateData.chatCover = chatCover;
+    }
+
+    await Config.findOneAndUpdate(
+      {},
+      {
+        $set: updateData,
+      },
+      {
+        upsert: true,
+      }
+    );
+
+    return res.status(200).send({
+      status: true,
+      message: "系統配置更新成功！",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+//清除所有心情樹洞信封
+router.post("/delete-letters", async (req, res) => {
+  try {
+    await EmotionLetter.deleteMany();
+    return res.status(200).send({
+      status: true,
+      message: "刪除成功",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+//幫系統假人寫信
+router.post("/robot-send", async (req, res) => {
+  const robotUsers = await User.find({
+    $or: [{ identity: "0" }, { identity: "2" }],
+  }).limit(10);
+  let letters = [];
+
+  for (let i = 0; i < robotUsers.length; i++) {
+    let robotUser = robotUsers[i];
+
+    let { _id, userID } = robotUser;
+
+    let letterData = {
+      letterUser: _id,
+      letterUserID: userID,
+      createTime: Date.now(),
+    };
+
+    const uuid = uuidv4(); // 生成 UUID v4
+    // 移除非數字的字符，只保留數字，並取前 12 位
+    let letterID = uuid.replace(/\D/g, "").slice(0, 12);
+
+    letterData.letterContent =
+      "大家好！我是：" + robotUser.userName + "好想認識大家喔！";
+    letterData.letterID = letterID;
+
+    letters.push(letterData);
+  }
+
+  EmotionLetter.insertMany(letters);
+
+  return res.status(200).send({
+    status: true,
+    message: "機器人們紙飛機發送成功！",
+  });
 });
 
 module.exports = router;

@@ -105,7 +105,7 @@ router.post("/send-letter", async (req, res) => {
     } else {
       const uuid = uuidv4(); // 生成 UUID v4
       // 移除非數字的字符，只保留數字，並取前 12 位
-      letterID = uuid.replace(/\D/g, "").slice(0, 12);
+      let letterID = uuid.replace(/\D/g, "").slice(0, 12);
 
       letterData.letterContent = content;
       letterData.letterID = letterID;
