@@ -186,6 +186,12 @@ const userSchema = new Schema({
     type: Number,
   },
 
+  //用戶最近一次發送信封的時間
+  lastSendLetterTime: {
+    type: Number,
+    required: true,
+  },
+
   //最近一次登入時間
   lastLoginTime: {
     type: Number,

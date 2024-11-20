@@ -46,21 +46,24 @@ router.post("/info", async (req, res) => {
       loveExperience,
     } = req.body;
 
-    let { userEmail, userID, registerTime } = req.user;
+    let { userEmail, userID, registerTime, lastSendLetterTime } = req.user;
 
     let isTodayRegister = dateUtil.isToday(registerTime);
+    let isTodayEverSend = dateUtil.isToday(lastSendLetterTime);
 
     //拷貝 req.user，確保 output 是一個獨立 object
     let data = {
       ...req.user._doc,
       isTodayRegister,
+      isTodayEverSend,
     };
 
     //刪掉不要的字段
     delete data._id;
     delete data.__v;
-    delete data.emotionLetter;
+    delete data.userActives;
     delete data.isAlive;
+    delete data.lastSendLetterTime;
 
     let { updateDate } = req.user.userActives;
 

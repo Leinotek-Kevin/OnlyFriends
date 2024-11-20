@@ -74,8 +74,18 @@ router.post("/show-all", async (req, res) => {
 //D-2 發送心情樹洞信封
 router.post("/send-letter", async (req, res) => {
   try {
-    let { _id, userID } = req.user;
+    let { _id, userID, lastSendLetterTime } = req.user;
     let { content, pic } = req.body;
+
+    //如果今天已經發過就不能再發
+    const everSendToday = dateUtil.isToday(lastSendLetterTime);
+
+    if (everSendToday) {
+      return res.status(200).send({
+        status: true,
+        message: "發送失敗！你今天已經發過信封嚕！",
+      });
+    }
 
     let letterData = {
       letterUser: _id,
@@ -100,7 +110,15 @@ router.post("/send-letter", async (req, res) => {
       letterData.letterContent = content;
       letterData.letterID = letterID;
 
-      await EmotionLetter.create(letterData);
+      await Promise.all([
+        EmotionLetter.create(letterData),
+        User.updateOne(
+          {
+            userID,
+          },
+          { lastSendLetterTime: Date.now() }
+        ),
+      ]);
 
       return res.status(200).send({
         status: true,
