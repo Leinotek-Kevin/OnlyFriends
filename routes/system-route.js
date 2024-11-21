@@ -315,8 +315,8 @@ router.post("/get-match", async (req, res) => {
     const result = await MatchNewest.find({
       $or: [{ user1ID: userID }, { user2ID: userID }],
     })
-      .populate("user1_ID", ["userName", "userID", "userPhoto"])
-      .populate("user2_ID", ["userName", "userID", "userPhoto"]);
+      .populate("user1_ID", ["userName", "userID", "userPhotos"])
+      .populate("user2_ID", ["userName", "userID", "userPhotos"]);
 
     const data = [];
 
