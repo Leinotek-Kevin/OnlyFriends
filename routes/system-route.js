@@ -64,6 +64,7 @@ router.post("/match", async (req, res) => {
     //只有存活的用戶可以配對:昨天有上線的用戶即可
     const aliveUsers = await User.find({
       lastLoginTime: { $gte: lastNightTimeStamp },
+      identity: 2,
     });
 
     // //執行有存活的訂閱用戶(訂閱用戶可以配對三個存活用戶/非訂閱只能一個)
@@ -153,6 +154,7 @@ router.post("/match", async (req, res) => {
         },
         {
           $sort: {
+            identity: -1, //依照用戶識別->降序 2:真人 ,1：官方, 0：假人
             genderScore: -1, //性別匹配的加權分數，降序
             ageScore: -1, // 年齡匹配的加權分數，降序
             regionScore: -1, // 地區匹配的加權分數，降序
@@ -404,7 +406,7 @@ router.post("/force-alive", async (req, res) => {
 //檢查配對列表是不是正常
 router.post("/check-match", async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({ identity: 2 });
 
     let errorUsers = [];
     let lostUsers = [];
@@ -533,10 +535,10 @@ router.post("/delete-letters", async (req, res) => {
   }
 });
 
-//幫系統假人寫信
+//幫系統真人寫信
 router.post("/robot-send", async (req, res) => {
   const robotUsers = await User.find({
-    $or: [{ identity: "0" }, { identity: "2" }],
+    $or: [{ identity: "2" }],
   }).limit(10);
   let letters = [];
 
@@ -566,7 +568,7 @@ router.post("/robot-send", async (req, res) => {
 
   return res.status(200).send({
     status: true,
-    message: "機器人們紙飛機發送成功！",
+    message: "模擬真人們紙飛機發送成功！",
   });
 });
 
