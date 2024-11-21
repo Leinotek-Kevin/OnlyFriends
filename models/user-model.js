@@ -146,9 +146,9 @@ const userSchema = new Schema({
 
   //是否是機器人
   identity: {
-    type: String,
+    type: Number,
     required: true,
-    enum: ["0", "1", "2"], //0:假人 1:真人 2:官方指定
+    enum: [0, 1, 2], //0:假人 1:官方指定 2:真人
   },
 
   //用戶當天互動資料集合
@@ -199,7 +199,8 @@ const userSchema = new Schema({
 });
 
 userSchema.index({ userID: 1, userMail: 1 }, { unique: true });
-userSchema.index({ lastLoginTime: -1, isSubscription: -1 });
+//1：升序 , -1:降序
+userSchema.index({ lastLoginTime: -1, identity: -1, isSubscription: -1 });
 
 //隱藏 _id,__v
 userSchema.set("toJSON", {
