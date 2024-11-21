@@ -233,8 +233,8 @@ router.post("/match", async (req, res) => {
 router.get("/match-newest", async (req, res) => {
   try {
     const matchNewest = await MatchNewest.find()
-      .populate("user1_ID", ["userName", "userID"])
-      .populate("user2_ID", ["userName", "userID"]);
+      .populate("user1_ID", ["userName", "userID", "identity"])
+      .populate("user2_ID", ["userName", "userID", "identity"]);
 
     return res.status(200).send({
       status: true,
