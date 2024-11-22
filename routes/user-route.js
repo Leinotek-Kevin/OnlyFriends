@@ -107,8 +107,10 @@ router.post("/info", async (req, res) => {
           const photoArray = JSON.parse(userPhotos);
           updateData.userPhotos = photoArray;
         } catch (e) {
-          console.error("JSON 解析失敗:", e);
+          console.log("JSON 解析失敗:", e);
         }
+      } else {
+        console.log("userPhotos == null");
       }
 
       if (userRegion != null) {
