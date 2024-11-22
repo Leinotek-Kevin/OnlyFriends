@@ -572,4 +572,7 @@ router.post("/robot-send", async (req, res) => {
   });
 });
 
+//對 Sendbird OpenChannel 發送訊息
+// router.post("/")
+
 module.exports = router;

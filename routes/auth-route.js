@@ -68,8 +68,13 @@ router.post("/register", async (req, res) => {
       };
 
       // 如果有提供 userPhoto，才將其加入更新資料中
-      if (Array.isArray(userPhotos)) {
-        createData.userPhotos = userPhotos;
+      if (userPhotos != null) {
+        try {
+          const photoArray = JSON.parse(userPhotos);
+          createData.userPhotos = photoArray;
+        } catch (e) {
+          console.error("JSON 解析失敗:", e);
+        }
       }
 
       // 如果有提供 deviceToken，才將其加入更新資料中
