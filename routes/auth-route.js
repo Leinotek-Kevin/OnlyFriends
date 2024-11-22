@@ -73,7 +73,7 @@ router.post("/register", async (req, res) => {
           const photoArray = JSON.parse(userPhotos);
           createData.userPhotos = photoArray;
         } catch (e) {
-          console.error("JSON 解析失敗:", e);
+          console.log("JSON 解析失敗:", e);
         }
       }
 
@@ -86,6 +86,8 @@ router.post("/register", async (req, res) => {
       if (osType != null) {
         createData.osType = osType;
       }
+
+      console.log("使用者註冊資料", createData);
 
       await User.create(createData);
 
