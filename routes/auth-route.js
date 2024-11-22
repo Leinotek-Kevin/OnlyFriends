@@ -75,6 +75,8 @@ router.post("/register", async (req, res) => {
         } catch (e) {
           console.log("JSON 解析失敗:", e);
         }
+      } else {
+        console.log("userPhotos == null");
       }
 
       // 如果有提供 deviceToken，才將其加入更新資料中
