@@ -103,15 +103,12 @@ router.post("/info", async (req, res) => {
       }
 
       if (userPhotos != null) {
-        console.log("JSON 接收字串:", userPhotos);
         try {
           const photoArray = JSON.parse(userPhotos);
           updateData.userPhotos = photoArray;
         } catch (e) {
           console.log("JSON 解析失敗:", e);
         }
-      } else {
-        console.log("userPhotos == null");
       }
 
       if (userRegion != null) {
@@ -197,21 +194,35 @@ router.post("/today-matches", async (req, res) => {
     const data = [];
 
     if (newestMatches.length > 0) {
-      //整理要輸出給全端的配對資料
+      //整理要輸出給前端的配對資料
       newestMatches.forEach(async (match) => {
-        const matchObject = {
-          matchUser: match.user1ID === userID ? match.user2_ID : match.user1_ID,
-          sendbird: match.sendbird,
+        // const matchObject = {
+        //   matchUser: match.user1ID === userID ? match.user2_ID : match.user1_ID,
+        //   sendbird: match.sendbird,
+        // };
+
+        // let objectID = matchObject.matchUser.userID;
+
+        // let outObject = { ...matchObject };
+
+        // outObject.isUnlock =
+        //   isSubscription || unlockObjects.indexOf(objectID) != -1;
+
+        let objectInfo =
+          match.user1ID === userID ? match.user2_ID : match.user1_ID;
+
+        let outData = {
+          userID: objectInfo.userID,
+          userName: objectInfo.userName,
+          userQuestion: objectInfo.userQuestion,
+          userPhotos: objectInfo.userPhotos,
+          sendbirdUrl: match.sendbird.url,
+          isChecked: match.sendbird.isChecked,
+          isUnlock: isSubscription || unlockObjects.indexOf(objectID) != -1,
+          uiType: match.matchUIType,
         };
 
-        let objectID = matchObject.matchUser.userID;
-
-        let outObject = { ...matchObject };
-
-        outObject.isUnlock =
-          isSubscription || unlockObjects.indexOf(objectID) != -1;
-
-        data.push(outObject);
+        data.push(outData);
       });
 
       return res.status(200).send({

@@ -3,6 +3,12 @@ const { Schema } = mongoose;
 
 //製作本日配對模組 Schema
 const matchNewestSchema = new Schema({
+  //UI類型
+  matchUIType: {
+    type: String,
+    enum: ["0", "1", "2"], //0:OF 團隊 1:一般配對 2:樹洞配對
+  },
+
   //用戶1 ID
   user1ID: {
     type: String,

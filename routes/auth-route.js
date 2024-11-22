@@ -69,15 +69,12 @@ router.post("/register", async (req, res) => {
 
       // 如果有提供 userPhoto，才將其加入更新資料中
       if (userPhotos != null) {
-        console.log("JSON 接收字串:", userPhotos);
         try {
           const photoArray = JSON.parse(userPhotos);
           createData.userPhotos = photoArray;
         } catch (e) {
           console.log("JSON 解析失敗:", e);
         }
-      } else {
-        console.log("userPhotos == null");
       }
 
       // 如果有提供 deviceToken，才將其加入更新資料中

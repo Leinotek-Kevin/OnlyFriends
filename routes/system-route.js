@@ -185,6 +185,7 @@ router.post("/match", async (req, res) => {
             url,
             isChecked: false,
           },
+          matchUIType: "1",
         };
 
         if (targetUser.isSubscription) {
@@ -321,7 +322,16 @@ router.post("/get-match", async (req, res) => {
     const data = [];
 
     result.forEach((match) => {
-      data.push(match.user1ID === userID ? match.user2_ID : match.user1_ID);
+      let userInfo = match.user1ID === userID ? match.user2_ID : match.user1_ID;
+
+      let matchInfo = {
+        userID: userInfo.userID,
+        userName: userInfo.userName,
+        userPhotos: userInfo.userPhotos,
+        uiType: match.matchUIType,
+      };
+
+      data.push(matchInfo);
     });
 
     if (data.length > 0) {
