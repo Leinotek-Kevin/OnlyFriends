@@ -103,6 +103,7 @@ router.post("/info", async (req, res) => {
       }
 
       if (userPhotos != null) {
+        console.log("JSON 接收字串:", userPhotos);
         try {
           const photoArray = JSON.parse(userPhotos);
           updateData.userPhotos = photoArray;
