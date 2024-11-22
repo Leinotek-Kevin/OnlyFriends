@@ -151,6 +151,7 @@ router.post("/info", async (req, res) => {
         status: true,
         message: "更新用戶資訊成功",
         data,
+        userPhotos,
       });
     }
   } catch (e) {
