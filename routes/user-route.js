@@ -61,8 +61,8 @@ router.post("/info", async (req, res) => {
     //刪掉不要的字段
     delete data._id;
     delete data.__v;
-    delete data.userActives;
-    delete data.lastSendLetterTime;
+    //delete data.userActives;
+    //delete data.lastSendLetterTime;
 
     let { updateDate } = req.user.userActives;
 
