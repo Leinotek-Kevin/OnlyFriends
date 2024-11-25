@@ -196,30 +196,19 @@ router.post("/today-matches", async (req, res) => {
     if (newestMatches.length > 0) {
       //整理要輸出給前端的配對資料
       newestMatches.forEach(async (match) => {
-        // const matchObject = {
-        //   matchUser: match.user1ID === userID ? match.user2_ID : match.user1_ID,
-        //   sendbird: match.sendbird,
-        // };
-
-        // let objectID = matchObject.matchUser.userID;
-
-        // let outObject = { ...matchObject };
-
-        // outObject.isUnlock =
-        //   isSubscription || unlockObjects.indexOf(objectID) != -1;
-
         let objectInfo =
           match.user1ID === userID ? match.user2_ID : match.user1_ID;
 
         let outData = {
+          uiType: match.matchUIType,
           userID: objectInfo.userID,
           userName: objectInfo.userName,
           userQuestion: objectInfo.userQuestion,
           userPhotos: objectInfo.userPhotos,
-          sendbirdUrl: match.sendbird.url,
-          isChecked: match.sendbird.isChecked,
+          sendbirdUrl: match.sendbirdUrl,
+          isChecked: match.isChecked,
           isUnlock: isSubscription || unlockObjects.indexOf(objectID) != -1,
-          uiType: match.matchUIType,
+          letterContent: match.letterContent,
         };
 
         data.push(outData);
@@ -253,12 +242,12 @@ router.post("/check-channel", async (req, res) => {
     let { channelUrl } = req.body;
 
     const match = await MatchNeswest.findOne({
-      "sendbird.url": channelUrl,
+      sendbirdUrl: channelUrl,
     });
 
     let { chatCover } = await Config.findOne({});
 
-    if (match.sendbird.isChecked) {
+    if (match.isChecked) {
       return res.status(200).send({
         status: true,
         message: "這個渠道已經檢查過嚕！",
@@ -296,10 +285,10 @@ router.post("/check-channel", async (req, res) => {
           if (response.status === 200) {
             await MatchNeswest.findOneAndUpdate(
               {
-                "sendbird.url": channelUrl,
+                sendbirdUrl: channelUrl,
               },
               {
-                "sendbird.isChecked": true,
+                isChecked: true,
               }
             );
 
@@ -321,6 +310,7 @@ router.post("/check-channel", async (req, res) => {
           }
         })
         .catch((e) => {
+          console.log(e);
           return res.status(200).send({
             status: true,
             message: "渠道檢查有問題",

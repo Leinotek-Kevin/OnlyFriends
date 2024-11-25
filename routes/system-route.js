@@ -181,10 +181,8 @@ router.post("/match", async (req, res) => {
           user2ID: targetUser.userID, // 確保存儲 user2ID
           user1_ID: currentUser._id, // 確保存儲 user1_ID
           user2_ID: targetUser._id, // 確保存儲 user2_ID
-          sendbird: {
-            url,
-            isChecked: false,
-          },
+          sendbirdUrl: url,
+          isChecked: false,
           matchUIType: "1",
         };
 
@@ -377,7 +375,6 @@ router.get("/get-user", async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",

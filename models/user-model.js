@@ -175,8 +175,8 @@ const userSchema = new Schema({
     default: false,
   },
 
-  //該用戶是否存活
-  isAlive: {
+  //該用戶登入狀態
+  isLogin: {
     type: Boolean,
     default: false,
   },

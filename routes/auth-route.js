@@ -65,6 +65,7 @@ router.post("/register", async (req, res) => {
         identity,
         registerTime: Date.now(),
         lastLoginTime: Date.now(),
+        isLogin: true,
       };
 
       // 如果有提供 userPhoto，才將其加入更新資料中
@@ -86,8 +87,6 @@ router.post("/register", async (req, res) => {
       if (osType != null) {
         createData.osType = osType;
       }
-
-      console.log("使用者註冊資料", createData);
 
       await User.create(createData);
 
@@ -125,6 +124,7 @@ router.post("/login", async (req, res) => {
     // 準備要更新的資料
     let updateData = {
       lastLoginTime: Date.now(),
+      isLogin: true,
     };
 
     // 如果有提供 deviceToken，才將其加入更新資料中
@@ -154,7 +154,7 @@ router.post("/login", async (req, res) => {
         };
       }
 
-      await User.updateOne({ userID, userID }, { $set: updateData });
+      await User.updateOne({ userID }, { $set: updateData });
     } else {
       //資料庫不存在使用者
       return res.status(200).send({
@@ -203,10 +203,10 @@ router.post("/logout", (req, res) => {
     }
 
     try {
-      let { userEmail, isAlive } = user;
+      let { userEmail, isLogin } = user;
 
-      if (isAlive) {
-        const data = await User.updateOne({ userEmail }, { isAlive: false });
+      if (isLogin) {
+        const data = await User.updateOne({ userEmail }, { isLogin: false });
         return res.status(200).send({
           status: true,
           message: "登出成功！",
