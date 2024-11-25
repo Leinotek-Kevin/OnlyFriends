@@ -6,6 +6,8 @@ const MatchHistory = require("../models").matchHistory;
 const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
 const dateUtil = require("../utils/date-util");
+const SendBird = require("sendbird");
+const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 system 有關的請求");
@@ -581,5 +583,49 @@ router.post("/robot-send", async (req, res) => {
 
 //對 Sendbird OpenChannel 發送訊息
 // router.post("/")
+
+//建立 SendBird 用戶
+router.post("/create-user", async (req, res) => {
+  try {
+    const users = await User.find({});
+
+    for (let i = 0; i < users.length; i++) {
+      let { userID, userName } = users[i];
+      await connectAndSetNickname(userID, userName);
+    }
+
+    res.status(200).send({
+      status: true,
+      message: "建構用戶完成",
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+//ConnectUser And userName
+const connectAndSetNickname = async (userID, userName) => {
+  return new Promise((resolve, reject) => {
+    // 先連接 SendBird，用戶不存在則創建
+    sb.connect(userID, function (user, error) {
+      if (error) {
+        return reject(error);
+      }
+
+      // 連接成功後，立即更新暱稱
+      sb.updateCurrentUserInfo(userName, null, function (response, error) {
+        if (error) {
+          return reject(error);
+        }
+        resolve(response); // 暱稱更新成功
+      });
+    });
+  });
+};
 
 module.exports = router;

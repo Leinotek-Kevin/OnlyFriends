@@ -62,7 +62,6 @@ router.post("/info", async (req, res) => {
     delete data._id;
     delete data.__v;
     delete data.userActives;
-    delete data.isAlive;
     delete data.lastSendLetterTime;
 
     let { updateDate } = req.user.userActives;
