@@ -141,18 +141,22 @@ router.post("/login", async (req, res) => {
       //如果有使用者
       userID = findUser.userID;
       //檢查是否需要重置用戶互動資訊
-      // let { updateDate } = findUser.userActives;
+      try {
+        let updateDate = findUser.userActives.updateDate;
 
-      // let today = dateUtil.getToday();
-      // let isNotToday = updateDate !== today;
+        let today = dateUtil.getToday();
+        let isNotToday = updateDate !== today;
 
-      // if (isNotToday) {
-      //   updateData.userActives = {
-      //     likeLetters: [],
-      //     unlockObjects: [],
-      //     updateDate: today,
-      //   };
-      // }
+        if (isNotToday) {
+          updateData.userActives = {
+            likeLetters: [],
+            unlockObjects: [],
+            updateDate: today,
+          };
+        }
+      } catch (e) {
+        console.log("檢查是否需要重置用戶互動資訊錯誤！");
+      }
 
       await User.updateOne({ userID }, { $set: updateData });
     } else {
