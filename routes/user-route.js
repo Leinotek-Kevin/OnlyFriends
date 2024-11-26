@@ -168,9 +168,6 @@ router.post("/info", async (req, res) => {
 //B-2 獲取本日配對的對象資訊
 router.post("/today-matches", async (req, res) => {
   try {
-    let time = dateUtil.getYesterdayNight();
-    console.log(time);
-
     let { userID, isSubscription } = req.user;
     let { unlockObjects } = req.user.userActives;
 
@@ -215,7 +212,8 @@ router.post("/today-matches", async (req, res) => {
           userPhotos: objectInfo.userPhotos,
           sendbirdUrl: match.sendbirdUrl,
           isChecked: match.isChecked,
-          isUnlock: isSubscription || unlockObjects.indexOf(objectID) != -1,
+          isUnlock:
+            isSubscription || unlockObjects.indexOf(objectInfo.userID) != -1,
           letterContent: match.letterContent,
         };
 

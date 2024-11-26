@@ -118,13 +118,6 @@ router.post("/login", async (req, res) => {
   let { userEmail, deviceToken, osType } = req.body;
   let userID = "";
 
-  console.log("前端資料", req.body);
-
-  // return res.status(200).send({
-  //   status: true,
-  //   message: "系統測試中",
-  // });
-
   try {
     const findUser = await User.findOne({ userEmail });
 
