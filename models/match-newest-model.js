@@ -5,8 +5,8 @@ const { Schema } = mongoose;
 const matchNewestSchema = new Schema({
   //UI類型
   matchUIType: {
-    type: String,
-    enum: ["0", "1", "2"], //0:OF 團隊 1:一般配對 2:樹洞配對
+    type: Number,
+    enum: [0, 1, 2], //0:OF 團隊 1:一般配對 2:樹洞配對
   },
 
   //用戶1 ID
@@ -46,7 +46,12 @@ const matchNewestSchema = new Schema({
     default: false,
   },
 
-  letterContent: {
+  user1letterContent: {
+    type: String,
+    default: "",
+  },
+
+  user2letterContent: {
     type: String,
     default: "",
   },

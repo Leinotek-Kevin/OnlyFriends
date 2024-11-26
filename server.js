@@ -36,3 +36,5 @@ app.use("/api/purchase", routes.purchase);
 app.listen(port, () => {
   console.log("後端伺服器聆聽中....");
 });
+
+//執行午夜配對和樹洞配對和確認公開渠道

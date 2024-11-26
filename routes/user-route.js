@@ -61,8 +61,8 @@ router.post("/info", async (req, res) => {
     //刪掉不要的字段
     delete data._id;
     delete data.__v;
-    //delete data.userActives;
-    //delete data.lastSendLetterTime;
+    delete data.userActives;
+    delete data.lastSendLetterTime;
 
     let { updateDate } = req.user.userActives;
 
@@ -185,24 +185,31 @@ router.post("/today-matches", async (req, res) => {
         "userID",
         "userPhotos",
         "userQuestion",
-      ]);
+      ])
+      .sort({
+        uiType: 1,
+      });
 
     const data = [];
 
     if (newestMatches.length > 0) {
-      // //OF 團隊聊天室
-      // let serviceData = {
-      //   uiType: "0",
-      //   sendbirdUrl: "onlyfriends_announcement_channel",
-      //   isChecked: true,
-      // };
+      //OF 團隊聊天室
+      let serviceData = {
+        uiType: 0,
+        sendbirdUrl: "onlyfriends_announcement_channel",
+      };
 
-      // data.push(serviceData);
+      data.push(serviceData);
 
       //整理要輸出給前端的配對資料
       newestMatches.forEach(async (match) => {
         let objectInfo =
           match.user1ID === userID ? match.user2_ID : match.user1_ID;
+
+        let letterContent =
+          match.user1ID === userID
+            ? match.user2letterContent
+            : match.user1letterContent;
 
         let outData = {
           uiType: match.matchUIType,
@@ -214,7 +221,7 @@ router.post("/today-matches", async (req, res) => {
           isChecked: match.isChecked,
           isUnlock:
             isSubscription || unlockObjects.indexOf(objectInfo.userID) != -1,
-          letterContent: match.letterContent,
+          letterContent,
         };
 
         data.push(outData);

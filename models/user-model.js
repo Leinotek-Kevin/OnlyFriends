@@ -21,7 +21,7 @@ const userSchema = new Schema({
   //用戶暱稱
   userName: {
     type: String,
-    length: 10,
+    length: 16,
     required: true,
   },
 

@@ -10,6 +10,11 @@ const emotionLetterSchema = new Schema({
     required: true,
   },
 
+  letterUserID: {
+    type: String,
+    required: true,
+  },
+
   //信封 ID
   letterID: {
     type: String,
@@ -54,6 +59,7 @@ emotionLetterSchema.set("toJSON", {
   transform: (doc, ret, options) => {
     delete ret._id;
     delete ret.__v;
+    delete ret.letterUserID;
     return ret;
   },
 });

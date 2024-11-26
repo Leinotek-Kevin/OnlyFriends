@@ -42,9 +42,9 @@ router.post("/show-users", async (req, res) => {
   }
 });
 
-//執行用戶配對
+//執行用戶一般配對
 //存活的訂閱 -> 存活沒訂閱
-router.post("/match", async (req, res) => {
+router.post("/match-general", async (req, res) => {
   const RE_MATCH_DELAY = 48 * 60 * 60 * 1000;
   const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
   const lastNightTimeStamp = dateUtil.getYesterdayNight();
@@ -69,7 +69,7 @@ router.post("/match", async (req, res) => {
       identity: 2,
     });
 
-    // //執行有存活的訂閱用戶(訂閱用戶可以配對三個存活用戶/非訂閱只能一個)
+    //執行有存活的訂閱用戶(訂閱用戶可以配對三個存活用戶/非訂閱只能一個)
     for (let i = 0; i < aliveUsers.length; i++) {
       const currentUser = aliveUsers[i];
 
@@ -185,7 +185,7 @@ router.post("/match", async (req, res) => {
           user2_ID: targetUser._id, // 確保存儲 user2_ID
           sendbirdUrl: url,
           isChecked: false,
-          matchUIType: "1",
+          matchUIType: 1,
         };
 
         if (targetUser.isSubscription) {
@@ -226,6 +226,126 @@ router.post("/match", async (req, res) => {
       status: false,
       message: "Server Error",
       error,
+    });
+  }
+});
+
+//執行用戶樹洞配對
+//
+router.post("/match-letter", async (req, res) => {
+  try {
+    let time = Date.now();
+
+    //等一下加入時間區間
+    const totalLetters = await EmotionLetter.countDocuments(); // 取得總數量
+
+    // 根據總數量決定百分比
+    // 100人->20% ,1000人->15% , 5000人-> 10%
+    let percentage;
+    if (totalLetters <= 100) {
+      percentage = 0.2;
+    } else if (totalLetters <= 1000) {
+      percentage = 0.15;
+    } else if (totalLetters <= 5000) {
+      percentage = 0.1;
+    }
+
+    // 計算應該配對的數量
+    const sampleSize = Math.ceil((totalLetters * percentage) / 2);
+
+    // 使用 MongoDB 的聚合管道來隨機取樣
+    let randomLetters = await EmotionLetter.aggregate([
+      { $sample: { size: sampleSize } }, // 隨機取樣
+    ]);
+
+    let letterMatches = [];
+
+    //儲存本次配對次數已用完的信封
+    let consumeUsers = new Set();
+
+    for (let i = 0; i < randomLetters.length; i++) {
+      //當前候選信封
+      const currentLetter = randomLetters[i];
+
+      //如果這個信封已經用完配對次數，就換下一個信封執行
+      if (consumeUsers.has(currentLetter.letterUserID)) {
+        continue;
+      }
+
+      //查詢這個信封在今天午夜配對的紀錄
+      const lastMatches = await MatchNewest.find({
+        $or: [
+          { user1ID: currentLetter.letterUserID },
+          { user2ID: currentLetter.letterUserID },
+        ],
+      });
+
+      // 過濾 currentLetter 今天午夜配對的對象
+      const lastMatchedUserIds = lastMatches.map((match) =>
+        match.user1ID === currentLetter.letterUserID
+          ? match.user2ID
+          : match.user1ID
+      );
+
+      //合併不能被配對到的對象
+      const consumeSetArray = Array.from(consumeUsers);
+      const combinedArray = [...lastMatchedUserIds, ...consumeSetArray];
+
+      //找尋目標用戶
+      const targetLetters = await EmotionLetter.aggregate([
+        {
+          $match: {
+            letterUserID: {
+              $ne: currentLetter.letterUserID,
+              $nin: Array.from(combinedArray), //排除曾經配對及已經用光配對次數的用戶
+            },
+          },
+        },
+        { $limit: 1 },
+      ]);
+
+      if (targetLetters != null && targetLetters.length > 0) {
+        consumeUsers.add(targetLetters[0].letterUserID);
+        consumeUsers.add(currentLetter.letterUserID);
+
+        //紀錄配對用戶
+        let url =
+          Number(currentLetter.letterUserID) >
+          Number(targetLetters[0].letterUserID)
+            ? `${targetLetters[0].letterUserID}_${currentLetter.letterUserID}`
+            : `${currentLetter.letterUserID}_${targetLetters[0].letterUserID}`;
+
+        let match = {
+          user1ID: currentLetter.letterUserID, // 確保存儲 user1ID
+          user2ID: targetLetters[0].letterUserID, // 確保存儲 user2ID
+          user1_ID: currentLetter.letterUser, // 確保存儲 user1_ID
+          user2_ID: targetLetters[0].letterUser, // 確保存儲 user2_ID
+          sendbirdUrl: url,
+          isChecked: false,
+          user1letterContent: currentLetter.letterContent,
+          user2letterContent: targetLetters[0].letterContent,
+          matchUIType: 2,
+        };
+
+        letterMatches.push(match);
+      }
+    }
+
+    await MatchNewest.insertMany(letterMatches);
+
+    let finishTime = (Date.now() - time) / 1000.0;
+
+    return res.status(200).send({
+      status: true,
+      message: "心情樹洞配對已完成",
+      useTime: finishTime,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
     });
   }
 });
@@ -547,8 +667,8 @@ router.post("/delete-letters", async (req, res) => {
 //幫系統真人寫信
 router.post("/robot-send", async (req, res) => {
   const robotUsers = await User.find({
-    $or: [{ identity: "2" }],
-  }).limit(10);
+    $or: [{ identity: 2 }],
+  });
   let letters = [];
 
   for (let i = 0; i < robotUsers.length; i++) {
