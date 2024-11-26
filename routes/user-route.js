@@ -193,6 +193,15 @@ router.post("/today-matches", async (req, res) => {
     const data = [];
 
     if (newestMatches.length > 0) {
+      // //OF 團隊聊天室
+      // let serviceData = {
+      //   uiType: "0",
+      //   sendbirdUrl: "onlyfriends_announcement_channel",
+      //   isChecked: true,
+      // };
+
+      // data.push(serviceData);
+
       //整理要輸出給前端的配對資料
       newestMatches.forEach(async (match) => {
         let objectInfo =
