@@ -7,6 +7,13 @@ const configSchema = new Schema({
   chatCover: {
     type: String,
   },
+
+  //系統配對狀態
+  matchScheduleStatus: {
+    type: String,
+    default: "0",
+    enum: ["0", "1", "2"], // 0:準備配對 , 1: 正在配對 , 2:已完成配對
+  },
 });
 
 //隱藏 _id,__v

@@ -204,6 +204,8 @@ router.post("/today-matches", async (req, res) => {
         uiType: 1,
       });
 
+    let { matchScheduleStatus } = await Config.findOne({});
+
     const data = [];
 
     if (newestMatches.length > 0) {
@@ -245,6 +247,7 @@ router.post("/today-matches", async (req, res) => {
         status: true,
         message: "成功獲取配對對象列表",
         validCode: "1",
+        matchScheduleStatus,
         data,
       });
     } else {
@@ -252,6 +255,7 @@ router.post("/today-matches", async (req, res) => {
         status: true,
         message: "目前沒有對象",
         validCode: "1",
+        matchScheduleStatus,
         data,
       });
     }

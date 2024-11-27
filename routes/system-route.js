@@ -53,6 +53,9 @@ router.post("/match-general", async (req, res) => {
   try {
     let time = Date.now();
 
+    //標記正在配對的狀態
+    await Config.updateOne({ matchScheduleStatus: "1" });
+
     //清空最近的配對列表
     await MatchNewest.deleteMany({});
 
@@ -213,6 +216,9 @@ router.post("/match-general", async (req, res) => {
       await MatchNewest.insertMany(matches);
       await MatchHistory.insertMany(matches);
     }
+
+    //標記正在配對的狀態
+    await Config.updateOne({ matchScheduleStatus: "2" });
 
     let finishTime = (Date.now() - time) / 1000.0;
 
