@@ -20,6 +20,12 @@ router.use((req, res, next) => {
       return res
         .status(200)
         .send({ status: true, message: "JWT 驗證失敗！查無此用戶" });
+    } else if (user.userValidCode == "2") {
+      return res.status(200).send({
+        status: true,
+        message: "該用戶已被停權！",
+        validCode: "2",
+      });
     }
 
     // 驗證成功，將 user 資料放入 req.user
@@ -61,12 +67,14 @@ router.post("/show-all", async (req, res) => {
     return res.status(200).send({
       status: true,
       message: hasLetters ? "成功獲取心情樹洞列表" : "目前沒有任何心情紙條喔！",
+      validCode: "1",
       data: hasLetters ? data : [],
     });
   } catch (e) {
     return res.status(500).send({
       status: false,
       message: "Server Error!",
+      validCode: "-1",
     });
   }
 });
@@ -84,6 +92,7 @@ router.post("/send-letter", async (req, res) => {
       return res.status(200).send({
         status: true,
         message: "發送失敗！你今天已經發過信封嚕！",
+        validCode: "1",
       });
     }
 
@@ -101,6 +110,7 @@ router.post("/send-letter", async (req, res) => {
       return res.status(404).send({
         status: false,
         message: "信封內容錯誤！",
+        validCode: "1",
       });
     } else {
       const uuid = uuidv4(); // 生成 UUID v4
@@ -123,11 +133,14 @@ router.post("/send-letter", async (req, res) => {
       return res.status(200).send({
         status: true,
         message: "心情樹洞紙飛機發送成功！",
+        validCode: "1",
       });
     }
   } catch (e) {
     console.log(e);
-    return res.status(500).send({ status: false, message: "Server Error", e });
+    return res
+      .status(500)
+      .send({ status: false, message: "Server Error", e, validCode: "-1" });
   }
 });
 
@@ -142,6 +155,14 @@ router.post("/like-letter", async (req, res) => {
     const letterData = await EmotionLetter.findOne({
       letterID,
     });
+
+    if (letterData == null) {
+      return res.status(200).send({
+        status: true,
+        message: "該信封不存在！",
+        validCode: "1",
+      });
+    }
 
     let counts = letterData.likeCount;
 
@@ -190,9 +211,13 @@ router.post("/like-letter", async (req, res) => {
     return res.status(200).send({
       status: true,
       message: "信封案讚狀態已更新",
+      validCode: "1",
     });
   } catch (e) {
-    return res.status(500).send({ status: false, message: "Server Error", e });
+    console.log(e);
+    return res
+      .status(500)
+      .send({ status: false, message: "Server Error", e, validCode: "-1" });
   }
 });
 

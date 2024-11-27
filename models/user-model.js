@@ -196,6 +196,12 @@ const userSchema = new Schema({
     type: Number,
     required: true,
   },
+
+  //用戶帳號狀態代碼
+  userValidCode: {
+    type: String,
+    default: "1",
+  },
 });
 
 userSchema.index({ userID: 1, userMail: 1 }, { unique: true });

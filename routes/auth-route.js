@@ -100,6 +100,7 @@ router.post("/register", async (req, res) => {
     return res.status(200).send({
       status: true,
       message,
+      validCode: "1",
       token: "JWT " + token, //返回 JWT token
     });
   } catch (e) {
@@ -107,6 +108,7 @@ router.post("/register", async (req, res) => {
     return res.status(500).send({
       status: false,
       message: "Server Error",
+      validCode: "-1",
       e,
     });
   }
@@ -140,15 +142,22 @@ router.post("/login", async (req, res) => {
     if (findUser) {
       //如果有使用者
       userID = findUser.userID;
+
+      if (findUser.userValidCode == "2") {
+        return res.status(200).send({
+          status: true,
+          message: "該用戶已被停權！",
+          validCode: "2",
+        });
+      }
+
       await User.updateOne({ userID }, { $set: updateData });
     } else {
       //資料庫不存在使用者
       return res.status(200).send({
         status: true,
-        message: "尚未註冊！使用者不存在！",
-        data: {
-          userValid: false,
-        },
+        message: "尚未註冊！查無此用戶！",
+        validCode: "0",
       });
     }
 
@@ -159,16 +168,14 @@ router.post("/login", async (req, res) => {
     return res.status(200).send({
       status: true,
       message: "登入成功",
-      data: {
-        userValid: true,
-        token: "JWT " + token, //返回 JWT token
-      },
+      validCode: "1",
+      token: "JWT " + token, //返回 JWT token,
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",
+      validCode: "-1",
       e,
     });
   }
@@ -183,9 +190,17 @@ router.post("/logout", (req, res) => {
 
     if (!user) {
       // 這裡返回自定義訊息
-      return res
-        .status(200)
-        .json({ status: true, message: "登出失敗！查無此用戶" });
+      return res.status(200).json({
+        status: true,
+        message: "登出失敗！查無此用戶!",
+        validCode: "0",
+      });
+    } else if (user.userValidCode == "2") {
+      return res.status(200).send({
+        status: true,
+        message: "該用戶已被停權！",
+        validCode: "2",
+      });
     }
 
     try {
@@ -196,12 +211,14 @@ router.post("/logout", (req, res) => {
         return res.status(200).send({
           status: true,
           message: "登出成功！",
+          validCode: "1",
         });
       }
     } catch (e) {
       return res.status(500).send({
         status: false,
         message: "Server Error",
+        validCode: "-1",
       });
     }
   })(req, res);
@@ -216,9 +233,17 @@ router.post("/delete", (req, res) => {
 
     if (!user) {
       // 這裡返回自定義訊息
-      return res
-        .status(200)
-        .json({ status: true, message: "刪除失敗！找不到使用者！" });
+      return res.status(200).json({
+        status: true,
+        message: "刪除失敗！查無此用戶!",
+        validCode: "0",
+      });
+    } else if (user.userValidCode == "2") {
+      return res.status(200).send({
+        status: true,
+        message: "該用戶已被停權！",
+        validCode: "2",
+      });
     }
 
     try {
@@ -229,11 +254,13 @@ router.post("/delete", (req, res) => {
       return res.status(200).send({
         status: true,
         message: "使用者帳號已刪除",
+        validCode: "0",
       });
     } catch (e) {
       return res.status(500).send({
         status: false,
         message: "Server Error",
+        validCode: "-1",
       });
     }
   })(req, res);

@@ -35,4 +35,16 @@ const getYesterdayNight = () => {
   return timestamp;
 };
 
-module.exports = { isToday, getToday, getYesterdayNight };
+const getTodayNight = () => {
+  const currentDate = new Date(); // 获取当前系统时间
+
+  // 設置為昨天的日期，並將時間設置為午夜 00:00:00
+  currentDate.setDate(currentDate.getDate());
+  currentDate.setHours(0, 0, 0, 0);
+
+  const timestamp = currentDate.getTime(); // 獲取時間戳記
+
+  return timestamp;
+};
+
+module.exports = { isToday, getToday, getYesterdayNight, getTodayNight };

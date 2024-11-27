@@ -18,9 +18,17 @@ router.post("/report", (req, res) => {
 
     if (!user) {
       // 這裡返回自定義訊息
-      return res
-        .status(200)
-        .json({ status: true, message: "登出失敗！查無此用戶" });
+      return res.status(200).send({
+        status: true,
+        message: "JWT 驗證失敗！查無此用戶!",
+        validCode: "0",
+      });
+    } else if (user.userValidCode == "2") {
+      return res.status(200).send({
+        status: true,
+        message: "該用戶已被停權！",
+        validCode: "2",
+      });
     }
 
     try {
@@ -48,11 +56,13 @@ router.post("/report", (req, res) => {
           return res.status(200).send({
             status: true,
             message: "購買紀錄已刪除",
+            validCode: "1",
           });
         } else {
           return res.status(200).send({
             status: true,
             message: "查無任何購買紀錄",
+            validCode: "1",
           });
         }
       } else {
@@ -67,6 +77,7 @@ router.post("/report", (req, res) => {
           return res.status(200).send({
             status: true,
             message: "購買紀錄已存在！",
+            validCode: "1",
             data: record,
           });
         }
@@ -92,12 +103,14 @@ router.post("/report", (req, res) => {
         return res.status(200).send({
           status: true,
           message: "購買紀錄已儲存",
+          validCode: "1",
         });
       }
     } catch (e) {
       return res.status(500).send({
         status: false,
         message: "Server Error",
+        validCode: "-1",
       });
     }
   })(req, res);

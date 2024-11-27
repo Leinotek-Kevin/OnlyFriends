@@ -7,6 +7,7 @@ const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
 const dateUtil = require("../utils/date-util");
 const SendBird = require("sendbird");
+const { allow } = require("joi");
 const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
 
 router.use((req, res, next) => {
@@ -231,32 +232,57 @@ router.post("/match-general", async (req, res) => {
 });
 
 //執行用戶樹洞配對
-//
 router.post("/match-letter", async (req, res) => {
   try {
     let time = Date.now();
 
+    const lastNightTimeStamp = dateUtil.getYesterdayNight();
+    const todayNightTimeStamp = dateUtil.getTodayNight();
+
+    console.log("lastNightTimeStamp", lastNightTimeStamp);
+    console.log("todayNightTimeStamp", todayNightTimeStamp);
+
     //等一下加入時間區間
-    const totalLetters = await EmotionLetter.countDocuments(); // 取得總數量
+    const allowLettersCount = await EmotionLetter.countDocuments({
+      createTime: { $gte: lastNightTimeStamp, $lt: todayNightTimeStamp },
+    });
+
+    console.log("可配對的信封數量", allowLettersCount);
 
     // 根據總數量決定百分比
     // 100人->20% ,1000人->15% , 5000人-> 10%
     let percentage;
-    if (totalLetters <= 100) {
+    if (allowLettersCount <= 100) {
       percentage = 0.2;
-    } else if (totalLetters <= 1000) {
+    } else if (allowLettersCount <= 1000) {
       percentage = 0.15;
-    } else if (totalLetters <= 5000) {
+    } else if (allowLettersCount <= 5000) {
       percentage = 0.1;
     }
 
     // 計算應該配對的數量
-    const sampleSize = Math.ceil((totalLetters * percentage) / 2);
+    const sampleSize = Math.ceil((allowLettersCount * percentage) / 2);
 
     // 使用 MongoDB 的聚合管道來隨機取樣
     let randomLetters = await EmotionLetter.aggregate([
-      { $sample: { size: sampleSize } }, // 隨機取樣
+      {
+        $match: {
+          createTime: {
+            $gte: lastNightTimeStamp, // 大於等於昨晚的時間
+            $lt: todayNightTimeStamp, // 小於今天晚上的時間
+          },
+        },
+      },
+      {
+        $sample: { size: sampleSize }, // 隨機取樣
+      },
     ]);
+
+    console.log("篩選後信封數量", randomLetters.length);
+
+    // return res.status(200).send({
+    //   message: "系統開發中",
+    // });
 
     let letterMatches = [];
 
@@ -298,6 +324,10 @@ router.post("/match-letter", async (req, res) => {
             letterUserID: {
               $ne: currentLetter.letterUserID,
               $nin: Array.from(combinedArray), //排除曾經配對及已經用光配對次數的用戶
+            },
+            createTime: {
+              $gte: lastNightTimeStamp, // 大於等於昨晚的時間
+              $lt: todayNightTimeStamp, // 小於今天晚上的時間
             },
           },
         },

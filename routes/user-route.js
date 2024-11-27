@@ -18,9 +18,17 @@ router.use((req, res, next) => {
 
     if (!user) {
       // 這裡返回自定義訊息
-      return res
-        .status(200)
-        .send({ status: true, message: "JWT 驗證失敗！查無此用戶" });
+      return res.status(200).send({
+        status: true,
+        message: "JWT 驗證失敗！查無此用戶!",
+        validCode: "0",
+      });
+    } else if (user.userValidCode == "2") {
+      return res.status(200).send({
+        status: true,
+        message: "該用戶已被停權！",
+        validCode: "2",
+      });
     }
 
     // 驗證成功，將 user 資料放入 req.user
@@ -63,6 +71,9 @@ router.post("/info", async (req, res) => {
     delete data.__v;
     delete data.userActives;
     delete data.lastSendLetterTime;
+    delete data.registerTime;
+    delete data.lastLoginTime;
+    delete data.userValidCode;
 
     let { updateDate } = req.user.userActives;
 
@@ -87,6 +98,7 @@ router.post("/info", async (req, res) => {
       return res.status(200).send({
         status: true,
         message: "成功讀取用戶資訊",
+        validCode: "1",
         data,
       });
     }
@@ -154,6 +166,7 @@ router.post("/info", async (req, res) => {
       return res.status(200).send({
         status: true,
         message: "更新用戶資訊成功",
+        validCode: "1",
         data,
       });
     }
@@ -161,6 +174,7 @@ router.post("/info", async (req, res) => {
     return res.status(500).send({
       status: true,
       message: "Server Error!",
+      validCode: "-1",
     });
   }
 });
@@ -230,12 +244,14 @@ router.post("/today-matches", async (req, res) => {
       return res.status(200).send({
         status: true,
         message: "成功獲取配對對象列表",
+        validCode: "1",
         data,
       });
     } else {
       return res.status(200).send({
         status: true,
         message: "目前沒有對象",
+        validCode: "1",
         data,
       });
     }
@@ -244,6 +260,7 @@ router.post("/today-matches", async (req, res) => {
     return res.status(500).send({
       status: false,
       message: "Server Error",
+      validCode: "-1",
       e,
     });
   }
@@ -260,10 +277,11 @@ router.post("/check-channel", async (req, res) => {
 
     let { chatCover } = await Config.findOne({});
 
-    if (match.isChecked) {
+    if (match != null && match.isChecked) {
       return res.status(200).send({
         status: true,
         message: "這個渠道已經檢查過嚕！",
+        validCode: "1",
       });
     } else {
       //房間配對對象
@@ -308,6 +326,7 @@ router.post("/check-channel", async (req, res) => {
             return res.status(200).send({
               status: true,
               message: "渠道檢查完成",
+              validCode: "1",
               data: {
                 isChecked: true,
               },
@@ -316,6 +335,7 @@ router.post("/check-channel", async (req, res) => {
             return res.status(200).send({
               status: true,
               message: "渠道檢查有問題",
+              validCode: "1",
               data: {
                 isChecked: false,
               },
@@ -327,6 +347,7 @@ router.post("/check-channel", async (req, res) => {
           return res.status(200).send({
             status: true,
             message: "渠道檢查有問題",
+            validCode: "1",
             data: {
               isChecked: false,
             },
@@ -338,6 +359,7 @@ router.post("/check-channel", async (req, res) => {
     return res.status(500).send({
       status: true,
       message: "Server Error",
+      validCode: "-1",
       e,
     });
   }
@@ -373,12 +395,13 @@ router.post("/update-condition", async (req, res) => {
     return res.status(200).send({
       status: true,
       message: "成功修改配對條件",
+      validCode: "1",
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",
+      validCode: "-1",
     });
   }
 });
@@ -404,17 +427,20 @@ router.post("/sign-unlock", async (req, res) => {
       return res.status(200).send({
         status: true,
         message: "成功標記解鎖用戶！",
+        validCode: "1",
       });
     } else {
       return res.status(200).send({
         status: true,
         message: "這個對象已經被標記解鎖過嚕！",
+        validCode: "1",
       });
     }
   } catch (e) {
     return res.status(500).send({
       status: false,
       message: "Server Error",
+      validCode: "-1",
       e,
     });
   }
