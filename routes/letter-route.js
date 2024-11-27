@@ -41,6 +41,7 @@ router.post("/show-all", async (req, res) => {
   try {
     //let { page } = req.body;
     let { likeLetters } = req.user.userActives;
+    const todayNightTimeStamp = dateUtil.getTodayNight();
 
     // 從請求中獲取 page ,並設置默認值
     //const queryPage = parseInt(page) || 1;
@@ -48,7 +49,9 @@ router.post("/show-all", async (req, res) => {
     // 計算應該跳過的數據量 (用於分頁)
     //const skip = (queryPage - 1) * loadCount;
 
-    let data = await EmotionLetter.find()
+    let data = await EmotionLetter.find({
+      createTime: { $lt: todayNightTimeStamp },
+    })
       .sort({ createTime: -1 })
       //.skip(skip)
       .limit(loadCount)

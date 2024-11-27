@@ -239,15 +239,10 @@ router.post("/match-letter", async (req, res) => {
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
     const todayNightTimeStamp = dateUtil.getTodayNight();
 
-    console.log("lastNightTimeStamp", lastNightTimeStamp);
-    console.log("todayNightTimeStamp", todayNightTimeStamp);
-
     //等一下加入時間區間
     const allowLettersCount = await EmotionLetter.countDocuments({
       createTime: { $gte: lastNightTimeStamp, $lt: todayNightTimeStamp },
     });
-
-    console.log("可配對的信封數量", allowLettersCount);
 
     // 根據總數量決定百分比
     // 100人->20% ,1000人->15% , 5000人-> 10%
@@ -277,12 +272,6 @@ router.post("/match-letter", async (req, res) => {
         $sample: { size: sampleSize }, // 隨機取樣
       },
     ]);
-
-    console.log("篩選後信封數量", randomLetters.length);
-
-    // return res.status(200).send({
-    //   message: "系統開發中",
-    // });
 
     let letterMatches = [];
 
@@ -360,6 +349,10 @@ router.post("/match-letter", async (req, res) => {
         letterMatches.push(match);
       }
     }
+
+    await EmotionLetter.deleteMany({
+      letterUserID: { $in: Array.from(consumeUsers) }, // 使用 $in 查詢在 consumeUsers 中的用戶
+    });
 
     await MatchNewest.insertMany(letterMatches);
 
@@ -500,6 +493,27 @@ router.post("/get-match", async (req, res) => {
   } catch (e) {
     console.log(e);
     return res.status(500).send({
+      status: false,
+      message: "Server Error",
+    });
+  }
+});
+
+//獲取今天的樹洞配對列表
+router.post("/get-letter-match", async (req, res) => {
+  try {
+    const data = await MatchNewest.find({
+      matchUIType: 2,
+    });
+
+    res.status(200).send({
+      status: true,
+      message: "這是今天的樹洞配對列表",
+      data,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({
       status: false,
       message: "Server Error",
     });
