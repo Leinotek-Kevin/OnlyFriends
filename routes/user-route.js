@@ -206,7 +206,7 @@ router.post("/today-matches", async (req, res) => {
 
     let { matchScheduleStatus } = await Config.findOne({});
 
-    const data = [];
+    const matches = [];
 
     if (newestMatches.length > 0) {
       //OF 團隊聊天室
@@ -215,7 +215,7 @@ router.post("/today-matches", async (req, res) => {
         sendbirdUrl: "onlyfriends_announcement_channel",
       };
 
-      data.push(serviceData);
+      matches.push(serviceData);
 
       //整理要輸出給前端的配對資料
       newestMatches.forEach(async (match) => {
@@ -240,23 +240,27 @@ router.post("/today-matches", async (req, res) => {
           letterContent,
         };
 
-        data.push(outData);
+        matches.push(outData);
       });
 
       return res.status(200).send({
         status: true,
         message: "成功獲取配對對象列表",
         validCode: "1",
-        matchScheduleStatus,
-        data,
+        data: {
+          matchScheduleStatus,
+          matches,
+        },
       });
     } else {
       return res.status(200).send({
         status: true,
         message: "目前沒有對象",
         validCode: "1",
-        matchScheduleStatus,
-        data,
+        data: {
+          matchScheduleStatus,
+          matches,
+        },
       });
     }
   } catch (e) {
