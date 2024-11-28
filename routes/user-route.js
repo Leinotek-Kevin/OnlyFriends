@@ -47,6 +47,7 @@ router.post("/info", async (req, res) => {
       userRegion,
       userMBTI,
       userQuestion,
+      notificationStatus,
       emotion,
       interested,
       traits,
@@ -132,6 +133,10 @@ router.post("/info", async (req, res) => {
 
       if (userQuestion != null) {
         updateData.userQuestion = userQuestion;
+      }
+
+      if (notificationStatus != null) {
+        updateData.notificationStatus = notificationStatus;
       }
 
       if (emotion != null) {
