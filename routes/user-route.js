@@ -190,6 +190,9 @@ router.post("/today-matches", async (req, res) => {
     let { userID, isSubscription } = req.user;
     let { unlockObjects } = req.user.userActives;
 
+    const isCloseNight =
+      dateUtil.getTomorrowNight() - Date.now() < 10 * 60 * 1000;
+
     const newestMatches = await MatchNeswest.find({
       $or: [{ user1ID: userID }, { user2ID: userID }],
     })
@@ -256,6 +259,7 @@ router.post("/today-matches", async (req, res) => {
         message: "成功獲取配對對象列表",
         validCode: "1",
         data: {
+          isCloseNight,
           matchScheduleStatus,
           matches,
         },
@@ -266,6 +270,7 @@ router.post("/today-matches", async (req, res) => {
         message: "目前沒有對象",
         validCode: "1",
         data: {
+          isCloseNight,
           matchScheduleStatus,
           matches,
         },

@@ -7,7 +7,6 @@ const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
 const dateUtil = require("../utils/date-util");
 const SendBird = require("sendbird");
-const { allow } = require("joi");
 const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
 
 router.use((req, res, next) => {

@@ -22,6 +22,19 @@ const getToday = () => {
   return today;
 };
 
+//取得明天午夜的TimeStamp
+const getTomorrowNight = () => {
+  const currentDate = new Date(); // 获取当前系统时间
+
+  // 設置為昨天的日期，並將時間設置為午夜 00:00:00
+  currentDate.setDate(currentDate.getDate() + 1);
+  currentDate.setHours(0, 0, 0, 0);
+
+  const timestamp = currentDate.getTime(); // 獲取時間戳記
+
+  return timestamp;
+};
+
 //取得昨天午夜的 TimeStamp
 const getYesterdayNight = () => {
   const currentDate = new Date(); // 获取当前系统时间
@@ -35,6 +48,7 @@ const getYesterdayNight = () => {
   return timestamp;
 };
 
+//取得今天午夜的 TimeStamp
 const getTodayNight = () => {
   const currentDate = new Date(); // 获取当前系统时间
 
@@ -47,4 +61,10 @@ const getTodayNight = () => {
   return timestamp;
 };
 
-module.exports = { isToday, getToday, getYesterdayNight, getTodayNight };
+module.exports = {
+  isToday,
+  getToday,
+  getYesterdayNight,
+  getTodayNight,
+  getTomorrowNight,
+};
