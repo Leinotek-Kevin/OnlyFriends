@@ -175,6 +175,12 @@ const userSchema = new Schema({
     default: false,
   },
 
+  //該用戶推播關關狀態
+  notificationStatus: {
+    type: Boolean,
+    default: false,
+  },
+
   //該用戶登入狀態
   isLogin: {
     type: Boolean,

@@ -193,12 +193,14 @@ router.post("/today-matches", async (req, res) => {
         "userID",
         "userPhotos",
         "userQuestion",
+        "notificationStatus",
       ])
       .populate("user2_ID", [
         "userName",
         "userID",
         "userPhotos",
         "userQuestion",
+        "notificationStatus",
       ])
       .sort({
         uiType: 1,
@@ -233,6 +235,7 @@ router.post("/today-matches", async (req, res) => {
           userName: objectInfo.userName,
           userQuestion: objectInfo.userQuestion,
           userPhotos: objectInfo.userPhotos,
+          notificationStatus: objectInfo.notificationStatus,
           sendbirdUrl: match.sendbirdUrl,
           isChecked: match.isChecked,
           isUnlock:
