@@ -486,8 +486,93 @@ router.post("/sign-unlock", async (req, res) => {
   }
 });
 
-//B-6 取得 OF 貼圖系列
-router.post("get-sticker", async (req, res) => {
+//B-6 封鎖指定對象用戶
+router.post("/lock-object", async (req, res) => {
+  try {
+    let { userID } = req.user;
+    let { objectID } = req.body;
+    let relation = await UserRelation.findOne({ userID });
+
+    let currentUnlikes = [];
+
+    if (relation) {
+      currentUnlikes = relation.unlikeUsers;
+    }
+
+    if (currentUnlikes.indexOf(objectID) == -1) {
+      currentUnlikes.push(objectID);
+
+      await UserRelation.findOneAndUpdate(
+        { userID },
+        {
+          unlikeUsers: currentUnlikes,
+        },
+        {
+          upsert: true,
+        }
+      );
+
+      return res.status(200).send({
+        status: true,
+        message: "您已成功封鎖對方！",
+        validCode: "1",
+      });
+    } else {
+      //已經存在封鎖關係列表
+      return res.status(200).send({
+        status: true,
+        message: "這個用戶您已經封鎖過勒！",
+        validCode: "1",
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      validCode: "-1",
+      e,
+    });
+  }
+});
+
+//B-7 取得與用戶聊天的關係
+router.post("/get-relationship", async (req, res) => {
+  try {
+    let { userID } = req.user;
+    let { objectID } = req.body;
+
+    const userRelation = await UserRelation.findOne({ userID });
+    const userUnlikes = userRelation == null ? [] : userRelation.unlikeUsers;
+
+    const objectRelation = await UserRelation.findOne({ userID: objectID });
+    const objectUnlikes =
+      objectRelation == null ? [] : objectRelation.unlikeUsers;
+
+    const data = {};
+
+    data.isYouLockObject = userUnlikes.indexOf(objectID) != -1;
+    data.canYouNotifyObject =
+      !data.isYouLockObject && objectUnlikes.indexOf(userID) == -1;
+
+    return res.status(200).send({
+      status: true,
+      message: "獲取與對象的關係",
+      validCode: "1",
+      data,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      validCode: "-1",
+      e,
+    });
+  }
+});
+
+//B-7 取得 OF 貼圖系列
+router.post("/get-sticker", async (req, res) => {
   try {
     return res.status(200).send({
       status: true,

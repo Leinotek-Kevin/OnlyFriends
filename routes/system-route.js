@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { v4: uuidv4 } = require("uuid");
 const User = require("../models").user;
+const UserRelation = require("../models").userRelation;
 const Config = require("../models").config;
 const MatchHistory = require("../models").matchHistory;
 const MatchNewest = require("../models").matchNewest;
@@ -59,7 +60,7 @@ router.post("/match-general", async (req, res) => {
     await MatchNewest.deleteMany({});
 
     //刪除大於過去兩天的歷史配對紀錄
-    const result = await MatchHistory.deleteMany({
+    await MatchHistory.deleteMany({
       matchDate: { $lt: time48HoursAgo },
     });
 
@@ -92,6 +93,12 @@ router.post("/match-general", async (req, res) => {
         match.user1ID === currentUser.userID ? match.user2ID : match.user1ID
       );
 
+      //這個用戶封鎖的對象
+      let relation = await UserRelation.findOne({
+        userID: currentUser.userID,
+      });
+      const unlikeObjects = relation == null ? [] : relation.unlikeUsers;
+
       //檢查目前這個用戶還剩下多少配對次數,沒訂閱不用檢查,因為只有一次
       let targetUserCount = 0;
 
@@ -111,7 +118,11 @@ router.post("/match-general", async (req, res) => {
 
       //合併排除的對象
       const consumeSetArray = Array.from(consumeUsers);
-      const combinedArray = [...lastMatchedUserIds, ...consumeSetArray];
+      const combinedArray = [
+        ...lastMatchedUserIds,
+        ...consumeSetArray,
+        ...unlikeObjects,
+      ];
 
       //用戶篩選條件
       let {

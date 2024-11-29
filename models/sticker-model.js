@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 //製作貼圖系列 Schema
 const stickerSchema = new Schema({
-  //貼圖優先序 ()
+  //貼圖優先序
   priority: {
     type: Number,
   },
