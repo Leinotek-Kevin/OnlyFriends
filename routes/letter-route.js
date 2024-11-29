@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const User = require("../models").user;
 const EmotionLetter = require("../models").letter;
+const UserRelation = require("../models").userRelation;
 const passport = require("passport");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -40,14 +41,37 @@ router.post("/show-all", async (req, res) => {
 
   try {
     //let { page } = req.body;
-    let { likeLetters } = req.user.userActives;
-    const todayNightTimeStamp = dateUtil.getTodayNight();
-
     // 從請求中獲取 page ,並設置默認值
     //const queryPage = parseInt(page) || 1;
-
     // 計算應該跳過的數據量 (用於分頁)
     //const skip = (queryPage - 1) * loadCount;
+
+    const todayNightTimeStamp = dateUtil.getTodayNight();
+
+    let { userID } = req.user;
+    let userLikeLetters = [];
+    let relation = await UserRelation.findOne({ userID });
+
+    if (relation) {
+      let { updateDate, likeLetters } = relation.letterActive;
+
+      let today = dateUtil.getToday();
+      let isNotToday = updateDate !== today;
+
+      if (isNotToday) {
+        await UserRelation.updateOne(
+          {
+            userID,
+          },
+          {
+            "letterActive.likeLetters": [],
+            "letterActive.updateDate": today,
+          }
+        );
+      } else {
+        userLikeLetters = likeLetters;
+      }
+    }
 
     let data = await EmotionLetter.find({
       createTime: { $lt: todayNightTimeStamp },
@@ -59,9 +83,9 @@ router.post("/show-all", async (req, res) => {
 
     let hasLetters = data != null && data.length > 0;
 
-    if (hasLetters && likeLetters.length > 0) {
+    if (hasLetters && userLikeLetters.length > 0) {
       data = data.map((letter) => {
-        letter.likeStatus = likeLetters.includes(letter.letterID);
+        letter.likeStatus = userLikeLetters.includes(letter.letterID);
         letter.likeCount = letter.likeCount < 0 ? 0 : letter.likeCount;
         return letter; // 確保返回每個 letter
       });
@@ -74,6 +98,7 @@ router.post("/show-all", async (req, res) => {
       data: hasLetters ? data : [],
     });
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
@@ -150,11 +175,9 @@ router.post("/send-letter", async (req, res) => {
 //D-3 按/取消心情樹洞信封讚
 router.post("/like-letter", async (req, res) => {
   try {
+    let { userID } = req.user;
     let { action, letterID } = req.body; //0:取消 1:案讚
 
-    let { likeLetters } = req.user.userActives;
-
-    //這則信封的案讚總量
     const letterData = await EmotionLetter.findOne({
       letterID,
     });
@@ -167,20 +190,33 @@ router.post("/like-letter", async (req, res) => {
       });
     }
 
+    //這則信封的案讚總量
     let counts = letterData.likeCount;
 
+    //該用戶今天的點讚的信封
+    let likeLetters = [];
+    const relation = await UserRelation.findOne({ userID });
+
+    if (relation) {
+      likeLetters = relation.letterActive.likeLetters;
+    }
+
     if (action === "0") {
-      // 取消讚
-      let letterSet = new Set(likeLetters);
-      // 刪除指定元素
-      letterSet.delete(letterID);
-      // 將 Set 轉換回數組
-      likeLetters = Array.from(letterSet);
-      counts--;
+      if (likeLetters.indexOf(letterID) != -1) {
+        // 取消讚
+        let letterSet = new Set(likeLetters);
+        // 刪除指定元素
+        letterSet.delete(letterID);
+        // 將 Set 轉換回數組
+        likeLetters = Array.from(letterSet);
+        counts--;
+      }
     } else if (action === "1") {
-      //案讚
-      likeLetters.push(letterID);
-      counts++;
+      if (likeLetters.indexOf(letterID) == -1) {
+        //案讚
+        likeLetters.push(letterID);
+        counts++;
+      }
     }
 
     //防止變成 0
@@ -200,13 +236,16 @@ router.post("/like-letter", async (req, res) => {
         }
       ),
       // 更新用戶今天按讚的信封 ID
-      User.updateOne(
+      UserRelation.findOneAndUpdate(
         {
-          userID: req.user.userID,
+          userID,
         },
         {
-          "userActives.likeLetters": likeLetters,
-          "userActives.updateDate": dateUtil.getToday(),
+          "letterActive.likeLetters": likeLetters,
+          "letterActive.updateDate": dateUtil.getToday(),
+        },
+        {
+          upsert: true,
         }
       ),
     ]);

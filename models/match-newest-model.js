@@ -55,6 +55,12 @@ const matchNewestSchema = new Schema({
     type: String,
     default: "",
   },
+
+  //不喜歡這個配對發起者
+  unlikeInitiators: {
+    type: Array,
+    default: [],
+  },
 });
 
 matchNewestSchema.index({ user1ID: 1, user2ID: 1 });

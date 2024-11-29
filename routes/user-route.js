@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const User = require("../models").user;
+const UserRelation = require("../models").userRelation;
 const MatchNeswest = require("../models").matchNewest;
 const Config = require("../models").config;
 const dateUtil = require("../utils/date-util");
@@ -70,29 +71,10 @@ router.post("/info", async (req, res) => {
     //刪掉不要的字段
     delete data._id;
     delete data.__v;
-    delete data.userActives;
     delete data.lastSendLetterTime;
     delete data.registerTime;
     delete data.lastLoginTime;
     delete data.userValidCode;
-
-    let { updateDate } = req.user.userActives;
-
-    let today = dateUtil.getToday();
-    let isNotToday = updateDate !== today;
-
-    if (isNotToday) {
-      await User.updateOne(
-        {
-          userID: req.user.userID,
-        },
-        {
-          "userActives.likeLetters": [],
-          "userActives.unlockObjects": [],
-          "userActives.updateDate": today,
-        }
-      );
-    }
 
     //讀取或更改用戶資料
     if (action == 0) {
@@ -188,7 +170,32 @@ router.post("/info", async (req, res) => {
 router.post("/today-matches", async (req, res) => {
   try {
     let { userID, isSubscription } = req.user;
-    let { unlockObjects } = req.user.userActives;
+
+    //查詢目前使用者今天已經解鎖的對象
+    let relation = await UserRelation.findOne({ userID });
+
+    let unlocks = [];
+
+    if (relation) {
+      let { unlockObjects, updateDate } = relation.objectActive;
+
+      let today = dateUtil.getToday();
+      let isNotToday = updateDate !== today;
+
+      if (isNotToday) {
+        await UserRelation.updateOne(
+          {
+            userID,
+          },
+          {
+            "objectActive.unlockObjects": [],
+            "objectActive.updateDate": today,
+          }
+        );
+      } else {
+        unlocks = unlockObjects;
+      }
+    }
 
     const isCloseNight =
       dateUtil.getTomorrowNight() - Date.now() < 10 * 60 * 1000;
@@ -246,8 +253,7 @@ router.post("/today-matches", async (req, res) => {
           notificationStatus: objectInfo.notificationStatus,
           sendbirdUrl: match.sendbirdUrl,
           isChecked: match.isChecked,
-          isUnlock:
-            isSubscription || unlockObjects.indexOf(objectInfo.userID) != -1,
+          isUnlock: isSubscription || unlocks.indexOf(objectInfo.userID) != -1,
           letterContent,
         };
 
@@ -430,18 +436,31 @@ router.post("/update-condition", async (req, res) => {
 //B-5 標記已經解鎖的對象用戶
 router.post("/sign-unlock", async (req, res) => {
   try {
-    let { userID, userEmail } = req.user;
-    let { unlockObjects } = req.user.userActives;
+    let { userID } = req.user;
     let { objectID } = req.body;
+    let unlockObjects = [];
 
+    let relation = await UserRelation.findOne({ userID });
+
+    if (relation != null) {
+      unlockObjects = relation.objectActive.unlockObjects;
+    }
+
+    //如果解鎖對象不存在列表裡，就存起來
     if (unlockObjects.indexOf(objectID) == -1) {
       unlockObjects.push(objectID);
 
-      await User.updateOne(
-        { userID, userEmail },
+      await UserRelation.findOneAndUpdate(
         {
-          "userActives.unlockObjects": unlockObjects,
-          "userActives.updateDate": dateUtil.getToday(),
+          userID,
+        },
+        {
+          "objectActive.unlockObjects": unlockObjects,
+          "objectActive.updateDate": dateUtil.getToday(),
+        },
+        {
+          upsert: true,
+          new: true,
         }
       );
 
@@ -463,6 +482,24 @@ router.post("/sign-unlock", async (req, res) => {
       message: "Server Error",
       validCode: "-1",
       e,
+    });
+  }
+});
+
+//B-6 取得 OF 貼圖系列
+router.post("get-sticker", async (req, res) => {
+  try {
+    return res.status(200).send({
+      status: true,
+      message: "成功獲取貼圖系列",
+      validCode: "1",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+      validCode: "-1",
     });
   }
 });
