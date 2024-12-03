@@ -255,7 +255,7 @@ router.post("/match-letter", async (req, res) => {
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
     const todayNightTimeStamp = dateUtil.getTodayNight();
 
-    //等一下加入時間區間
+    //昨天午夜到現在午夜的信封
     const allowLettersCount = await EmotionLetter.countDocuments({
       createTime: { $gte: lastNightTimeStamp, $lt: todayNightTimeStamp },
     });

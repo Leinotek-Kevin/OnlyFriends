@@ -26,6 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 //Handle Router
+app.use("/api/test", routes.test);
 app.use("/api/auth", routes.auth);
 app.use("/api/user", routes.user);
 app.use("/api/letter", routes.letter);

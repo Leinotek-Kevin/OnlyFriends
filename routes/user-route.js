@@ -239,7 +239,14 @@ router.post("/today-matches", async (req, res) => {
         let objectInfo =
           match.user1ID === userID ? match.user2_ID : match.user1_ID;
 
-        let letterContent =
+        //提取你的信封內容
+        let letterYourContent =
+          match.user1ID === userID
+            ? match.user1letterContent
+            : match.user2letterContent;
+
+        //提取對方的信封內容
+        let letterObjectContent =
           match.user1ID === userID
             ? match.user2letterContent
             : match.user1letterContent;
@@ -254,7 +261,8 @@ router.post("/today-matches", async (req, res) => {
           sendbirdUrl: match.sendbirdUrl,
           isChecked: match.isChecked,
           isUnlock: isSubscription || unlocks.indexOf(objectInfo.userID) != -1,
-          letterContent,
+          letterYourContent,
+          letterObjectContent,
         };
 
         matches.push(outData);

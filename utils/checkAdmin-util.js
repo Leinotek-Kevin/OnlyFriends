@@ -13,6 +13,7 @@ const serviceAccount =
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
+    storageBucket: "onlyfriends-20295.appspot.com",
   });
   console.log("Firebase Admin has been initialized.");
 } else {
