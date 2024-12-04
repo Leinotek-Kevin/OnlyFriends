@@ -170,14 +170,15 @@ router.post("/info", async (req, res) => {
 router.post("/today-matches", async (req, res) => {
   try {
     let { userID, isSubscription } = req.user;
+    let { matchScheduleStatus } = await Config.findOne({});
 
-    //查詢目前使用者今天已經解鎖的對象
+    //查詢目前使用者標記好感度的對象
     let relation = await UserRelation.findOne({ userID });
 
-    let unlocks = [];
+    let signObjects = [];
 
     if (relation) {
-      let { unlockObjects, updateDate } = relation.objectActive;
+      let { likeObjects, updateDate } = relation.objectActive;
 
       let today = dateUtil.getToday();
       let isNotToday = updateDate !== today;
@@ -188,18 +189,20 @@ router.post("/today-matches", async (req, res) => {
             userID,
           },
           {
-            "objectActive.unlockObjects": [],
+            "objectActive.likeObjects": [],
             "objectActive.updateDate": today,
           }
         );
       } else {
-        unlocks = unlockObjects;
+        signObjects = likeObjects;
       }
     }
 
+    //是否接近午夜
     const isCloseNight =
       dateUtil.getTomorrowNight() - Date.now() < 10 * 60 * 1000;
 
+    //獲取今天所有配對
     const newestMatches = await MatchNeswest.find({
       $or: [{ user1ID: userID }, { user2ID: userID }],
     })
@@ -221,8 +224,6 @@ router.post("/today-matches", async (req, res) => {
         uiType: 1,
       });
 
-    let { matchScheduleStatus } = await Config.findOne({});
-
     const matches = [];
 
     if (newestMatches.length > 0) {
@@ -239,18 +240,6 @@ router.post("/today-matches", async (req, res) => {
         let objectInfo =
           match.user1ID === userID ? match.user2_ID : match.user1_ID;
 
-        //提取你的信封內容
-        let letterYourContent =
-          match.user1ID === userID
-            ? match.user1letterContent
-            : match.user2letterContent;
-
-        //提取對方的信封內容
-        let letterObjectContent =
-          match.user1ID === userID
-            ? match.user2letterContent
-            : match.user1letterContent;
-
         let outData = {
           uiType: match.matchUIType,
           userID: objectInfo.userID,
@@ -260,10 +249,41 @@ router.post("/today-matches", async (req, res) => {
           notificationStatus: objectInfo.notificationStatus,
           sendbirdUrl: match.sendbirdUrl,
           isChecked: match.isChecked,
-          isUnlock: isSubscription || unlocks.indexOf(objectInfo.userID) != -1,
-          letterYourContent,
-          letterObjectContent,
+          likeLevel: 1,
+          letterYourContent: "",
+          letterObjectContent: "",
         };
+
+        if (match.matchUIType == 1) {
+          //一般配對
+          //提取與對象的好感度LikeLevel
+          let foundObject = signObjects.find(
+            (obj) => obj.objectID === objectInfo.userID
+          );
+
+          if (foundObject) {
+            //輸出目前標記的好感度
+            outData.likeLevel = foundObject.likeLevel;
+          }
+
+          if (isSubscription) {
+            //如果有訂閱,直接最高等級
+            outData.likeLevel = 3;
+          }
+        } else if (match.matchUIType == 2) {
+          //樹洞配對
+          //提取你的信封內容
+          outData.letterYourContent =
+            match.user1ID === userID
+              ? match.user1letterContent
+              : match.user2letterContent;
+
+          //提取對方的信封內容
+          outData.letterObjectContent =
+            match.user1ID === userID
+              ? match.user2letterContent
+              : match.user1letterContent;
+        }
 
         matches.push(outData);
       });
@@ -441,49 +461,57 @@ router.post("/update-condition", async (req, res) => {
   }
 });
 
-//B-5 標記已經解鎖的對象用戶
-router.post("/sign-unlock", async (req, res) => {
+//B-5 標記好感度的對象用戶
+router.post("/sign-object", async (req, res) => {
   try {
     let { userID } = req.user;
-    let { objectID } = req.body;
-    let unlockObjects = [];
+    let { objectID, likeLevel } = req.body;
 
     let relation = await UserRelation.findOne({ userID });
 
-    if (relation != null) {
-      unlockObjects = relation.objectActive.unlockObjects;
-    }
+    if (relation) {
+      let likeObjects = relation.objectActive.likeObjects;
 
-    //如果解鎖對象不存在列表裡，就存起來
-    if (unlockObjects.indexOf(objectID) == -1) {
-      unlockObjects.push(objectID);
+      let foundObject = likeObjects.find((obj) => obj.objectID === objectID);
 
-      await UserRelation.findOneAndUpdate(
-        {
-          userID,
-        },
-        {
-          "objectActive.unlockObjects": unlockObjects,
-          "objectActive.updateDate": dateUtil.getToday(),
-        },
-        {
-          upsert: true,
-          new: true,
-        }
-      );
+      if (foundObject) {
+        //修改likeLevel
+        foundObject.likeLevel = likeLevel;
+      } else {
+        //找不到對象,直接新增
+        likeObjects.push({
+          objectID,
+          likeLevel,
+        });
+      }
 
-      return res.status(200).send({
-        status: true,
-        message: "成功標記解鎖用戶！",
-        validCode: "1",
-      });
+      await relation.save();
     } else {
-      return res.status(200).send({
-        status: true,
-        message: "這個對象已經被標記解鎖過嚕！",
-        validCode: "1",
+      //如果找不到任何該用戶的關係表,就直接新增
+      let likeObjects = [
+        {
+          objectID,
+          likeLevel,
+        },
+      ];
+
+      await UserRelation.create({
+        userID,
+        objectActive: {
+          likeObjects,
+          updateDate: dateUtil.getToday(),
+        },
       });
     }
+
+    return res.status(200).send({
+      status: true,
+      message: "成功標記對象好感度",
+      validCode: "1",
+      data: {
+        likeLevel: Number(likeLevel),
+      },
+    });
   } catch (e) {
     return res.status(500).send({
       status: false,

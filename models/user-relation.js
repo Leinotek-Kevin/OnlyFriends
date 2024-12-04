@@ -30,10 +30,16 @@ const userRelationSchema = new Schema({
 
   //使用者已經解鎖的用戶
   objectActive: {
-    unlockObjects: {
-      type: Array,
-      default: [],
-    },
+    likeObjects: [
+      {
+        objectID: String,
+        likeLevel: {
+          type: Number,
+          enum: [1, 2, 3],
+          default: 1,
+        },
+      },
+    ],
 
     updateDate: {
       type: String,

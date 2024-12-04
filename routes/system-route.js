@@ -739,7 +739,7 @@ router.post("/robot-send", async (req, res) => {
     let letterData = {
       letterUser: _id,
       letterUserID: userID,
-      createTime: Date.now(),
+      createTime: dateUtil.getYesterdayNight() + 1000 * 60 * 60,
     };
 
     const uuid = uuidv4(); // 生成 UUID v4
