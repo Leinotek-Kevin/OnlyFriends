@@ -200,7 +200,7 @@ router.post("/today-matches", async (req, res) => {
 
     //是否接近午夜
     const isCloseNight =
-      dateUtil.getTomorrowNight() - Date.now() < 10 * 60 * 1000;
+      dateUtil.getTomorrowNight() - Date.now() <= 30 * 60 * 1000;
 
     //獲取今天所有配對
     const newestMatches = await MatchNeswest.find({
