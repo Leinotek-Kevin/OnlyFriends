@@ -2,6 +2,7 @@ const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
 const dateUtil = require("../utils/date-util");
 const mongoose = require("mongoose");
+const Config = require("../models").config;
 const dotenv = require("dotenv");
 dotenv.config();
 
