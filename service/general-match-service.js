@@ -16,6 +16,7 @@ const runGeneralMatch = async () => {
 
   try {
     console.log("開始執行配對");
+    let time = Date.now();
 
     //連結 mongoDB
     mongoose
@@ -27,10 +28,22 @@ const runGeneralMatch = async () => {
         console.log(e);
       });
 
-    let time = Date.now();
+    //當今天的一般配對執行完畢，才可以執行樹洞配對
+    let {
+      matchRecord: {
+        general: { currentDate: generalDate, status: generalStatus },
+      },
+    } = await Config.findOne({});
+
+    if (generalDate == dateUtil.getToday()) {
+      if (generalStatus == "2" || generalStatus == "1") {
+        console.log("正在執行配對或今天已經執行過！");
+        return;
+      }
+    }
 
     //標記正在配對的狀態
-    await Config.updateOne({ matchScheduleStatus: "1" });
+    await Config.updateOne({ "matchRecord.general.status": "1" });
 
     //清空最近的配對列表
     await MatchNewest.deleteMany({});
@@ -203,12 +216,16 @@ const runGeneralMatch = async () => {
       await MatchHistory.insertMany(matches);
     }
 
-    //標記正在配對的狀態
-    await Config.updateOne({ matchScheduleStatus: "2" });
-
     let finishTime = (Date.now() - time) / 1000.0;
 
-    console.log("已完成配對！" + finishTime);
+    //標記已完成配對的狀態
+    await Config.updateOne({
+      "matchRecord.general.status": "2",
+      "matchRecord.general.consumeTime": finishTime,
+      "matchRecord.general.currentDate": dateUtil.getToday(),
+    });
+
+    console.log("已完成配對！");
   } catch (error) {
     console.log("配對出現問題" + error);
   }

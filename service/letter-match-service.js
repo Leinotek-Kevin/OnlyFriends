@@ -8,6 +8,7 @@ dotenv.config();
 const runLetterMatch = async () => {
   try {
     console.log("開始執行樹洞配對");
+    let time = Date.now();
 
     //連結 mongoDB
     mongoose
@@ -19,7 +20,28 @@ const runLetterMatch = async () => {
         console.log(e);
       });
 
-    let time = Date.now();
+    //當今天的一般配對執行完畢，才可以執行樹洞配對
+    let {
+      matchRecord: {
+        general: { currentDate: generalDate, status: generalStatus },
+        letter: { currentDate: letterDate, status: letterStatus },
+      },
+    } = await Config.findOne({});
+
+    if (generalDate != dateUtil.getToday() || generalStatus != "2") {
+      console.log("今天的一般配對還沒完成！不可以執行樹洞配對");
+      return;
+    }
+
+    if (letterDate == dateUtil.getToday()) {
+      if (letterStatus == "2" || letterStatus == "1") {
+        console.log("正在執行樹洞配對或今天已經執行過！");
+        return;
+      }
+    }
+
+    //標記正在樹洞配對的狀態
+    await Config.updateOne({ "matchRecord.general.status": "1" });
 
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
     const todayNightTimeStamp = dateUtil.getTodayNight();
@@ -143,7 +165,14 @@ const runLetterMatch = async () => {
 
     let finishTime = (Date.now() - time) / 1000.0;
 
-    console.log("心情樹洞配對完成", finishTime);
+    //標記已完成配對的狀態
+    await Config.updateOne({
+      "matchRecord.letter.status": "2",
+      "matchRecord.letter.consumeTime": finishTime,
+      "matchRecord.letter.currentDate": dateUtil.getToday(),
+    });
+
+    console.log("心情樹洞配對完成");
   } catch (e) {
     console.log("心情樹洞配對有問題", e);
   }

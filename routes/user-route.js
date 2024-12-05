@@ -170,7 +170,11 @@ router.post("/info", async (req, res) => {
 router.post("/today-matches", async (req, res) => {
   try {
     let { userID, isSubscription } = req.user;
-    let { matchScheduleStatus } = await Config.findOne({});
+    let {
+      matchRecord: {
+        general: { status: matchScheduleStatus },
+      },
+    } = await Config.findOne({});
 
     //查詢目前使用者標記好感度的對象
     let relation = await UserRelation.findOne({ userID });

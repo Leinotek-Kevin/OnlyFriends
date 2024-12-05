@@ -6,6 +6,7 @@ dotenv.config();
 const routes = require("./routes");
 const cors = require("cors");
 const port = process.env.PORT || 8080;
+const Config = require("./models").config;
 const admin = require("./utils/checkAdmin-util");
 const passport = require("passport");
 require("./config/passport")();
@@ -37,5 +38,25 @@ app.use("/api/purchase", routes.purchase);
 app.listen(port, () => {
   console.log("後端伺服器聆聽中....");
 });
+
+//檢查目前系統環境
+const systemCheck = async () => {
+  const config = await Config.findOne();
+
+  if (config == null) {
+    await Config.create({
+      chatCover: "",
+      matchRecord: {
+        general: {
+          status: "0",
+        },
+        letter: {
+          status: "0",
+        },
+      },
+    });
+  }
+};
+systemCheck();
 
 //執行午夜配對和樹洞配對和確認公開渠道

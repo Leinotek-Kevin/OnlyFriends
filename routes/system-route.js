@@ -53,8 +53,24 @@ router.post("/match-general", async (req, res) => {
   try {
     let time = Date.now();
 
+    //當今天的一般配對執行完畢，才可以執行樹洞配對
+    let {
+      matchRecord: {
+        general: { currentDate: generalDate, status: generalStatus },
+      },
+    } = await Config.findOne({});
+
+    if (generalDate == dateUtil.getToday()) {
+      if (generalStatus == "2" || generalStatus == "1") {
+        return res.status(200).send({
+          status: true,
+          message: "正在執行配對或今天已經執行過！",
+        });
+      }
+    }
+
     //標記正在配對的狀態
-    await Config.updateOne({ matchScheduleStatus: "1" });
+    await Config.updateOne({ "matchRecord.general.status": "1" });
 
     //清空最近的配對列表
     await MatchNewest.deleteMany({});
@@ -227,10 +243,14 @@ router.post("/match-general", async (req, res) => {
       await MatchHistory.insertMany(matches);
     }
 
-    //標記正在配對的狀態
-    await Config.updateOne({ matchScheduleStatus: "2" });
-
     let finishTime = (Date.now() - time) / 1000.0;
+
+    //標記已完成配對的狀態
+    await Config.updateOne({
+      "matchRecord.general.status": "2",
+      "matchRecord.general.consumeTime": finishTime,
+      "matchRecord.general.currentDate": dateUtil.getToday(),
+    });
 
     return res.status(200).send({
       status: true,
@@ -251,6 +271,33 @@ router.post("/match-general", async (req, res) => {
 router.post("/match-letter", async (req, res) => {
   try {
     let time = Date.now();
+
+    //當今天的一般配對執行完畢，才可以執行樹洞配對
+    let {
+      matchRecord: {
+        general: { currentDate: generalDate, status: generalStatus },
+        letter: { currentDate: letterDate, status: letterStatus },
+      },
+    } = await Config.findOne({});
+
+    if (generalDate != dateUtil.getToday() || generalStatus != "2") {
+      return res.status(200).send({
+        status: true,
+        message: "今天的一般配對還沒完成！不可以執行樹洞配對",
+      });
+    }
+
+    if (letterDate == dateUtil.getToday()) {
+      if (letterStatus == "2" || letterStatus == "1") {
+        return res.status(200).send({
+          status: true,
+          message: "正在執行樹洞配對或今天已經執行過！",
+        });
+      }
+    }
+
+    //標記正在樹洞配對的狀態
+    await Config.updateOne({ "matchRecord.letter.status": "1" });
 
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
     const todayNightTimeStamp = dateUtil.getTodayNight();
@@ -373,6 +420,13 @@ router.post("/match-letter", async (req, res) => {
     await MatchNewest.insertMany(letterMatches);
 
     let finishTime = (Date.now() - time) / 1000.0;
+
+    //標記已完成配對的狀態
+    await Config.updateOne({
+      "matchRecord.letter.status": "2",
+      "matchRecord.letter.consumeTime": finishTime,
+      "matchRecord.letter.currentDate": dateUtil.getToday(),
+    });
 
     return res.status(200).send({
       status: true,
