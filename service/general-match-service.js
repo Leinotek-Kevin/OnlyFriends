@@ -4,6 +4,9 @@ const Config = require("../models").config;
 const MatchHistory = require("../models").matchHistory;
 const MatchNewest = require("../models").matchNewest;
 const dateUtil = require("../utils/date-util");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+dotenv.config();
 
 //執行一般配對
 const runGeneralMatch = async () => {
@@ -13,6 +16,16 @@ const runGeneralMatch = async () => {
 
   try {
     console.log("開始執行配對");
+
+    //連結 mongoDB
+    mongoose
+      .connect(process.env.MONGODB_CONNECTION)
+      .then(() => {
+        console.log("連結到 mongoDB");
+      })
+      .catch((e) => {
+        console.log(e);
+      });
 
     let time = Date.now();
 

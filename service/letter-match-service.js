@@ -1,9 +1,24 @@
 const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
 const dateUtil = require("../utils/date-util");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const runLetterMatch = async () => {
   try {
+    console.log("開始執行樹洞配對");
+
+    //連結 mongoDB
+    mongoose
+      .connect(process.env.MONGODB_CONNECTION)
+      .then(() => {
+        console.log("連結到 mongoDB");
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+
     let time = Date.now();
 
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
