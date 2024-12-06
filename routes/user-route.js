@@ -628,7 +628,7 @@ router.post("/report", async (req, res) => {
         status: true,
         message: "獲取可檢舉項目",
         data: {
-          info: {},
+          info: null,
           items: ReportReasons,
         },
       });
