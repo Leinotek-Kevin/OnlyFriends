@@ -628,7 +628,7 @@ router.post("/report", async (req, res) => {
         status: true,
         message: "獲取可檢舉項目",
         data: {
-          result: "",
+          info: {},
           items: ReportReasons,
         },
       });
@@ -639,7 +639,11 @@ router.post("/report", async (req, res) => {
       const uuid = uuidv4(); // 生成 UUID v4
 
       // 查找對應的報告原因
-      const reasonItemDes = ReportReasons.find((r) => r.id === reasonItemID);
+      const reasonItemDes = ReportReasons.find(
+        (r) => r.reasonItemID == reasonItemID
+      ).description;
+
+      console.log(reasonItemDes);
 
       let reportData = {
         reportID: uuid.replace(/\D/g, "").slice(0, 10),
