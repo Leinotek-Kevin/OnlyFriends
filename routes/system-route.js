@@ -6,7 +6,11 @@ const Config = require("../models").config;
 const MatchHistory = require("../models").matchHistory;
 const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
+const Report = require("../models").report;
+
 const dateUtil = require("../utils/date-util");
+const storageUtil = require("../utils/cloudStorage-util");
+
 const SendBird = require("sendbird");
 const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
 
@@ -813,6 +817,73 @@ router.post("/robot-send", async (req, res) => {
     status: true,
     message: "模擬真人們紙飛機發送成功！",
   });
+});
+
+//顯示所有檢舉內容
+router.get("/show-reports", async (req, res) => {
+  try {
+    const loadCount = 10;
+
+    let { page } = req.body;
+    // 從請求中獲取 page ,並設置默認值
+    const queryPage = parseInt(page) || 1;
+    // 計算應該跳過的數據量 (用於分頁)
+    const skip = (queryPage - 1) * loadCount;
+
+    let reports = await Report.find({})
+      .sort({ reportDate: -1 })
+      .skip(skip)
+      .limit(loadCount);
+
+    return res.status(200).send({
+      status: true,
+      message: "顯示所有檢舉內容",
+      data: reports,
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server error!",
+      e,
+    });
+  }
+});
+
+//查詢＆審核檢舉內容
+router.post("/review-report", async (req, res) => {
+  try {
+    let { reportID, action } = req.body;
+    let report = await Report.findOne({ reportID });
+
+    if (action == "0") {
+      return res.status(200).send({
+        status: true,
+        message: "顯示指定檢舉案件內容",
+        data: report,
+      });
+    } else {
+      await Report.deleteOne({ reportID });
+
+      //需要被 Ben 的標準
+
+      //刪除 storage 照片
+      const photos = report.photos;
+      if (photos && photos.length > 0) {
+        storageUtil.deleteImages(photos);
+      }
+
+      return res.status(200).send({
+        status: true,
+        message: "已完成審核",
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server error!",
+      e,
+    });
+  }
 });
 
 //對 Sendbird OpenChannel 發送訊息

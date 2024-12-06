@@ -6,5 +6,6 @@ module.exports = {
   matchNewest: require("./match-newest-model"),
   purchase: require("./purchase-model"),
   sticker: require("./sticker-model"),
+  report: require("./report-model"),
   config: require("./config-model"),
 };

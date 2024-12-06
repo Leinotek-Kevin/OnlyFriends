@@ -60,6 +60,12 @@ const configSchema = new Schema({
     //   type: Date,
     // },
   },
+
+  //系統廣播渠道
+  annuChannel: {
+    type: String,
+    default: "",
+  },
 });
 
 //隱藏 _id,__v

@@ -1,13 +1,19 @@
 const router = require("express").Router();
+const { v4: uuidv4 } = require("uuid");
+
 const User = require("../models").user;
 const UserRelation = require("../models").userRelation;
 const MatchNeswest = require("../models").matchNewest;
 const Config = require("../models").config;
+const Report = require("../models").report;
+
 const dateUtil = require("../utils/date-util");
 const passport = require("passport");
 const axios = require("axios");
 const dotenv = require("dotenv");
 dotenv.config();
+
+const { ReportReasons } = require("../config/enum");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -174,6 +180,7 @@ router.post("/today-matches", async (req, res) => {
       matchRecord: {
         general: { status: matchScheduleStatus },
       },
+      annuChannel,
     } = await Config.findOne({});
 
     //查詢目前使用者標記好感度的對象
@@ -611,7 +618,78 @@ router.post("/get-relationship", async (req, res) => {
   }
 });
 
-//B-7 取得 OF 貼圖系列
+//B-9 獲取可檢舉項目資訊
+router.post("/report", async (req, res) => {
+  try {
+    let { action } = req.body;
+
+    if (action == "0") {
+      return res.status(200).send({
+        status: true,
+        message: "獲取可檢舉項目",
+        data: {
+          result: "",
+          items: ReportReasons,
+        },
+      });
+    } else if (action == "1") {
+      let { objectID, reasonItemID, content, photos } = req.body;
+      let { userID } = req.user;
+
+      const uuid = uuidv4(); // 生成 UUID v4
+
+      // 查找對應的報告原因
+      const reasonItemDes = ReportReasons.find((r) => r.id === reasonItemID);
+
+      let reportData = {
+        reportID: uuid.replace(/\D/g, "").slice(0, 10),
+        reportUserID: userID,
+        reportObjectID: objectID,
+        reasonItemID,
+        reasonItemDes,
+        content,
+        photos: [],
+      };
+
+      //檢舉照片
+      if (photos != null) {
+        try {
+          const photoArray = JSON.parse(photos);
+          reportData.photos = photoArray;
+        } catch (e) {
+          console.log("JSON 解析失敗:", e);
+        }
+      }
+
+      await Report.create(reportData);
+
+      return res.status(200).send({
+        status: true,
+        message: "檢舉成功！",
+        data: {
+          info: reportData,
+          items: ReportReasons,
+        },
+      });
+    } else {
+      return res.status(500).send({
+        status: false,
+        message: "參數錯誤！",
+        validCode: "1",
+        e,
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      validCode: "-1",
+      e,
+    });
+  }
+});
+
+//取得 OF 貼圖系列
 router.post("/get-sticker", async (req, res) => {
   try {
     return res.status(200).send({
