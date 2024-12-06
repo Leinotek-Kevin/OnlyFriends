@@ -666,6 +666,7 @@ router.post("/report", async (req, res) => {
       return res.status(200).send({
         status: true,
         message: "檢舉成功！",
+        validCode: "1",
         data: {
           info: reportData,
           items: ReportReasons,
@@ -676,7 +677,6 @@ router.post("/report", async (req, res) => {
         status: false,
         message: "參數錯誤！",
         validCode: "1",
-        e,
       });
     }
   } catch (e) {
