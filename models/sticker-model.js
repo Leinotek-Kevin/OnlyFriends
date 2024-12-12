@@ -3,30 +3,30 @@ const { Schema } = mongoose;
 
 //製作貼圖系列 Schema
 const stickerSchema = new Schema({
-  //貼圖優先序
+  //貼圖系列集優先序
   priority: {
     type: Number,
   },
 
-  //貼圖類別 0:免費 1:付費
-  stickerPlan: {
+  //貼圖系列集方案 0:免費 1:付費
+  stickersPlan: {
     type: String,
-    enum: ["0", "1"],
+    enum: ["P", "F"],
   },
 
-  //貼圖系列 ID
-  stickerID: {
-    type: Number,
+  //貼圖系列集ID名稱
+  stickersID: {
+    type: String,
   },
 
-  //貼圖是否可用
-  stickerAvailable: {
+  //貼圖系列集是否可用
+  stickersAvailable: {
     type: Boolean,
     default: true,
   },
 
-  //貼圖系列集
-  stcikerItems: [
+  //貼圖系列集項目
+  stcikersItems: [
     {
       stickerItemID: {
         type: String,

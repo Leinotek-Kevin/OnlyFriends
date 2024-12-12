@@ -7,16 +7,25 @@ const MatchHistory = require("../models").matchHistory;
 const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
 const Report = require("../models").report;
+const Sticker = require("../models").sticker;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
-
+const multer = require("multer");
 const SendBird = require("sendbird");
 const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 system 有關的請求");
   next();
+});
+
+//設定 multer 定義上傳檔案的暫存目錄
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, //限制 5MB
+  },
 });
 
 //顯示指定數量的身份用戶
@@ -881,6 +890,92 @@ router.post("/review-report", async (req, res) => {
     return res.status(500).send({
       status: false,
       message: "Server error!",
+      e,
+    });
+  }
+});
+
+//貼圖系列集 CRUD
+router.post("/sticker-series", async (req, res) => {
+  try {
+    let { action } = req.body;
+
+    if (action == "0") {
+      //讀取目前貼圖系列
+      const data = await Sticker.find({}).sort({ priority: -1 });
+
+      return res.status(200).send({
+        status: true,
+        message: "讀取目前貼圖系列",
+        data,
+      });
+    } else if (action == "1") {
+      //建立與修改貼圖系列
+      let { priority, stickersPlan, stickersID, stickersAvailable } = req.body;
+      await Sticker.findOneAndUpdate(
+        { stickersID },
+        {
+          priority,
+          stickersPlan,
+          stickersID,
+          stickersAvailable,
+        },
+        {
+          upsert: true,
+        }
+      );
+      return res.status(200).send({
+        status: true,
+        message: "已建立貼圖系列->但還沒有上傳檔案",
+      });
+    } else if (action == "2") {
+      //刪除貼圖系列
+      let { stickersID } = req.body;
+      await Sticker.deleteOne({ stickersID });
+      return res.status(200).send({
+        status: true,
+        message: "已刪除指定貼圖系列",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error !",
+      e,
+    });
+  }
+});
+
+//上傳指定貼圖系列集的項目
+router.post("/upload-sticker", upload.array("items", 16), async (req, res) => {
+  try {
+    let { stickersID } = req.body;
+
+    const data = await Sticker.findOne({ stickersID });
+
+    if (!data) {
+      return res.status(400).send("找不到指定的貼圖系列集！");
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).send("No files uploaded.");
+    }
+
+    //上傳 storage 照片
+    const photos = req.files;
+    if (photos && photos.length > 0) {
+      storageUtil.uploadImages("stickers/" + stickersID, 500, photos);
+    }
+
+    return res.status(200).send({
+      status: true,
+      message: "成功上傳貼圖",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
       e,
     });
   }

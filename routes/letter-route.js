@@ -48,7 +48,9 @@ router.post("/show-all", async (req, res) => {
 
     const todayNightTimeStamp = dateUtil.getTodayNight();
 
-    let { userID } = req.user;
+    let { userID, lastSendLetterTime } = req.user;
+    let isTodayEverSend = dateUtil.isToday(lastSendLetterTime);
+
     let userLikeLetters = [];
     let relation = await UserRelation.findOne({ userID });
 
@@ -95,7 +97,10 @@ router.post("/show-all", async (req, res) => {
       status: true,
       message: hasLetters ? "成功獲取心情樹洞列表" : "目前沒有任何心情紙條喔！",
       validCode: "1",
-      data: hasLetters ? data : [],
+      data: {
+        isTodayEverSend,
+        letters: hasLetters ? data : [],
+      },
     });
   } catch (e) {
     console.log(e);

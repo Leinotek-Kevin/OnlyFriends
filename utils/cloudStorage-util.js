@@ -1,4 +1,6 @@
 const admin = require("../utils/checkAdmin-util");
+const sharp = require("sharp");
+const { v4: uuidv4 } = require("uuid");
 
 //刪除 Firebase Storage Images
 const deleteImages = async (imageUrls) => {
@@ -29,4 +31,112 @@ const deleteImages = async (imageUrls) => {
   }
 };
 
-module.exports = { deleteImages };
+//上傳 Firebase Storage Images
+const uploadImages = async (folderName, limitSize, srcFiles) => {
+  try {
+    const bucket = admin.storage().bucket();
+
+    // 檢查是否有檔案 , [] 表示沒有檔案
+    if (!srcFiles || srcFiles.length === 0) {
+      return [];
+    }
+
+    const fileUrls = [];
+
+    // 逐個處理每個檔案
+    for (const file of srcFiles) {
+      const targetSizeKB = limitSize; // 目標大小 500KB
+      const imageBuffer = file.buffer;
+
+      // 使用 sharp 檢查圖片的大小
+      const imageInfo = await sharp(imageBuffer).metadata();
+      const imageSizeKB = imageInfo.size / 1024; // 計算圖片大小 (KB)
+
+      let finalBuffer = imageBuffer;
+
+      // 如果圖片大小小於 500KB，直接上傳
+      if (imageSizeKB > targetSizeKB) {
+        // 否則進行壓縮
+        finalBuffer = await compressImageToSize(imageBuffer, targetSizeKB);
+      }
+
+      const fileName = `${folderName}/${file.originalname}_${Date.now()}`;
+      const storageFile = bucket.file(fileName);
+
+      // 上傳檔案到 Firebase Storage
+      const blobStream = storageFile.createWriteStream({
+        metadata: {
+          contentType: file.mimetype,
+          metadata: {
+            firebaseStorageDownloadTokens: uuidv4(), // 在 metadata 中設置唯一 token
+          },
+        },
+      });
+
+      await new Promise((resolve, reject) => {
+        blobStream.on("error", (err) => reject(err));
+
+        blobStream.on("finish", async () => {
+          try {
+            // 獲取該檔案的 metadata
+            const [metadata] = await storageFile.getMetadata();
+            const fileToken = metadata.metadata.firebaseStorageDownloadTokens;
+
+            // 組成該檔案的下載 URL
+            const downloadUrl = `https://firebasestorage.googleapis.com/v0/b/${
+              bucket.name
+            }/o/${encodeURIComponent(fileName)}?alt=media&token=${fileToken}`;
+
+            // 將該檔案的下載 URL 推入陣列中
+            fileUrls.push(downloadUrl);
+
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        });
+
+        // 將檔案資料寫入 Firebase Storage
+        blobStream.end(finalBuffer);
+      });
+    }
+
+    // 上傳完成後返回所有檔案的 URL
+    return fileUrls;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+// 壓縮圖片到指定大小
+const compressImageToSize = (imageBuffer, targetSizeKB) => {
+  return new Promise((resolve, reject) => {
+    let quality = 100; // 初始質量設為 100
+
+    const tryCompress = () => {
+      sharp(imageBuffer)
+        .jpeg({ quality }) // 壓縮圖片並設置質量
+        .toBuffer() // 轉換為 Buffer
+        .then((compressedBuffer) => {
+          const sizeInKB = compressedBuffer.length / 1024; // 計算檔案大小 (KB)
+
+          if (sizeInKB <= targetSizeKB) {
+            resolve(compressedBuffer); // 如果檔案大小滿足要求，返回結果
+          } else if (quality > 10) {
+            quality -= 10; // 如果檔案還是太大，繼續減少質量
+            tryCompress(); // 遞歸再次壓縮
+          } else {
+            reject("Unable to compress image within target size");
+          }
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    };
+
+    tryCompress(); // 開始壓縮過程
+  });
+};
+
+module.exports = { deleteImages, uploadImages };

@@ -79,7 +79,7 @@ router.post("/upload", upload.single("image"), async (req, res) => {
     });
 
     // 將上傳的檔案資料寫入 Firebase Storage
-    blobStream.end(req.file.buffer);
+    blobStream.end(finalBuffer);
   } catch (error) {
     console.error(error);
     res.status(500).send("Upload failed.");
@@ -152,7 +152,7 @@ router.post("/upload-multi", upload.array("images", 10), async (req, res) => {
         });
 
         // 將檔案資料寫入 Firebase Storage
-        blobStream.end(file.buffer);
+        blobStream.end(finalBuffer);
       });
     }
 
