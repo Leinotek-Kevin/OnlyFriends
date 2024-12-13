@@ -8,7 +8,7 @@ const stickerSchema = new Schema({
     type: Number,
   },
 
-  //貼圖系列集方案 0:免費 1:付費
+  //貼圖系列集方案 F:免費 P:付費
   stickersPlan: {
     type: String,
     enum: ["P", "F"],

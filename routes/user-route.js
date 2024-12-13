@@ -681,8 +681,6 @@ router.post("/report", async (req, res) => {
         (r) => r.reasonItemID == reasonItemID
       ).description;
 
-      console.log(reasonItemDes);
-
       let reportData = {
         reportID: uuid.replace(/\D/g, "").slice(0, 10),
         reportUserID: userID,
@@ -735,17 +733,30 @@ router.post("/report", async (req, res) => {
 router.post("/get-stickers", async (req, res) => {
   try {
     const { isSubscription } = req.user;
-    const data = await Sticker.find({}).sort({ priority: -1 });
+    const data = await Sticker.find({ stickersAvailable: true }).sort({
+      priority: -1,
+    });
 
-    data.map((series) => {
-      series.stickersPlan = isSubscription ? "F" : series.stickersPlan;
+    const result = [];
+
+    data.forEach((series) => {
+      const handleSeries = {
+        ...series._doc,
+        isFreeToYou: isSubscription ? true : series.stickersPlan == "F",
+      };
+
+      delete handleSeries._id;
+      delete handleSeries.__v;
+      delete handleSeries.stickersAvailable;
+
+      result.push(handleSeries);
     });
 
     return res.status(200).send({
       status: true,
       message: "成功獲取貼圖系列",
       validCode: "1",
-      data,
+      data: result,
     });
   } catch (e) {
     return res.status(500).send({
