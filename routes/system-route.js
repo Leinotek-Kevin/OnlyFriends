@@ -896,7 +896,7 @@ router.post("/review-report", async (req, res) => {
 });
 
 //貼圖系列集 CRUD
-router.post("/sticker-series", async (req, res) => {
+router.post("/stickers-series", async (req, res) => {
   try {
     let { action } = req.body;
 
@@ -912,6 +912,12 @@ router.post("/sticker-series", async (req, res) => {
     } else if (action == "1") {
       //建立與修改貼圖系列
       let { priority, stickersPlan, stickersID, stickersAvailable } = req.body;
+
+      //讀取 storage 的貼圖檔案
+      const stickerUrls = await storageUtil.getImagesByFolder(
+        "stickers/" + stickersID
+      );
+
       await Sticker.findOneAndUpdate(
         { stickersID },
         {
@@ -919,6 +925,8 @@ router.post("/sticker-series", async (req, res) => {
           stickersPlan,
           stickersID,
           stickersAvailable,
+          stickersTag: stickerUrls[0],
+          stickersItems: stickerUrls.slice(1, stickerUrls.length),
         },
         {
           upsert: true,
@@ -942,40 +950,6 @@ router.post("/sticker-series", async (req, res) => {
     return res.status(500).send({
       status: false,
       message: "Server Error !",
-      e,
-    });
-  }
-});
-
-//上傳指定貼圖系列集的項目
-router.post("/upload-sticker", upload.array("items", 16), async (req, res) => {
-  try {
-    let { stickersID } = req.body;
-
-    const data = await Sticker.findOne({ stickersID });
-
-    if (!data) {
-      return res.status(400).send("找不到指定的貼圖系列集！");
-    }
-
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).send("No files uploaded.");
-    }
-
-    //上傳 storage 照片
-    const photos = req.files;
-    if (photos && photos.length > 0) {
-      storageUtil.uploadImages("stickers/" + stickersID, 500, photos);
-    }
-
-    return res.status(200).send({
-      status: true,
-      message: "成功上傳貼圖",
-    });
-  } catch (e) {
-    return res.status(500).send({
-      status: false,
-      message: "Server Error!",
       e,
     });
   }

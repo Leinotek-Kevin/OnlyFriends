@@ -6,6 +6,7 @@ const UserRelation = require("../models").userRelation;
 const MatchNeswest = require("../models").matchNewest;
 const Config = require("../models").config;
 const Report = require("../models").report;
+const Sticker = require("../models").sticker;
 
 const dateUtil = require("../utils/date-util");
 const passport = require("passport");
@@ -14,6 +15,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const { ReportReasons } = require("../config/enum");
+const { boolean } = require("joi");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -533,11 +535,12 @@ router.post("/sign-object", async (req, res) => {
   }
 });
 
-//B-6 封鎖指定對象用戶
+//B-6 封鎖/解除封鎖指定對象用戶
 router.post("/lock-object", async (req, res) => {
   try {
     let { userID } = req.user;
-    let { objectID } = req.body;
+    let { action, objectID } = req.body;
+
     let relation = await UserRelation.findOne({ userID });
 
     let currentUnlikes = [];
@@ -546,31 +549,66 @@ router.post("/lock-object", async (req, res) => {
       currentUnlikes = relation.unlikeUsers;
     }
 
-    if (currentUnlikes.indexOf(objectID) == -1) {
-      currentUnlikes.push(objectID);
+    if (action == "0") {
+      // 解除封鎖
+      if (
+        currentUnlikes.length == 0 ||
+        currentUnlikes.indexOf(objectID) == -1
+      ) {
+        return res.status(200).send({
+          status: true,
+          message: "您沒有封鎖這個用戶啊！",
+          validCode: "1",
+        });
+      } else {
+        currentUnlikes = currentUnlikes.filter((id) => id !== objectID);
 
-      await UserRelation.findOneAndUpdate(
-        { userID },
-        {
-          unlikeUsers: currentUnlikes,
-        },
-        {
-          upsert: true,
-        }
-      );
+        await UserRelation.findOneAndUpdate(
+          { userID },
+          {
+            unlikeUsers: currentUnlikes,
+          },
+          {
+            upsert: true,
+          }
+        );
 
-      return res.status(200).send({
-        status: true,
-        message: "您已成功封鎖對方！",
-        validCode: "1",
-      });
-    } else {
-      //已經存在封鎖關係列表
-      return res.status(200).send({
-        status: true,
-        message: "這個用戶您已經封鎖過勒！",
-        validCode: "1",
-      });
+        return res.status(200).send({
+          status: true,
+          message: "您已成功解鎖對方！",
+          validCode: "1",
+        });
+      }
+    }
+
+    if (action == "1") {
+      // 封鎖
+      if (currentUnlikes.indexOf(objectID) == -1) {
+        currentUnlikes.push(objectID);
+
+        await UserRelation.findOneAndUpdate(
+          { userID },
+          {
+            unlikeUsers: currentUnlikes,
+          },
+          {
+            upsert: true,
+          }
+        );
+
+        return res.status(200).send({
+          status: true,
+          message: "您已成功封鎖對方！",
+          validCode: "1",
+        });
+      } else {
+        //已經存在封鎖關係列表
+        return res.status(200).send({
+          status: true,
+          message: "這個用戶您已經封鎖過勒！",
+          validCode: "1",
+        });
+      }
     }
   } catch (e) {
     return res.status(500).send({
@@ -618,7 +656,7 @@ router.post("/get-relationship", async (req, res) => {
   }
 });
 
-//B-9 獲取可檢舉項目資訊
+//B-8 獲取可檢舉項目資訊
 router.post("/report", async (req, res) => {
   try {
     let { action } = req.body;
@@ -693,15 +731,21 @@ router.post("/report", async (req, res) => {
   }
 });
 
-//取得 OF 貼圖系列
-router.post("/get-sticker", async (req, res) => {
+//B-9 取得 OF 貼圖系列集
+router.post("/get-stickers", async (req, res) => {
   try {
+    // const data = await Sticker.find({}).sort({ priority: -1 });
+
+    // const = data.map
+
     return res.status(200).send({
       status: true,
       message: "成功獲取貼圖系列",
       validCode: "1",
+      data,
     });
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",

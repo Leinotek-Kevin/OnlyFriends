@@ -109,6 +109,55 @@ const uploadImages = async (folderName, limitSize, srcFiles) => {
   }
 };
 
+//讀取 Firebase Storage Images 檔案路徑格式 : cat-01-1
+const getImagesByFolder = async (folderName) => {
+  try {
+    const bucket = admin.storage().bucket();
+
+    // 指定要讀取的資料夾 (P0-Cat)
+    const [files] = await bucket.getFiles({
+      prefix: folderName,
+    });
+
+    // 建立檔案 URL 陣列
+    const fileUrls = [];
+
+    for (const file of files) {
+      // 獲取該檔案的 metadata
+      const [metadata] = await file.getMetadata();
+      const fileToken = metadata.metadata.firebaseStorageDownloadTokens;
+
+      // 生成該檔案的下載 URL
+      const downloadUrl = `https://firebasestorage.googleapis.com/v0/b/${
+        bucket.name
+      }/o/${encodeURIComponent(file.name)}?alt=media&token=${fileToken}`;
+
+      fileUrls.push(downloadUrl);
+    }
+
+    // 排序函式
+    const itemPreStr = folderName.split("/")[1]; // 動態取得 'cat-01'
+
+    const regex = new RegExp(`${itemPreStr}-(\\d+)`);
+
+    // 使用動態正則表達式進行排序
+    const sortedUrls = fileUrls
+      .filter((url) => url.includes(itemPreStr) && url.match(regex))
+      .sort((a, b) => {
+        // 動態正則匹配 'cat-01-' 後的數字
+        const numA = parseInt(a.match(regex)[1], 10);
+        const numB = parseInt(b.match(regex)[1], 10);
+
+        return numA - numB;
+      });
+
+    return sortedUrls; // 返回所有檔案的 URL 陣列
+  } catch (e) {
+    console.log(e);
+    return [];
+  }
+};
+
 // 壓縮圖片到指定大小
 const compressImageToSize = (imageBuffer, targetSizeKB) => {
   return new Promise((resolve, reject) => {
@@ -139,4 +188,4 @@ const compressImageToSize = (imageBuffer, targetSizeKB) => {
   });
 };
 
-module.exports = { deleteImages, uploadImages };
+module.exports = { deleteImages, uploadImages, getImagesByFolder };

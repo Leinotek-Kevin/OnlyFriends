@@ -19,6 +19,11 @@ const stickerSchema = new Schema({
     type: String,
   },
 
+  //貼圖系列集 Tag 圖標
+  stickersTag: {
+    type: String,
+  },
+
   //貼圖系列集是否可用
   stickersAvailable: {
     type: Boolean,
@@ -26,19 +31,10 @@ const stickerSchema = new Schema({
   },
 
   //貼圖系列集項目
-  stcikersItems: [
-    {
-      stickerItemID: {
-        type: String,
-      },
-    },
-
-    {
-      stickerItemImg: {
-        type: String,
-      },
-    },
-  ],
+  stickersItems: {
+    type: Array,
+    default: [],
+  },
 });
 
 stickerSchema.index({ priority: -1 });
