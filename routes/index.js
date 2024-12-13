@@ -5,4 +5,5 @@ module.exports = {
   letter: require("./letter-route"),
   system: require("./system-route"),
   purchase: require("./purchase-route"),
+  other: require("./other-route"),
 };

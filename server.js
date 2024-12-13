@@ -33,6 +33,7 @@ app.use("/api/user", routes.user);
 app.use("/api/letter", routes.letter);
 app.use("/api/system", routes.system);
 app.use("/api/purchase", routes.purchase);
+app.use("/api/other", routes.other);
 
 //監聽 http request
 app.listen(port, () => {
