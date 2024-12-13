@@ -734,9 +734,12 @@ router.post("/report", async (req, res) => {
 //B-9 取得 OF 貼圖系列集
 router.post("/get-stickers", async (req, res) => {
   try {
-    // const data = await Sticker.find({}).sort({ priority: -1 });
+    const { isSubscription } = req.user;
+    const data = await Sticker.find({}).sort({ priority: -1 });
 
-    // const = data.map
+    data.map((series) => {
+      series.stickersPlan = isSubscription ? "F" : series.stickersPlan;
+    });
 
     return res.status(200).send({
       status: true,
@@ -745,7 +748,6 @@ router.post("/get-stickers", async (req, res) => {
       data,
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",
