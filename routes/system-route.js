@@ -8,6 +8,7 @@ const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
 const Report = require("../models").report;
 const Sticker = require("../models").sticker;
+const Topic = require("../models").topic;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
@@ -950,6 +951,96 @@ router.post("/stickers-series", async (req, res) => {
     return res.status(500).send({
       status: false,
       message: "Server Error !",
+      e,
+    });
+  }
+});
+
+//主題系列 CRUD
+router.post("/topic-series", async (req, res) => {
+  try {
+    let { action } = req.body;
+
+    if (action == "0") {
+      const data = await Topic.find({});
+
+      return res.status(200).send({
+        status: true,
+        message: "獲得所有主題資料",
+        data,
+      });
+    }
+
+    if (action == "1") {
+      let {
+        topicID,
+        topicPlan,
+        topicPreview,
+        topicThumbnail,
+        topicPrimaryColor,
+        topicSecondaryColor,
+        priority,
+      } = req.body;
+
+      let updateData = {
+        topicID,
+      };
+
+      if (topicPlan != null) {
+        updateData.topicPlan = topicPlan;
+      }
+
+      if (topicPreview != null) {
+        updateData.topicPreview = topicPreview;
+      }
+
+      if (topicThumbnail != null) {
+        updateData.topicThumbnail = topicThumbnail;
+      }
+
+      if (topicPrimaryColor != null) {
+        updateData.topicPrimaryColor = topicPrimaryColor;
+      }
+
+      if (topicSecondaryColor != null) {
+        updateData.topicSecondaryColor = topicSecondaryColor;
+      }
+
+      if (priority != null) {
+        updateData.priority = priority;
+      }
+
+      const data = await Topic.findOneAndUpdate(
+        {
+          topicID,
+        },
+        {
+          $set: updateData,
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
+      return res.status(200).send({
+        status: true,
+        message: "成功更新主題資料",
+        data,
+      });
+    }
+
+    if (action == "2") {
+      let { topicID } = req.body;
+      await Topic.deleteOne({ topicID });
+      return res.status(200).send({
+        status: true,
+        message: "成功刪除主題資料",
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
       e,
     });
   }

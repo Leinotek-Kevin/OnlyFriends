@@ -1,13 +1,9 @@
 const mongoose = require("mongoose");
+const { topic } = require(".");
 const { Schema } = mongoose;
 
 //製作背景主題 Schema
 const topicSchema = new Schema({
-  //背景主題優先序
-  priority: {
-    type: Number,
-  },
-
   //背景主題ID
   topicID: {
     type: String,
@@ -17,6 +13,31 @@ const topicSchema = new Schema({
   topicPlan: {
     type: String,
     enum: ["P", "F"],
+  },
+
+  //背景預覽圖
+  topicPreview: {
+    type: String,
+  },
+
+  //背景縮略圖
+  topicThumbnail: {
+    type: String,
+  },
+
+  //主題主色系 #FFFFFF
+  topicPrimaryColor: {
+    type: String,
+  },
+
+  //主題副色系 #FFFFFF
+  topicSecondaryColor: {
+    type: String,
+  },
+
+  //背景主題優先序
+  priority: {
+    type: Number,
   },
 });
 

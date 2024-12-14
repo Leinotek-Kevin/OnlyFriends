@@ -7,6 +7,7 @@ const MatchNeswest = require("../models").matchNewest;
 const Config = require("../models").config;
 const Report = require("../models").report;
 const Sticker = require("../models").sticker;
+const Topic = require("../models").topic;
 
 const dateUtil = require("../utils/date-util");
 const passport = require("passport");
@@ -15,7 +16,6 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const { ReportReasons } = require("../config/enum");
-const { boolean } = require("joi");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -762,8 +762,44 @@ router.post("/get-stickers", async (req, res) => {
     return res.status(500).send({
       status: false,
       message: "Server Error",
-      e,
       validCode: "-1",
+      e,
+    });
+  }
+});
+
+//B-10 取得 OF 主題系列集
+router.post("/get-topics", async (req, res) => {
+  try {
+    let { isSubscription } = req.user;
+    let topics = await Topic.find({}).sort({ priority: -1 });
+
+    let result = [];
+
+    topics.forEach((topic) => {
+      let temp = {
+        ...topic._doc,
+        isFreeToYou: isSubscription ? true : topic.topicPlan == "F",
+      };
+
+      delete temp._id;
+      delete temp.__v;
+
+      result.push(temp);
+    });
+
+    return res.status(200).send({
+      status: true,
+      message: "成功獲取主題系列集",
+      validCode: "1",
+      data: result,
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      validCode: "-1",
+      e,
     });
   }
 });
