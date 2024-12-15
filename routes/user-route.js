@@ -10,12 +10,19 @@ const Sticker = require("../models").sticker;
 const Topic = require("../models").topic;
 
 const dateUtil = require("../utils/date-util");
+const storageUtil = require("../utils/cloudStorage-util");
 const passport = require("passport");
 const axios = require("axios");
 const dotenv = require("dotenv");
 dotenv.config();
 
-const { ReportReasons } = require("../config/enum");
+const {
+  ReportReasons,
+  Interesteds,
+  Traits,
+  FriendMotives,
+  Values,
+} = require("../config/enum");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -678,7 +685,7 @@ router.post("/report", async (req, res) => {
 
       // 查找對應的報告原因
       const reasonItemDes = ReportReasons.find(
-        (r) => r.reasonItemID == reasonItemID
+        (r) => r.itemID == reasonItemID
       ).description;
 
       let reportData = {
@@ -795,6 +802,134 @@ router.post("/get-topics", async (req, res) => {
       data: result,
     });
   } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      validCode: "-1",
+      e,
+    });
+  }
+});
+
+//B-11 編輯用戶個人資料
+router.post("/edit-info", async (req, res) => {
+  try {
+    let { action } = req.body;
+    let { userID } = req.user;
+
+    if (action == "1") {
+      let {
+        photos,
+        name,
+        region,
+        mbti,
+        question,
+        interested,
+        traits,
+        friendMotive,
+        values,
+      } = req.body;
+
+      let updateData = {
+        userAttribute: req.user.userAttribute,
+      };
+
+      //用戶基本資料
+      if (name != null) {
+        updateData.userName = name;
+      }
+
+      if (region != null) {
+        updateData.userRegion = region;
+      }
+
+      if (mbti != null) {
+        updateData.userMBTI = mbti;
+      }
+
+      if (question != null) {
+        updateData.userQuestion = question;
+      }
+
+      if (photos != null) {
+        try {
+          const photoArray = JSON.parse(photos);
+          updateData.userPhotos = photoArray;
+
+          //交叉比對原本照片和準備要更新的照片差異
+          let { userPhotos } = req.user;
+
+          const diffImages = userPhotos.filter(
+            (item) => !photoArray.includes(item)
+          );
+
+          storageUtil.deleteImages(diffImages);
+        } catch (e) {
+          console.log("JSON 解析失敗:", e);
+        }
+      }
+
+      //用戶屬性資料
+      if (traits != null) {
+        updateData.userAttribute.traits = traits;
+      }
+
+      if (friendMotive != null) {
+        updateData.userAttribute.friendMotive = friendMotive;
+      }
+
+      if (interested != null) {
+        updateData.userAttribute.interested = interested;
+      }
+
+      if (values != null) {
+        updateData.userAttribute.values = values;
+      }
+
+      await User.updateOne(
+        {
+          userID,
+        },
+        {
+          $set: updateData,
+        }
+      );
+
+      return res.status(200).send({
+        status: true,
+        message: "個人資料更新成功",
+        validCode: "1",
+      });
+    }
+
+    if (action == "0") {
+      let { userPhotos, userName, userRegion, userMBTI, userQuestion } =
+        req.user;
+      let { interested, traits, friendMotive, values } = req.user.userAttribute;
+      const data = {
+        userPhotos,
+        userName,
+        userRegion,
+        userMBTI,
+        userQuestion,
+        interested,
+        traits,
+        friendMotive,
+        values,
+        interestedItems: Interesteds,
+        traitsItems: Traits,
+        friendMotiveItems: FriendMotives,
+        valueItems: Values,
+      };
+      return res.status(200).send({
+        status: true,
+        message: "成功獲取個人簡易資料",
+        validCode: "1",
+        data,
+      });
+    }
+  } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",

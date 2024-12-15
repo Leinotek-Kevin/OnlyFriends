@@ -83,11 +83,6 @@ const userSchema = new Schema({
 
   //用戶屬性
   userAttribute: {
-    //感情狀態
-    emotion: {
-      type: String,
-      default: "",
-    },
     //興趣愛好
     interested: {
       type: String,
@@ -99,12 +94,12 @@ const userSchema = new Schema({
       default: "",
     },
     //交友動機
-    friendStatus: {
+    friendMotive: {
       type: String,
       default: "",
     },
-    //情場經歷
-    loveExperience: {
+    //價值觀
+    values: {
       type: String,
       default: "",
     },

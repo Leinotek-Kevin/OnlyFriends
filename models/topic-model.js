@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { topic } = require(".");
 const { Schema } = mongoose;
 
 //製作背景主題 Schema
