@@ -962,7 +962,7 @@ router.post("/topic-series", async (req, res) => {
     let { action } = req.body;
 
     if (action == "0") {
-      const data = await Topic.find({});
+      const data = await Topic.find({}).sort({ priority: -1 });
 
       return res.status(200).send({
         status: true,
@@ -975,6 +975,7 @@ router.post("/topic-series", async (req, res) => {
       let {
         topicID,
         topicPlan,
+        topicBackGround,
         topicPreview,
         topicThumbnail,
         topicPrimaryColor,
@@ -988,6 +989,10 @@ router.post("/topic-series", async (req, res) => {
 
       if (topicPlan != null) {
         updateData.topicPlan = topicPlan;
+      }
+
+      if (topicBackGround != null) {
+        updateData.topicBackGround = topicBackGround;
       }
 
       if (topicPreview != null) {

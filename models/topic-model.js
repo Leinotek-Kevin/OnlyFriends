@@ -14,7 +14,12 @@ const topicSchema = new Schema({
     enum: ["P", "F"],
   },
 
-  //背景預覽圖
+  //主題背景
+  topicBackGround: {
+    type: String,
+  },
+
+  //背景預覽圖(包含文字)
   topicPreview: {
     type: String,
   },

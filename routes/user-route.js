@@ -11,6 +11,7 @@ const Topic = require("../models").topic;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
+const sbUtil = require("../utils/sendbird-util");
 const passport = require("passport");
 const axios = require("axios");
 const dotenv = require("dotenv");
@@ -352,83 +353,123 @@ router.post("/check-channel", async (req, res) => {
 
     let { chatCover } = await Config.findOne({});
 
-    if (match != null && match.isChecked) {
+    if (match != null) {
+      if (match.isChecked) {
+        return res.status(200).send({
+          status: true,
+          message: "這個渠道已經檢查過嚕！",
+          validCode: "1",
+        });
+      } else {
+        //檢查渠道-> 先檢查是否存在,如果存在就刪掉重建 ,不存在就直接建立
+        const isExist = await sbUtil.isGroupChannelExist(channelUrl);
+
+        if (isExist) {
+          console.log("渠道存在！需要刪掉重建");
+          await sbUtil.deleteGroupChannel(channelUrl);
+          await sbUtil.createGroupChannel(channelUrl, chatCover);
+        } else {
+          console.log("渠道不存在！直接建立");
+          await sbUtil.createGroupChannel(channelUrl, chatCover);
+        }
+
+        await MatchNeswest.updateOne(
+          {
+            sendbirdUrl: channelUrl,
+          },
+          {
+            isChecked: true,
+          }
+        );
+
+        return res.status(200).send({
+          status: true,
+          message: "渠道檢查完成",
+          validCode: "1",
+          data: {
+            isChecked: true,
+          },
+        });
+      }
+    } else {
       return res.status(200).send({
         status: true,
-        message: "這個渠道已經檢查過嚕！",
+        message: "這個配對渠道不存在！",
         validCode: "1",
       });
-    } else {
-      //房間配對對象
-      let [user1ID, user2ID] = channelUrl.split("_");
-
-      // SendBird API URL
-      const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels`;
-
-      // API Token
-      const apiToken = process.env.SENDBIRD_API_TOKEN;
-
-      // Request Headers
-      const headers = {
-        "Content-Type": "application/json, charset=utf8",
-        "Api-Token": apiToken,
-      };
-
-      // Request Body (JSON data)
-      const data = {
-        name: user1ID + "&" + user2ID + "的房間",
-        channel_url: channelUrl,
-        cover_url: chatCover,
-        custom_type: "chat",
-        is_distinct: true,
-        user_ids: [user1ID, user2ID],
-        operator_ids: [process.env.SENDBIRD_OPERATOR_ID],
-      };
-
-      axios
-        .post(url, data, { headers })
-        .then(async (response) => {
-          if (response.status === 200) {
-            await MatchNeswest.findOneAndUpdate(
-              {
-                sendbirdUrl: channelUrl,
-              },
-              {
-                isChecked: true,
-              }
-            );
-
-            return res.status(200).send({
-              status: true,
-              message: "渠道檢查完成",
-              validCode: "1",
-              data: {
-                isChecked: true,
-              },
-            });
-          } else {
-            return res.status(200).send({
-              status: true,
-              message: "渠道檢查有問題",
-              validCode: "1",
-              data: {
-                isChecked: false,
-              },
-            });
-          }
-        })
-        .catch((e) => {
-          console.log(e);
-          return res.status(200).send({
-            status: true,
-            message: "渠道檢查有問題",
-            validCode: "1",
-            data: {
-              isChecked: false,
-            },
-          });
-        });
     }
+
+    // else {
+    //   //房間配對對象
+    //   let [user1ID, user2ID] = channelUrl.split("_");
+
+    //   // SendBird API URL
+    //   const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels`;
+
+    //   // API Token
+    //   const apiToken = process.env.SENDBIRD_API_TOKEN;
+
+    //   // Request Headers
+    //   const headers = {
+    //     "Content-Type": "application/json, charset=utf8",
+    //     "Api-Token": apiToken,
+    //   };
+
+    //   // Request Body (JSON data)
+    //   const data = {
+    //     name: user1ID + "&" + user2ID + "的房間",
+    //     channel_url: channelUrl,
+    //     cover_url: chatCover,
+    //     custom_type: "chat",
+    //     is_distinct: true,
+    //     user_ids: [user1ID, user2ID],
+    //     operator_ids: [process.env.SENDBIRD_OPERATOR_ID],
+    //   };
+
+    //   axios
+    //     .post(url, data, { headers })
+    //     .then(async (response) => {
+    //       if (response.status === 200) {
+    //         await MatchNeswest.findOneAndUpdate(
+    //           {
+    //             sendbirdUrl: channelUrl,
+    //           },
+    //           {
+    //             isChecked: true,
+    //           }
+    //         );
+
+    //         return res.status(200).send({
+    //           status: true,
+    //           message: "渠道檢查完成",
+    //           validCode: "1",
+    //           data: {
+    //             isChecked: true,
+    //           },
+    //         });
+    //       } else {
+    //         return res.status(200).send({
+    //           status: true,
+    //           message: "渠道檢查有問題",
+    //           validCode: "1",
+    //           data: {
+    //             isChecked: false,
+    //           },
+    //         });
+    //       }
+    //     })
+    //     .catch((e) => {
+    //       console.log(e);
+    //       return res.status(200).send({
+    //         status: true,
+    //         message: "渠道檢查有問題",
+    //         validCode: "1",
+    //         data: {
+    //           isChecked: false,
+    //         },
+    //       });
+    //     });
+    // }
   } catch (e) {
     console.log(e);
     return res.status(500).send({
@@ -929,7 +970,6 @@ router.post("/edit-info", async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",

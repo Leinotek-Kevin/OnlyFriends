@@ -3,10 +3,86 @@ const { v4: uuidv4 } = require("uuid");
 const sharp = require("sharp");
 const router = require("express").Router();
 const admin = require("../utils/checkAdmin-util");
+const sbUtil = require("../utils/sendbird-util");
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 test 有關的請求");
   next();
+});
+
+//測試SB渠道是否存在
+router.post("/channel-exist", async (req, res) => {
+  try {
+    let { channelName } = req.body;
+    const isExist = await sbUtil.isGroupChannelExist(channelName);
+
+    return res.status(200).send({
+      status: true,
+      message: isExist ? "該渠道存在" : "渠道不存在",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+    });
+  }
+});
+
+//測試SB渠道刪除
+router.post("/channel-delete", async (req, res) => {
+  try {
+    let { channelName } = req.body;
+    const result = await sbUtil.deleteGroupChannel(channelName);
+
+    return res.status(200).send({
+      status: true,
+      message: result ? "刪除成功" : "刪除失敗",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+    });
+  }
+});
+
+//測試SB渠道建立
+router.post("/channel-create", async (req, res) => {
+  try {
+    let { channelName } = req.body;
+    const result = await sbUtil.createGroupChannel(channelName);
+
+    return res.status(200).send({
+      status: true,
+      message: result ? "建立成功" : "建立失敗",
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+    });
+  }
+});
+
+//測試SB渠道查詢
+router.post("/channel-query", async (req, res) => {
+  try {
+    let { channelName } = req.body;
+    const result = await sbUtil.queryGroupChannel(channelName);
+
+    return res.status(200).send({
+      status: true,
+      message: result ? "渠道存在" : "渠道不存在",
+      data: result,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+    });
+  }
 });
 
 //設定 multer 定義上傳檔案的暫存目錄
