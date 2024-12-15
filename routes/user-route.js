@@ -362,16 +362,17 @@ router.post("/check-channel", async (req, res) => {
         });
       } else {
         //檢查渠道-> 先檢查是否存在,如果存在就刪掉重建 ,不存在就直接建立
-        const isExist = await sbUtil.isGroupChannelExist(channelUrl);
+        await sbUtil.deleteGroupChannel(channelUrl);
+        await sbUtil.createGroupChannel(channelUrl, chatCover);
 
-        if (isExist) {
-          console.log("渠道存在！需要刪掉重建");
-          await sbUtil.deleteGroupChannel(channelUrl);
-          await sbUtil.createGroupChannel(channelUrl, chatCover);
-        } else {
-          console.log("渠道不存在！直接建立");
-          await sbUtil.createGroupChannel(channelUrl, chatCover);
-        }
+        // if (isDeleteSuccess) {
+        //   console.log("渠道存在！需要刪掉重建");
+        //   await sbUtil.deleteGroupChannel(channelUrl);
+        //   await sbUtil.createGroupChannel(channelUrl, chatCover);
+        // } else {
+        //   console.log("渠道不存在！直接建立");
+        //   await sbUtil.createGroupChannel(channelUrl, chatCover);
+        // }
 
         await MatchNeswest.updateOne(
           {
