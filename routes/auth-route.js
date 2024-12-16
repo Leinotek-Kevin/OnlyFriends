@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const ageUtil = require("../utils/caluAge-util");
 const zodiacUtil = require("../utils/caluZodiac-util");
-const dateUtil = require("../utils/date-util");
+const generalUtil = require("../utils/general-util");
 const SendBird = require("sendbird");
 const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
 
@@ -172,6 +172,7 @@ router.post("/login", async (req, res) => {
       token: "JWT " + token, //返回 JWT token,
     });
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",
