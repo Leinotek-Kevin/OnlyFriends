@@ -12,6 +12,7 @@ const Topic = require("../models").topic;
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
 const sbUtil = require("../utils/sendbird-util");
+const generalUtil = require("../utils/general-util");
 const passport = require("passport");
 const axios = require("axios");
 const dotenv = require("dotenv");
@@ -65,11 +66,6 @@ router.post("/info", async (req, res) => {
       userMBTI,
       userQuestion,
       notificationStatus,
-      emotion,
-      interested,
-      traits,
-      friendStatus,
-      loveExperience,
     } = req.body;
 
     let { userEmail, userID, registerTime, lastSendLetterTime } = req.user;
@@ -108,11 +104,11 @@ router.post("/info", async (req, res) => {
 
       //用戶可以改暱稱,頭貼,地區,感情狀態,興趣愛好,個人特質,交友動態,情場經歷, 提問
       // 如果有提供 userName，才將其加入更新資料中
-      if (userName != null) {
+      if (generalUtil.isNotNUllEmpty(userName)) {
         updateData.userName = userName;
       }
 
-      if (userPhotos != null) {
+      if (generalUtil.isNotNUllEmpty(userPhotos)) {
         try {
           const photoArray = JSON.parse(userPhotos);
           updateData.userPhotos = photoArray;
@@ -121,40 +117,20 @@ router.post("/info", async (req, res) => {
         }
       }
 
-      if (userRegion != null) {
+      if (generalUtil.isNotNUllEmpty(userRegion)) {
         updateData.userRegion = userRegion;
       }
 
-      if (userMBTI != null) {
-        updateData.userRegion = userMBTI;
+      if (generalUtil.isNotNUllEmpty(userMBTI)) {
+        updateData.userMBTI = userMBTI;
       }
 
-      if (userQuestion != null) {
+      if (generalUtil.isNotNUllEmpty(userQuestion)) {
         updateData.userQuestion = userQuestion;
       }
 
       if (notificationStatus != null) {
         updateData.notificationStatus = notificationStatus;
-      }
-
-      if (emotion != null) {
-        updateData.userAttribute.emotion = emotion;
-      }
-
-      if (interested != null) {
-        updateData.userAttribute.interested = interested;
-      }
-
-      if (traits != null) {
-        updateData.userAttribute.traits = traits;
-      }
-
-      if (friendStatus != null) {
-        updateData.userAttribute.friendStatus = friendStatus;
-      }
-
-      if (loveExperience != null) {
-        updateData.userAttribute.loveExperience = loveExperience;
       }
 
       const data = await User.findOneAndUpdate(
@@ -365,15 +341,6 @@ router.post("/check-channel", async (req, res) => {
         await sbUtil.deleteGroupChannel(channelUrl);
         await sbUtil.createGroupChannel(channelUrl, chatCover);
 
-        // if (isDeleteSuccess) {
-        //   console.log("渠道存在！需要刪掉重建");
-        //   await sbUtil.deleteGroupChannel(channelUrl);
-        //   await sbUtil.createGroupChannel(channelUrl, chatCover);
-        // } else {
-        //   console.log("渠道不存在！直接建立");
-        //   await sbUtil.createGroupChannel(channelUrl, chatCover);
-        // }
-
         await MatchNeswest.updateOne(
           {
             sendbirdUrl: channelUrl,
@@ -399,80 +366,7 @@ router.post("/check-channel", async (req, res) => {
         validCode: "1",
       });
     }
-
-    // else {
-    //   //房間配對對象
-    //   let [user1ID, user2ID] = channelUrl.split("_");
-
-    //   // SendBird API URL
-    //   const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels`;
-
-    //   // API Token
-    //   const apiToken = process.env.SENDBIRD_API_TOKEN;
-
-    //   // Request Headers
-    //   const headers = {
-    //     "Content-Type": "application/json, charset=utf8",
-    //     "Api-Token": apiToken,
-    //   };
-
-    //   // Request Body (JSON data)
-    //   const data = {
-    //     name: user1ID + "&" + user2ID + "的房間",
-    //     channel_url: channelUrl,
-    //     cover_url: chatCover,
-    //     custom_type: "chat",
-    //     is_distinct: true,
-    //     user_ids: [user1ID, user2ID],
-    //     operator_ids: [process.env.SENDBIRD_OPERATOR_ID],
-    //   };
-
-    //   axios
-    //     .post(url, data, { headers })
-    //     .then(async (response) => {
-    //       if (response.status === 200) {
-    //         await MatchNeswest.findOneAndUpdate(
-    //           {
-    //             sendbirdUrl: channelUrl,
-    //           },
-    //           {
-    //             isChecked: true,
-    //           }
-    //         );
-
-    //         return res.status(200).send({
-    //           status: true,
-    //           message: "渠道檢查完成",
-    //           validCode: "1",
-    //           data: {
-    //             isChecked: true,
-    //           },
-    //         });
-    //       } else {
-    //         return res.status(200).send({
-    //           status: true,
-    //           message: "渠道檢查有問題",
-    //           validCode: "1",
-    //           data: {
-    //             isChecked: false,
-    //           },
-    //         });
-    //       }
-    //     })
-    //     .catch((e) => {
-    //       console.log(e);
-    //       return res.status(200).send({
-    //         status: true,
-    //         message: "渠道檢查有問題",
-    //         validCode: "1",
-    //         data: {
-    //           isChecked: false,
-    //         },
-    //       });
-    //     });
-    // }
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: true,
       message: "Server Error",
@@ -498,7 +392,7 @@ router.post("/update-condition", async (req, res) => {
       },
     };
 
-    if (isSubscription && region != null) {
+    if (isSubscription && generalUtil.isNotNUllEmpty(region)) {
       updateData.objectCondition.objectRegion = region;
     }
 
@@ -695,7 +589,6 @@ router.post("/get-relationship", async (req, res) => {
       data,
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",
@@ -741,7 +634,7 @@ router.post("/report", async (req, res) => {
       };
 
       //檢舉照片
-      if (photos != null) {
+      if (generalUtil.isNotNUllEmpty(photos)) {
         try {
           const photoArray = JSON.parse(photos);
           reportData.photos = photoArray;
@@ -877,23 +770,23 @@ router.post("/edit-info", async (req, res) => {
       };
 
       //用戶基本資料
-      if (name != null) {
+      if (generalUtil.isNotNUllEmpty(name)) {
         updateData.userName = name;
       }
 
-      if (region != null) {
+      if (generalUtil.isNotNUllEmpty(region)) {
         updateData.userRegion = region;
       }
 
-      if (mbti != null) {
+      if (generalUtil.isNotNUllEmpty(mbti)) {
         updateData.userMBTI = mbti;
       }
 
-      if (question != null) {
+      if (generalUtil.isNotNUllEmpty(question)) {
         updateData.userQuestion = question;
       }
 
-      if (photos != null) {
+      if (generalUtil.isNotNUllEmpty(photos)) {
         try {
           const photoArray = JSON.parse(photos);
           updateData.userPhotos = photoArray;
@@ -912,19 +805,19 @@ router.post("/edit-info", async (req, res) => {
       }
 
       //用戶屬性資料
-      if (traits != null) {
+      if (generalUtil.isNotNUllEmpty(traits)) {
         updateData.userAttribute.traits = traits;
       }
 
-      if (friendMotive != null) {
+      if (generalUtil.isNotNUllEmpty(friendMotive)) {
         updateData.userAttribute.friendMotive = friendMotive;
       }
 
-      if (interested != null) {
+      if (generalUtil.isNotNUllEmpty(interested)) {
         updateData.userAttribute.interested = interested;
       }
 
-      if (values != null) {
+      if (generalUtil.isNotNUllEmpty(values)) {
         updateData.userAttribute.values = values;
       }
 

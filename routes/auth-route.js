@@ -69,7 +69,7 @@ router.post("/register", async (req, res) => {
       };
 
       // 如果有提供 userPhoto，才將其加入更新資料中
-      if (userPhotos != null) {
+      if (generalUtil.isNotNUllEmpty(userPhotos)) {
         try {
           const photoArray = JSON.parse(userPhotos);
           createData.userPhotos = photoArray;
@@ -79,12 +79,12 @@ router.post("/register", async (req, res) => {
       }
 
       // 如果有提供 deviceToken，才將其加入更新資料中
-      if (deviceToken != null) {
+      if (generalUtil.isNotNUllEmpty(deviceToken)) {
         createData.deviceToken = deviceToken;
       }
 
       // 如果有提供 osType，才將其加入更新資料中
-      if (osType != null) {
+      if (generalUtil.isNotNUllEmpty(osType)) {
         createData.osType = osType;
       }
 
@@ -130,12 +130,12 @@ router.post("/login", async (req, res) => {
     };
 
     // 如果有提供 deviceToken，才將其加入更新資料中
-    if (deviceToken != null) {
+    if (generalUtil.isNotNUllEmpty(deviceToken)) {
       updateData.deviceToken = deviceToken;
     }
 
     // 如果有提供 deviceToken，才將其加入更新資料中
-    if (osType != null) {
+    if (generalUtil.isNotNUllEmpty(osType)) {
       updateData.osType = osType;
     }
 
@@ -226,6 +226,7 @@ router.post("/logout", (req, res) => {
 
 //A-4 刪除帳號 -> 確保有使用者
 router.post("/delete", (req, res) => {
+  //todo 刪除帳號要刪掉sendbird 用戶
   passport.authenticate("jwt", { session: false }, async (err, user, info) => {
     if (err) {
       return res.status(500).json({ status: false, message: "Server Error" });
