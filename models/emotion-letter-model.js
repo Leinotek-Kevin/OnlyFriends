@@ -10,6 +10,7 @@ const emotionLetterSchema = new Schema({
     required: true,
   },
 
+  //發送信封的 UserID
   letterUserID: {
     type: String,
     required: true,
@@ -19,6 +20,12 @@ const emotionLetterSchema = new Schema({
   letterID: {
     type: String,
     required: true,
+  },
+
+  //信封郵戳(有三種樣式的郵戳)
+  letterMark: {
+    type: String,
+    default: "",
   },
 
   //信封圖片

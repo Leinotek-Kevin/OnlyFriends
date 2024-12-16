@@ -144,7 +144,7 @@ const getImagesByFolder = async (folderName) => {
     }
 
     // 排序函式
-    const itemPreStr = folderName.split("/")[1]; // 動態取得 'cat-01'
+    const itemPreStr = folderName.split("/")[1]; // 動態取得 's-cat-02'
 
     const regex = new RegExp(`${itemPreStr}-(\\d+)`);
 
@@ -152,7 +152,7 @@ const getImagesByFolder = async (folderName) => {
     const sortedUrls = fileUrls
       .filter((url) => url.includes(itemPreStr) && url.match(regex))
       .sort((a, b) => {
-        // 動態正則匹配 'cat-01-' 後的數字
+        // 動態正則匹配 's-cat-02-' 後的數字
         const numA = parseInt(a.match(regex)[1], 10);
         const numB = parseInt(b.match(regex)[1], 10);
 
@@ -196,4 +196,8 @@ const compressImageToSize = (imageBuffer, targetSizeKB) => {
   });
 };
 
-module.exports = { deleteImages, uploadImages, getImagesByFolder };
+module.exports = {
+  deleteImages,
+  uploadImages,
+  getImagesByFolder,
+};

@@ -7,6 +7,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const { v4: uuidv4 } = require("uuid");
 const dateUtil = require("../utils/date-util");
+const storeageUtil = require("../utils/cloudStorage-util");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -152,6 +153,17 @@ router.post("/send-letter", async (req, res) => {
 
       letterData.letterContent = content;
       letterData.letterID = letterID;
+
+      //隨機抽樣郵戳樣式
+      let letterMark = "";
+      const marks = await storeageUtil.getImagesByFolder("system/letter-mark");
+
+      if (marks && marks.length > 0) {
+        const randomIndex = Math.floor(Math.random() * marks.length);
+        letterMark = marks[randomIndex];
+      }
+
+      letterData.letterMark = letterMark;
 
       await Promise.all([
         EmotionLetter.create(letterData),
