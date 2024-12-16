@@ -7,7 +7,6 @@ const userSchema = new Schema({
   userEmail: {
     type: String,
     required: true,
-    unique: true,
     match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
   },
 
@@ -187,7 +186,7 @@ const userSchema = new Schema({
   },
 });
 
-userSchema.index({ userID: 1, userMail: 1 }, { unique: true });
+userSchema.index({ userID: 1, userMail: 1 });
 //1：升序 , -1:降序
 userSchema.index({ lastLoginTime: -1, identity: -1, isSubscription: -1 });
 

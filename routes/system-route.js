@@ -68,23 +68,26 @@ router.post("/match-general", async (req, res) => {
     let time = Date.now();
 
     //當今天的一般配對執行完畢，才可以執行樹洞配對
-    let {
-      matchRecord: {
-        general: { currentDate: generalDate, status: generalStatus },
-      },
-    } = await Config.findOne({});
+    // let {
+    //   matchRecord: {
+    //     general: { currentDate: generalDate, status: generalStatus },
+    //   },
+    // } = await Config.findOne({});
 
-    if (generalDate == dateUtil.getToday()) {
-      if (generalStatus == "2" || generalStatus == "1") {
-        return res.status(200).send({
-          status: true,
-          message: "正在執行配對或今天已經執行過！",
-        });
-      }
-    }
+    // if (generalDate == dateUtil.getToday()) {
+    //   if (generalStatus == "2" || generalStatus == "1") {
+    //     return res.status(200).send({
+    //       status: true,
+    //       message: "正在執行配對或今天已經執行過！",
+    //     });
+    //   }
+    // }
 
     //標記正在配對的狀態
     await Config.updateOne({ "matchRecord.general.status": "1" });
+
+    //刪掉已經被標記刪除帳號的用戶
+    await User.deleteMany({ userValidCode: "3" });
 
     //清空最近的配對列表
     await MatchNewest.deleteMany({});
@@ -287,28 +290,28 @@ router.post("/match-letter", async (req, res) => {
     let time = Date.now();
 
     //當今天的一般配對執行完畢，才可以執行樹洞配對
-    let {
-      matchRecord: {
-        general: { currentDate: generalDate, status: generalStatus },
-        letter: { currentDate: letterDate, status: letterStatus },
-      },
-    } = await Config.findOne({});
+    // let {
+    //   matchRecord: {
+    //     general: { currentDate: generalDate, status: generalStatus },
+    //     letter: { currentDate: letterDate, status: letterStatus },
+    //   },
+    // } = await Config.findOne({});
 
-    if (generalDate != dateUtil.getToday() || generalStatus != "2") {
-      return res.status(200).send({
-        status: true,
-        message: "今天的一般配對還沒完成！不可以執行樹洞配對",
-      });
-    }
+    // if (generalDate != dateUtil.getToday() || generalStatus != "2") {
+    //   return res.status(200).send({
+    //     status: true,
+    //     message: "今天的一般配對還沒完成！不可以執行樹洞配對",
+    //   });
+    // }
 
-    if (letterDate == dateUtil.getToday()) {
-      if (letterStatus == "2" || letterStatus == "1") {
-        return res.status(200).send({
-          status: true,
-          message: "正在執行樹洞配對或今天已經執行過！",
-        });
-      }
-    }
+    // if (letterDate == dateUtil.getToday()) {
+    //   if (letterStatus == "2" || letterStatus == "1") {
+    //     return res.status(200).send({
+    //       status: true,
+    //       message: "正在執行樹洞配對或今天已經執行過！",
+    //     });
+    //   }
+    // }
 
     //標記正在樹洞配對的狀態
     await Config.updateOne({ "matchRecord.letter.status": "1" });
@@ -316,9 +319,11 @@ router.post("/match-letter", async (req, res) => {
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
     const todayNightTimeStamp = dateUtil.getTodayNight();
 
+    //暫時開放所有人
     //昨天午夜到現在午夜的信封
     const allowLettersCount = await EmotionLetter.countDocuments({
-      createTime: { $gte: lastNightTimeStamp, $lt: todayNightTimeStamp },
+      //createTime: { $gte: lastNightTimeStamp, $lt: todayNightTimeStamp },
+      createTime: { $gte: lastNightTimeStamp },
     });
 
     // 根據總數量決定百分比
@@ -341,12 +346,13 @@ router.post("/match-letter", async (req, res) => {
         $match: {
           createTime: {
             $gte: lastNightTimeStamp, // 大於等於昨晚的時間
-            $lt: todayNightTimeStamp, // 小於今天晚上的時間
+            //$lt: todayNightTimeStamp, // 小於今天晚上的時間
           },
         },
       },
       {
-        $sample: { size: sampleSize }, // 隨機取樣
+        //$sample: { size: sampleSize }, // 隨機取樣
+        $sample: { size: allowLettersCount },
       },
     ]);
 
@@ -393,7 +399,7 @@ router.post("/match-letter", async (req, res) => {
             },
             createTime: {
               $gte: lastNightTimeStamp, // 大於等於昨晚的時間
-              $lt: todayNightTimeStamp, // 小於今天晚上的時間
+              //$lt: todayNightTimeStamp, // 小於今天晚上的時間
             },
           },
         },
@@ -795,7 +801,7 @@ router.post("/delete-letters", async (req, res) => {
 //幫系統真人寫信
 router.post("/robot-send", async (req, res) => {
   const robotUsers = await User.find({
-    $or: [{ identity: 2 }],
+    $or: [{ identity: 2 }, { identity: 1 }],
   });
   let letters = [];
 

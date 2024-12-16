@@ -45,6 +45,9 @@ const runGeneralMatch = async () => {
     //標記正在配對的狀態
     await Config.updateOne({ "matchRecord.general.status": "1" });
 
+    //刪掉已經被標記刪除帳號的用戶
+    await User.deleteMany({ userValidCode: "3" });
+
     //清空最近的配對列表
     await MatchNewest.deleteMany({});
 
@@ -59,6 +62,7 @@ const runGeneralMatch = async () => {
     //只有存活的用戶可以配對:昨天有上線的用戶即可
     const aliveUsers = await User.find({
       lastLoginTime: { $gte: lastNightTimeStamp },
+      userValidCode: "1",
       identity: 2,
     });
 
@@ -133,6 +137,7 @@ const runGeneralMatch = async () => {
               $nin: Array.from(combinedArray), //排除曾經配對及已經用光配對次數的用戶
             },
             lastLoginTime: { $gte: lastNightTimeStamp },
+            userValidCode: "1",
           },
         },
         {

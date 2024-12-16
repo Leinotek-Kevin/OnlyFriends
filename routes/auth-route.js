@@ -1,11 +1,16 @@
 const router = require("express").Router();
 const User = require("../models").user;
+const EmotionLetter = require("../models").letter;
+
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const ageUtil = require("../utils/caluAge-util");
 const zodiacUtil = require("../utils/caluZodiac-util");
 const generalUtil = require("../utils/general-util");
+const dateUtil = require("../utils/date-util");
+const sendbirdUtil = require("../utils/sendbird-util");
+
 const SendBird = require("sendbird");
 const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
 
@@ -226,8 +231,8 @@ router.post("/logout", (req, res) => {
 });
 
 //A-4 刪除帳號 -> 確保有使用者
+//先複製出原本的使用者 -> 更改複製人的 mail
 router.post("/delete", (req, res) => {
-  //todo 刪除帳號要刪掉sendbird 用戶
   passport.authenticate("jwt", { session: false }, async (err, user, info) => {
     if (err) {
       return res.status(500).json({ status: false, message: "Server Error" });
@@ -249,14 +254,39 @@ router.post("/delete", (req, res) => {
     }
 
     try {
-      let { userEmail, userID } = user;
+      let { userID, userEmail } = user;
 
-      await User.deleteOne({ userEmail, userID });
+      //刪除該帳號今天發過的信封
+      const todayNightTimeStamp = dateUtil.getTodayNight();
+      await EmotionLetter.deleteMany({
+        letterUserID: userID,
+        createTime: { $gte: todayNightTimeStamp },
+      });
+
+      //刪掉 Sendbird User
+      await sendbirdUtil.deleteUser(userID);
+
+      //複製人email
+      const copyMail =
+        userEmail.split("@")[0] +
+        ".copy" +
+        Date.now() +
+        "@" +
+        userEmail.split("@")[1];
+
+      //將舊帳號的 Email 改掉
+      await User.updateOne(
+        { userID },
+        {
+          userEmail: copyMail,
+          userValidCode: "3",
+        }
+      );
 
       return res.status(200).send({
         status: true,
-        message: "使用者帳號已刪除",
-        validCode: "0",
+        message: "使用者帳號已標記刪除",
+        validCode: "3",
       });
     } catch (e) {
       return res.status(500).send({

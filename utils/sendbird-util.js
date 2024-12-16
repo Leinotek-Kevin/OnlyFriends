@@ -136,9 +136,109 @@ const queryGroupChannel = async (channelUrl) => {
     });
 };
 
+const sendMsgGroupChannel = async (channelUrl, userID, msg) => {
+  // SendBird API URL
+  const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels/${channelUrl}/messages`;
+
+  // API Token
+  const apiToken = process.env.SENDBIRD_API_TOKEN;
+
+  // Request Headers
+  const headers = {
+    "Content-Type": "application/json, charset=utf8",
+    "Api-Token": apiToken,
+  };
+
+  // Request Body (JSON data)
+  const data = {
+    message_type: "MESG",
+    user_id: userID,
+    message: msg,
+  };
+
+  return axios
+    .post(url, data, { headers })
+    .then((response) => {
+      let { status } = response;
+
+      if (status == 200) {
+        return true;
+      }
+    })
+    .catch((e) => {
+      let { status } = e;
+      if (status == 400) {
+        return false;
+      }
+    });
+};
+
+const lastMsgGroupChannel = async (channelUrl) => {
+  // SendBird API URL
+  const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels/${channelUrl}/messages?message_ts=0&next_limit=100`;
+
+  // API Token
+  const apiToken = process.env.SENDBIRD_API_TOKEN;
+
+  // Request Headers
+  const headers = {
+    "Content-Type": "application/json, charset=utf8",
+    "Api-Token": apiToken,
+  };
+
+  return axios
+    .get(url, { headers })
+    .then((response) => {
+      let { status } = response;
+
+      if (status == 200) {
+        return response.data.messages;
+      }
+    })
+    .catch((e) => {
+      let { status } = e;
+      if (status == 400) {
+        return [];
+      }
+    });
+};
+
+const deleteUser = async (userID) => {
+  // SendBird API URL
+  const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/users/${userID}`;
+
+  // API Token
+  const apiToken = process.env.SENDBIRD_API_TOKEN;
+
+  // Request Headers
+  const headers = {
+    "Content-Type": "application/json, charset=utf8",
+    "Api-Token": apiToken,
+  };
+
+  return axios
+    .delete(url, { headers })
+    .then((response) => {
+      let { status } = response;
+
+      if (status == 200) {
+        return true;
+      }
+    })
+    .catch((e) => {
+      let { status } = e;
+      if (status == 400) {
+        return false;
+      }
+    });
+};
+
 module.exports = {
   isGroupChannelExist,
   deleteGroupChannel,
   createGroupChannel,
   queryGroupChannel,
+  deleteUser,
+  sendMsgGroupChannel,
+  lastMsgGroupChannel,
 };
