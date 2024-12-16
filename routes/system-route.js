@@ -984,13 +984,20 @@ router.post("/topic-series", async (req, res) => {
         topicBackGround,
         topicPreview,
         topicThumbnail,
-        topicPrimaryColor,
-        topicSecondaryColor,
+        statusColor,
+        functionColor,
+        selfMsgColor,
+        readTagColor,
+        systemTimeColor,
+        sendBtnColor,
         priority,
       } = req.body;
 
+      const foundTopic = await Topic.findOne({ topicID });
+
       let updateData = {
         topicID,
+        topicColors: foundTopic ? foundTopic.topicColors : {},
       };
 
       if (topicPlan != null) {
@@ -1009,12 +1016,28 @@ router.post("/topic-series", async (req, res) => {
         updateData.topicThumbnail = topicThumbnail;
       }
 
-      if (topicPrimaryColor != null) {
-        updateData.topicPrimaryColor = topicPrimaryColor;
+      if (statusColor != null) {
+        updateData.topicColors.statusColor = statusColor;
       }
 
-      if (topicSecondaryColor != null) {
-        updateData.topicSecondaryColor = topicSecondaryColor;
+      if (functionColor != null) {
+        updateData.topicColors.functionColor = functionColor;
+      }
+
+      if (selfMsgColor != null) {
+        updateData.topicColors.selfMsgColor = selfMsgColor;
+      }
+
+      if (readTagColor != null) {
+        updateData.topicColors.readTagColor = readTagColor;
+      }
+
+      if (systemTimeColor != null) {
+        updateData.topicColors.systemTimeColor = systemTimeColor;
+      }
+
+      if (sendBtnColor != null) {
+        updateData.topicColors.sendBtnColor = sendBtnColor;
       }
 
       if (priority != null) {
@@ -1049,6 +1072,7 @@ router.post("/topic-series", async (req, res) => {
       });
     }
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",

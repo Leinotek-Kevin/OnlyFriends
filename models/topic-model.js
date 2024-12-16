@@ -29,14 +29,37 @@ const topicSchema = new Schema({
     type: String,
   },
 
-  //主題主色系 #FFFFFF
-  topicPrimaryColor: {
-    type: String,
-  },
+  //主題色系
+  topicColors: {
+    //狀態欄色碼
+    statusColor: {
+      type: String,
+    },
 
-  //主題副色系 #FFFFFF
-  topicSecondaryColor: {
-    type: String,
+    //多功能欄色碼
+    functionColor: {
+      type: String,
+    },
+
+    //自己訊息色碼
+    selfMsgColor: {
+      type: String,
+    },
+
+    //已讀標記色碼
+    readTagColor: {
+      type: String,
+    },
+
+    //系統時間色碼
+    systemTimeColor: {
+      type: String,
+    },
+
+    //傳送按鈕色碼
+    sendBtnColor: {
+      type: String,
+    },
   },
 
   //背景主題優先序
