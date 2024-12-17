@@ -20,6 +20,8 @@ router.post("/google", async (req, res) => {
       decodeMsg = Buffer.from(message.data, "base64").toString("utf-8");
     }
 
+    console.log("收到 google 消息", decodeMsg);
+
     return res.status(200).send({
       status: true,
       message: "收到 google 的消息",
