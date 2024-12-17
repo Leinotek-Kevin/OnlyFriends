@@ -242,7 +242,7 @@ router.post("/today-matches", async (req, res) => {
           userID: objectInfo.userID,
           userName: objectInfo.userName,
           userQuestion: objectInfo.userQuestion,
-          userPhotos: objectInfo.userPhotos,
+          userPhoto: "",
           notificationStatus: objectInfo.notificationStatus,
           sendbirdUrl: match.sendbirdUrl,
           isChecked: match.isChecked,
@@ -251,8 +251,13 @@ router.post("/today-matches", async (req, res) => {
           letterObjectContent: "",
         };
 
+        //一般配對
         if (match.matchUIType == 1) {
-          //一般配對
+          //提取對象的照片集第一張作為對象頭貼
+          if (objectInfo.userPhotos && objectInfo.userPhotos.length > 0) {
+            outData.userPhoto = objectInfo.userPhotos[0];
+          }
+
           //提取與對象的好感度LikeLevel
           let foundObject = signObjects.find(
             (obj) => obj.objectID === objectInfo.userID
@@ -267,8 +272,8 @@ router.post("/today-matches", async (req, res) => {
             //如果有訂閱,直接最高等級
             outData.likeLevel = 3;
           }
-        } else if (match.matchUIType == 2) {
           //樹洞配對
+        } else if (match.matchUIType == 2) {
           //提取你的信封內容
           outData.letterYourContent =
             match.user1ID === userID
@@ -280,6 +285,9 @@ router.post("/today-matches", async (req, res) => {
             match.user1ID === userID
               ? match.user2letterContent
               : match.user1letterContent;
+
+          //隨機郵戳
+          outData.userPhoto = match.letterMark;
         }
 
         matches.push(outData);

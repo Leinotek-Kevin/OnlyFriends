@@ -56,6 +56,11 @@ const matchNewestSchema = new Schema({
     default: "",
   },
 
+  letterMark: {
+    type: String,
+    default: "",
+  },
+
   //不喜歡這個配對發起者
   unlikeInitiators: {
     type: Array,

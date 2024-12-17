@@ -1,6 +1,7 @@
 const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
 const dateUtil = require("../utils/date-util");
+const storageUtil = require("../utils/cloudStorage-util");
 const mongoose = require("mongoose");
 const Config = require("../models").config;
 const dotenv = require("dotenv");
@@ -86,6 +87,9 @@ const runLetterMatch = async () => {
     //儲存本次配對次數已用完的信封
     let consumeUsers = new Set();
 
+    //讀取郵戳樣式
+    const marks = await storageUtil.getImagesByFolder("system/letter-mark");
+
     for (let i = 0; i < randomLetters.length; i++) {
       //當前候選信封
       const currentLetter = randomLetters[i];
@@ -135,6 +139,13 @@ const runLetterMatch = async () => {
         consumeUsers.add(targetLetters[0].letterUserID);
         consumeUsers.add(currentLetter.letterUserID);
 
+        //隨機抽樣郵戳
+        let letterMark = "";
+        if (marks && marks.length > 0) {
+          const randomIndex = Math.floor(Math.random() * marks.length);
+          letterMark = marks[randomIndex];
+        }
+
         //紀錄配對用戶
         let url =
           Number(currentLetter.letterUserID) >
@@ -151,6 +162,7 @@ const runLetterMatch = async () => {
           isChecked: false,
           user1letterContent: currentLetter.letterContent,
           user2letterContent: targetLetters[0].letterContent,
+          letterMark,
           matchUIType: 2,
         };
 

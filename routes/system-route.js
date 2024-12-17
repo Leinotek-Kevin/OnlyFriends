@@ -12,6 +12,7 @@ const Topic = require("../models").topic;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
+
 const multer = require("multer");
 const SendBird = require("sendbird");
 const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
@@ -319,10 +320,9 @@ router.post("/match-letter", async (req, res) => {
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
     const todayNightTimeStamp = dateUtil.getTodayNight();
 
-    //暫時開放所有人
     //昨天午夜到現在午夜的信封
     const allowLettersCount = await EmotionLetter.countDocuments({
-      //createTime: { $gte: lastNightTimeStamp, $lt: todayNightTimeStamp },
+      createTime: { $gte: lastNightTimeStamp, $lt: todayNightTimeStamp },
       createTime: { $gte: lastNightTimeStamp },
     });
 
@@ -346,13 +346,12 @@ router.post("/match-letter", async (req, res) => {
         $match: {
           createTime: {
             $gte: lastNightTimeStamp, // 大於等於昨晚的時間
-            //$lt: todayNightTimeStamp, // 小於今天晚上的時間
+            $lt: todayNightTimeStamp, // 小於今天晚上的時間
           },
         },
       },
       {
-        //$sample: { size: sampleSize }, // 隨機取樣
-        $sample: { size: allowLettersCount },
+        $sample: { size: sampleSize }, // 隨機取樣
       },
     ]);
 
@@ -360,6 +359,9 @@ router.post("/match-letter", async (req, res) => {
 
     //儲存本次配對次數已用完的信封
     let consumeUsers = new Set();
+
+    //讀取郵戳樣式
+    const marks = await storageUtil.getImagesByFolder("system/letter-mark");
 
     for (let i = 0; i < randomLetters.length; i++) {
       //當前候選信封
@@ -399,7 +401,7 @@ router.post("/match-letter", async (req, res) => {
             },
             createTime: {
               $gte: lastNightTimeStamp, // 大於等於昨晚的時間
-              //$lt: todayNightTimeStamp, // 小於今天晚上的時間
+              $lt: todayNightTimeStamp, // 小於今天晚上的時間
             },
           },
         },
@@ -409,6 +411,13 @@ router.post("/match-letter", async (req, res) => {
       if (targetLetters != null && targetLetters.length > 0) {
         consumeUsers.add(targetLetters[0].letterUserID);
         consumeUsers.add(currentLetter.letterUserID);
+
+        //隨機抽樣郵戳
+        let letterMark = "";
+        if (marks && marks.length > 0) {
+          const randomIndex = Math.floor(Math.random() * marks.length);
+          letterMark = marks[randomIndex];
+        }
 
         //紀錄配對用戶
         let url =
@@ -426,6 +435,7 @@ router.post("/match-letter", async (req, res) => {
           isChecked: false,
           user1letterContent: currentLetter.letterContent,
           user2letterContent: targetLetters[0].letterContent,
+          letterMark,
           matchUIType: 2,
         };
 
