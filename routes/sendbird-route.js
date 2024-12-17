@@ -82,6 +82,26 @@ router.post("/channel-query", async (req, res) => {
   }
 });
 
+//測試SB渠道更新
+router.post("/channel-update", async (req, res) => {
+  try {
+    let { channelName, cover } = req.body;
+    const result = await sbUtil.updateGroupChannel(channelName, cover);
+
+    return res.status(200).send({
+      status: true,
+      message: result ? "渠道更新成功" : "渠道更新不成功",
+      data: result,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+    });
+  }
+});
+
 //測試SB刪除使用者
 router.post("/delete-user", async (req, res) => {
   try {
@@ -144,7 +164,7 @@ router.post("/show-gmsg", async (req, res) => {
     return res.status(200).send({
       status: true,
       message: "查詢指定渠道訊息",
-      data: output.reverse(),
+      data,
     });
   } catch (e) {
     console.log(e);
