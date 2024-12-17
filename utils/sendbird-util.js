@@ -192,6 +192,7 @@ const sendMsgGroupChannel = async (channelUrl, userID, msg) => {
     message_type: "MESG",
     user_id: userID,
     message: msg,
+    custom_type: "message",
   };
 
   return axios
