@@ -14,7 +14,7 @@ router.post("/google", async (req, res) => {
     // subscription: 'projects/onlyfriends-20295/subscriptions/subscription-sub'
 
     const { message } = req.body;
-    const decodeMsg = "";
+    let decodeMsg = "";
 
     if (message && message.data) {
       decodeMsg = Buffer.from(message.data, "base64").toString("utf-8");
