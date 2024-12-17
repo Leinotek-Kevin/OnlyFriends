@@ -29,6 +29,7 @@ app.use(cors());
 //Handle Router
 app.use("/api/test", routes.test);
 app.use("/api/sendbird", routes.sendbird);
+app.use("/api/webhook", routes.webhook);
 
 app.use("/api/auth", routes.auth);
 app.use("/api/user", routes.user);

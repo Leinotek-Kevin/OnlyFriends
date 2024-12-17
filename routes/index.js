@@ -7,4 +7,5 @@ module.exports = {
   system: require("./system-route"),
   purchase: require("./purchase-route"),
   other: require("./other-route"),
+  webhook: require("./webhook-route"),
 };
