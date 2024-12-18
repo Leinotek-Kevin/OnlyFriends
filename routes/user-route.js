@@ -622,15 +622,20 @@ router.post("/get-relationship", async (req, res) => {
 //B-8 獲取可檢舉項目資訊
 router.post("/report", async (req, res) => {
   try {
-    let { action } = req.body;
+    let { action, language } = req.body;
 
     if (action == "0") {
+      const mapItem = (item) => ({
+        itemID: item.itemID,
+        description: language == "en" ? item.des_EN : item.des_ZH,
+      });
+
       return res.status(200).send({
         status: true,
         message: "獲取可檢舉項目",
         data: {
           info: null,
-          items: ReportReasons,
+          items: ReportReasons.map(mapItem),
         },
       });
     } else if (action == "1") {
