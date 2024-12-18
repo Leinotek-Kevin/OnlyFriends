@@ -893,6 +893,143 @@ router.post("/edit-info", async (req, res) => {
   }
 });
 
+//B-12 讀取指定用戶個人簡易資料
+router.post("/sample-info", async (req, res) => {
+  try {
+    //這個 userID 一定是用戶自己
+    let { userID } = req.user;
+
+    //指定對象ID ,語系:zh , en
+    let { targetUserID, language } = req.body;
+
+    //先判斷 targetUserID 是不是用戶自己,如果不是,就是對象,就要給好感度
+    const targetInfo = await User.findOne({ userID: targetUserID });
+
+    //指定用戶的資訊
+    let {
+      userPhotos,
+      userName,
+      userGender,
+      userZodiac,
+      userRegion,
+      userMBTI,
+      userAttribute: { interested, traits, friendMotive, values },
+      userQuestion,
+      isSubscription,
+    } = targetInfo;
+
+    //輸出的資料
+    let output = {
+      userPhotos: [],
+      userName,
+      userID: "",
+      userGender,
+      userZodiac,
+      userRegion,
+      userMBTI,
+      userQuestion,
+      userPhoto: "",
+      isSubscription,
+      likeLevel: 1,
+      interested: [],
+      traits: [],
+      friendMotive: [],
+      values: [],
+    };
+
+    if (userID == targetUserID) {
+      //看自己
+      output.userID = userID;
+    } else {
+      //看別人
+      output.userID = targetUserID;
+      //我對別人的好感度累積 level
+      if (isSubscription) {
+        output.likeLevel = 3;
+      } else {
+        const relation = await UserRelation.findOne({ userID });
+        const {
+          objectActive: { likeObjects },
+        } = relation;
+
+        if (likeObjects && likeObjects.length != 0) {
+          let foundObject = likeObjects.find(
+            (obj) => obj.objectID === targetUserID
+          );
+
+          if (foundObject) {
+            //我累積該用戶的好感度
+            output.likeLevel = foundObject.likeLevel;
+          }
+        }
+      }
+    }
+
+    //檢查用戶照片集及大頭貼
+    if (userPhotos && userPhotos.length > 0) {
+      output.userPhotos = userPhotos;
+      output.userPhoto = userPhotos[0];
+    }
+
+    //目標用戶個性屬性標籤
+    //屬性標籤過濾方法
+    const mapItem = (item) => ({
+      itemID: item.itemID,
+      description: language == "en" ? item.des_EN : item.des_ZH,
+      isSelect: true,
+    });
+
+    //興趣
+    if (interested != null && interested.length > 0) {
+      //提取用戶的興趣
+      output.interested = Interesteds.filter((item) =>
+        interested.includes(item.itemID)
+      ) // 過濾出與興趣陣列相符的項目
+        .map(mapItem);
+    }
+
+    //個人特質
+    if (traits != null && traits.length > 0) {
+      //提取用戶的個人特質
+      output.traits = Traits.filter((item) => traits.includes(item.itemID)).map(
+        mapItem
+      );
+    }
+
+    //交友動機
+    if (friendMotive != null && friendMotive.length > 0) {
+      //提取用戶的個人特質
+      output.friendMotive = FriendMotives.filter((item) =>
+        friendMotive.includes(item.itemID)
+      ).map(mapItem);
+    }
+
+    //價值觀
+    if (values != null && values.length > 0) {
+      //提取用戶的價值觀
+      output.values = Values.filter((item) => values.includes(item.itemID)).map(
+        mapItem
+      );
+    }
+
+    return res.status(200).send({
+      status: true,
+      message:
+        userID == targetUserID
+          ? "成功獲取自己的簡易資料"
+          : "成功獲取目標對象的簡易資料",
+      validCode: "1",
+      data: output,
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
+    });
+  }
+});
+
 //後端使用 SendBird 不開放前端
 router.post("/delete-room", async (req, res) => {
   let { channelUrl } = req.body; //刪除的群組頻道 URL

@@ -84,23 +84,23 @@ const userSchema = new Schema({
   userAttribute: {
     //興趣愛好
     interested: {
-      type: String,
-      default: "",
+      type: Array,
+      default: [],
     },
     //個人特質
     traits: {
-      type: String,
-      default: "",
+      type: Array,
+      default: [],
     },
     //交友動機
     friendMotive: {
-      type: String,
-      default: "",
+      type: Array,
+      default: [],
     },
     //價值觀
     values: {
-      type: String,
-      default: "",
+      type: Array,
+      default: [],
     },
   },
 

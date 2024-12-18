@@ -13,6 +13,11 @@ router.post("/google", async (req, res) => {
     //     },
     // subscription: 'projects/onlyfriends-20295/subscriptions/subscription-sub'
 
+    // {"version":"1.0","packageName":"com.anonymous.ipush","eventTimeMillis":"1734430600990","
+    // subscriptionNotification":{"version":"1.0","notificationType":4,
+    // "purchaseToken":"lndfcnmcdjahebbikcnhdokb.AO-J1OwbenosvkJQsvtKKvopSoI6dPP3PezGkK6WskhZFJxZX_WCc9EqHxNcSMKg0EVXAKfKDqElQ0uZeGbjtY6fj8vNgvf3jg",
+    // "subscriptionId":"lovepush_monthly_150"}}
+
     const { message } = req.body;
     let decodeMsg = "";
 

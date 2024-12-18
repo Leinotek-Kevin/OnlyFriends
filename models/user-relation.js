@@ -10,6 +10,7 @@ const userRelationSchema = new Schema({
     unique: true,
   },
 
+  //使用者封鎖的用戶
   unlikeUsers: {
     type: Array,
     default: [],
@@ -28,7 +29,7 @@ const userRelationSchema = new Schema({
     },
   },
 
-  //使用者已經解鎖的用戶
+  //與對象的互動
   objectActive: {
     likeObjects: [
       {
