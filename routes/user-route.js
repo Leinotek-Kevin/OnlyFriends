@@ -86,6 +86,7 @@ router.post("/info", async (req, res) => {
     delete data.lastSendLetterTime;
     delete data.registerTime;
     delete data.lastLoginTime;
+    delete data.userAttribute;
     //delete data.userValidCode;
 
     //讀取或更改用戶資料
