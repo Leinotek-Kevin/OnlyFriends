@@ -86,7 +86,7 @@ router.post("/info", async (req, res) => {
     delete data.lastSendLetterTime;
     delete data.registerTime;
     delete data.lastLoginTime;
-    delete data.userAttribute;
+    //delete data.userAttribute;
     //delete data.userValidCode;
 
     //讀取或更改用戶資料
@@ -770,9 +770,10 @@ router.post("/get-topics", async (req, res) => {
 //B-11 編輯用戶個人資料
 router.post("/edit-info", async (req, res) => {
   try {
-    let { action } = req.body;
+    let { action, language } = req.body;
     let { userID } = req.user;
 
+    //更改個人資料
     if (action == "1") {
       let {
         photos,
@@ -826,20 +827,41 @@ router.post("/edit-info", async (req, res) => {
       }
 
       //用戶屬性資料
+      //什麼都沒選就是 "[]" ,"[1,2,3]"
       if (generalUtil.isNotNUllEmpty(traits)) {
-        updateData.userAttribute.traits = traits;
+        try {
+          const traitArray = JSON.parse(traits);
+          updateData.userAttribute.traits = traitArray;
+        } catch (e) {
+          console.log("JSON 解析失敗:", e);
+        }
       }
 
       if (generalUtil.isNotNUllEmpty(friendMotive)) {
-        updateData.userAttribute.friendMotive = friendMotive;
+        try {
+          const friendMotiveArray = JSON.parse(friendMotive);
+          updateData.userAttribute.friendMotive = friendMotiveArray;
+        } catch (e) {
+          console.log("JSON 解析失敗:", e);
+        }
       }
 
       if (generalUtil.isNotNUllEmpty(interested)) {
-        updateData.userAttribute.interested = interested;
+        try {
+          const interestedArray = JSON.parse(interested);
+          updateData.userAttribute.interested = interestedArray;
+        } catch (e) {
+          console.log("JSON 解析失敗:", e);
+        }
       }
 
       if (generalUtil.isNotNUllEmpty(values)) {
-        updateData.userAttribute.values = values;
+        try {
+          const valueArray = JSON.parse(values);
+          updateData.userAttribute.values = valueArray;
+        } catch (e) {
+          console.log("JSON 解析失敗:", e);
+        }
       }
 
       await User.updateOne(
@@ -858,33 +880,109 @@ router.post("/edit-info", async (req, res) => {
       });
     }
 
+    //讀取個人資料
     if (action == "0") {
-      let { userPhotos, userName, userRegion, userMBTI, userQuestion } =
-        req.user;
-      let { interested, traits, friendMotive, values } = req.user.userAttribute;
-      const data = {
+      let {
         userPhotos,
         userName,
         userRegion,
         userMBTI,
         userQuestion,
-        interested,
-        traits,
-        friendMotive,
-        values,
-        interestedItems: Interesteds,
-        traitsItems: Traits,
-        friendMotiveItems: FriendMotives,
-        valueItems: Values,
+        userAttribute: { interested, traits, friendMotive, values },
+      } = req.user;
+
+      let output = {
+        userPhotos,
+        userName,
+        userRegion,
+        userMBTI,
+        userQuestion,
+        interested: [],
+        traits: [],
+        friendMotive: [],
+        values: [],
+        interestedItems: [],
+        traitsItems: [],
+        friendMotiveItems: [],
+        valueItems: [],
       };
+
+      const mapItem = (item) => ({
+        itemID: item.itemID,
+        description: language == "en" ? item.des_EN : item.des_ZH,
+        isSelect: true,
+      });
+
+      //輸出用戶個人標籤資料
+      //用戶選擇的興趣
+      if (interested != null && interested.length > 0) {
+        //提取用戶的興趣
+        output.interested = Interesteds.filter((item) =>
+          interested.includes(item.itemID)
+        ) // 過濾出與興趣陣列相符的項目
+          .map(mapItem);
+      }
+
+      //比對所有興趣項目與用戶選擇的興趣
+      output.interestedItems = Interesteds.map((item) => ({
+        itemID: item.itemID,
+        description: language == "en" ? item.des_EN : item.des_ZH,
+        isSelect: interested.includes(item.itemID),
+      }));
+
+      //個人特質
+      if (traits != null && traits.length > 0) {
+        //提取用戶的個人特質
+        output.traits = Traits.filter((item) =>
+          traits.includes(item.itemID)
+        ).map(mapItem);
+      }
+
+      //比對所有個人特質與個人特質的興趣
+      output.traitsItems = Traits.map((item) => ({
+        itemID: item.itemID,
+        description: language == "en" ? item.des_EN : item.des_ZH,
+        isSelect: traits.includes(item.itemID),
+      }));
+
+      //交友動機
+      if (friendMotive != null && friendMotive.length > 0) {
+        //提取用戶的個人特質
+        output.friendMotive = FriendMotives.filter((item) =>
+          friendMotive.includes(item.itemID)
+        ).map(mapItem);
+      }
+
+      //比對所有個人特質與個人特質的興趣
+      output.friendMotiveItems = FriendMotives.map((item) => ({
+        itemID: item.itemID,
+        description: language == "en" ? item.des_EN : item.des_ZH,
+        isSelect: traits.includes(item.itemID),
+      }));
+
+      //價值觀
+      if (values != null && values.length > 0) {
+        //提取用戶的價值觀
+        output.values = Values.filter((item) =>
+          values.includes(item.itemID)
+        ).map(mapItem);
+      }
+
+      output.valueItems = Values.map((item) => ({
+        itemID: item.itemID,
+        description: language == "en" ? item.des_EN : item.des_ZH,
+        isSelect: traits.includes(item.itemID),
+      }));
+
       return res.status(200).send({
         status: true,
-        message: "成功獲取個人簡易資料",
+        message: "成功獲取個人資料",
         validCode: "1",
-        data,
+        data: output,
       });
     }
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
