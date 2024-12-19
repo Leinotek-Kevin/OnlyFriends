@@ -31,7 +31,7 @@ router.post("/google", async (req, res) => {
     let {
       packageName,
       subscriptionNotification: { purchaseToken, subscriptionId },
-    } = decodeMsg;
+    } = JSON.parse(decodeMsg);
 
     const result = googleUtil.validSubscriptionOrder(
       packageName,
