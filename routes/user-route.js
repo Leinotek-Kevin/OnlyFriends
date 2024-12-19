@@ -14,7 +14,6 @@ const storageUtil = require("../utils/cloudStorage-util");
 const sbUtil = require("../utils/sendbird-util");
 const generalUtil = require("../utils/general-util");
 const passport = require("passport");
-const axios = require("axios");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -1130,34 +1129,6 @@ router.post("/sample-info", async (req, res) => {
       status: false,
       message: "Server Error!",
       e,
-    });
-  }
-});
-
-//後端使用 SendBird 不開放前端
-router.post("/delete-room", async (req, res) => {
-  let { channelUrl } = req.body; //刪除的群組頻道 URL
-  const apiToken = process.env.SENDBIRD_API_TOKEN;
-
-  // API 請求 URL
-  const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels/${channelUrl}`;
-
-  // Request Headers
-  const headers = {
-    "Api-Token": apiToken,
-  };
-
-  try {
-    const response = await axios.delete(url, { headers });
-    return res.status(200).send({
-      status: true,
-      message: "刪除成功",
-    });
-  } catch (error) {
-    return res.status(500).send({
-      status: false,
-      message: "Server Error",
-      error,
     });
   }
 });
