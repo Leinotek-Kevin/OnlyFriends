@@ -66,22 +66,18 @@ router.post("/google", async (req, res) => {
         purchaseToken
       );
 
-      return res.status(200).send({
-        status: true,
-        message: result ? "訂單驗證成功" : "訂單驗證失敗",
-        data: result,
-      });
+      console.log("驗證結果", result);
     } else if (voidedPurchaseNotification) {
       // 處理退款或訂單無效的情況
       // 根據 refundType 和 productType 來判斷退款的原因及處理
       //console.log(`其他類型的通知: ${notificationType}`);
-
-      return res.status(200).send({
-        status: true,
-        message: "處理退款或訂單無效的情況",
-        data: {},
-      });
+      console.log("處理退款或訂單無效的情況");
     }
+
+    return res.status(200).send({
+      status: true,
+      message: "處理完畢",
+    });
   } catch (e) {
     return res.status(500).send({
       status: false,
