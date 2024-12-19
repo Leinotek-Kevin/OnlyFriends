@@ -33,17 +33,29 @@ router.post("/google", async (req, res) => {
       subscriptionNotification: { purchaseToken, subscriptionId },
     } = JSON.parse(decodeMsg);
 
-    const result = googleUtil.validSubscriptionOrder(
+    const data = {
       packageName,
+      purchaseToken,
       subscriptionId,
-      purchaseToken
-    );
+    };
 
     return res.status(200).send({
       status: true,
       message: "驗證訂單",
-      data: result,
+      data,
     });
+
+    // const result = googleUtil.validSubscriptionOrder(
+    //   packageName,
+    //   subscriptionId,
+    //   purchaseToken
+    // );
+
+    // return res.status(200).send({
+    //   status: true,
+    //   message: "驗證訂單",
+    //   data: result,
+    // });
   } catch (e) {
     console.log("收到異常 google 消息", e);
     return res.status(200).send({
