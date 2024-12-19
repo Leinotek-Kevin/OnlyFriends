@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const googleUtil = require("../utils/google-util");
 
 router.post("/google", async (req, res) => {
   try {
@@ -27,10 +28,21 @@ router.post("/google", async (req, res) => {
 
     console.log("收到 google 消息", decodeMsg);
 
+    let {
+      packageName,
+      subscriptionNotification: { purchaseToken, subscriptionId },
+    } = decodeMsg;
+
+    const result = googleUtil.validSubscriptionOrder(
+      packageName,
+      subscriptionId,
+      purchaseToken
+    );
+
     return res.status(200).send({
       status: true,
-      message: "收到 google 的消息",
-      data: decodeMsg,
+      message: "驗證訂單",
+      data: result,
     });
   } catch (e) {
     console.log("收到異常 google 消息", e);

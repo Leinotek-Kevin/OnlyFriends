@@ -1,99 +1,64 @@
 const { google } = require("googleapis");
-const axios = require("axios");
+const { JWT } = google.auth;
+
 const path = require("path");
+const dotenv = require("dotenv");
+dotenv.config();
+const port = process.env.PORT || 8080;
 
-// //載入服務帳戶的 JSON 憑證檔案
-// const serviceAccountKeyFile = path.join(
-//   //__dirname :輸出當前的 foler
-//   __dirname,
-//   "../lovepush-google-account.json"
-// ); // 替換為你的 JSON 檔案路徑
+// 指向你的服務帳戶 JSON 憑證文件
+const KEY_FILE_PATH =
+  port == 8080
+    ? path.join(__dirname, "../lovepush-google-account.json") // 本地開發使用本地憑證文件
+    : JSON.parse(process.env.LOVEPUSH_SERVICE_ACCOUNT); // 其他環境從環境變數中解析憑證
 
-// //取得 Google OAuth Token
-// async function getAccessToken() {
-//   const auth = new google.auth.GoogleAuth({
-//     keyFile: serviceAccountKeyFile,
-//     scopes: ["https://www.googleapis.com/auth/androidpublisher"], // Google Play API 的權限範圍
-//   });
+// 你的應用包名和訂閱產品ID
+const PACKAGE_NAME = "com.anonymous.ipush";
+const SUBSCRIPTION_ID = "lovepush_monthly_150";
+const PURCHASE_TOKEN =
+  "nkifbgkkhhjnhbbmcchomppd.AO-J1OwSbGo4PQK51jDFSnf_Pcv5xehJeMxiZbf7HsSHN8Eo59DLuct3aS1tQHg6DH2F0D9kb6q3PIoNVVtha7XbLpVfF8ePIQ";
 
-//   // 使用授權的 client 獲取 access token
-//   const client = await auth.getClient();
-//   const accessToken = await client.getAccessToken();
+const auth = new JWT({
+  keyFile: KEY_FILE_PATH,
+  scopes: ["https://www.googleapis.com/auth/androidpublisher"], // 需要的授權範圍
+});
 
-//   console.log("OAuth Token", accessToken);
-//   return accessToken;
-// }
-
-// async function verifySubPurchase(packageName, subscriptionId, purchaseToken) {
-//   const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${packageName}/purchases/subscriptions/${subscriptionId}/tokens/${purchaseToken}`;
-
-//   try {
-//     const accessToken = getAccessToken();
-//     const response = await axios.get(url, {
-//       headers: {
-//         Authorization: `Bearer ${accessToken}`,
-//       },
-//     });
-//     // response.data 會包含購買的詳細信息
-//     console.log(response.data);
-//     return response.data;
-//   } catch (e) {
-//     console.error("Error Verifying Purchase:", e);
-//     return null;
-//   }
-// }
-
-// verifySubPurchase(
-//   "com.anonymous.ipush",
-//   "lovepush_monthly_150",
-//   "lndfcnmcdjahebbikcnhdokb.AO-J1OwbenosvkJQsvtKKvopSoI6dPP3PezGkK6WskhZFJxZX_WCc9EqHxNcSMKg0EVXAKfKDqElQ0uZeGbjtY6fj8vNgvf3jg"
-// );
-
-// 使用你下載的服務帳戶 JSON 憑證
-const keyFilePath = path.join(__dirname, "../lovepush-google-account.json");
-
-// 包含應用程序的 package name, subscription id, 和購買 token
-const packageName = "com.anonymous.ipush"; // 你的應用包名
-const subscriptionId = "lovepush_monthly_150"; // 訂閱 ID
-const token =
-  "lndfcnmcdjahebbikcnhdokb.AO-J1OwbenosvkJQsvtKKvopSoI6dPP3PezGkK6WskhZFJxZX_WCc9EqHxNcSMKg0EVXAKfKDqElQ0uZeGbjtY6fj8vNgvf3jg"; // 客戶購買時返回的 token
-
-async function authenticateAndVerifySubscription() {
+async function validSubscriptionOrder(
+  packageName,
+  subscriptionId,
+  purchaseToken
+) {
   try {
-    // 設置認證
-    const auth = new google.auth.GoogleAuth({
-      keyFile: keyFilePath,
-      scopes: ["https://www.googleapis.com/auth/androidpublisher"],
-    });
+    // 建立 androidpublisher 服務
+    console.log("KEY_FILE_PATH", KEY_FILE_PATH);
 
-    // 獲取客戶端
-    const authClient = await auth.getClient();
-
-    // 初始化 Android Publisher API 客戶端
-    const playDeveloperApi = google.androidpublisher({
+    const androidpublisher = google.androidpublisher({
       version: "v3",
-      auth: authClient,
+      auth: auth,
     });
 
-    // 調用驗證訂閱的 API
-    const response = await playDeveloperApi.purchases.subscriptions.get({
-      packageName: packageName,
-      subscriptionId: subscriptionId,
-      token: token,
+    // 呼叫 Google Play API 驗證訂單
+    const response = await androidpublisher.purchases.subscriptions.get({
+      packageName,
+      subscriptionId,
+      token: purchaseToken,
     });
 
-    // 處理返回的訂閱驗證結果
-    if (response.data && response.data.purchaseState === 0) {
-      console.log("訂閱驗證成功:", response.data);
-    } else {
-      console.log("訂閱驗證失敗或無效:", response.data);
-    }
+    console.log("訂單驗證成功:", response.data);
+
+    return response.data;
   } catch (error) {
-    console.error("訂閱驗證時發生錯誤:", error);
+    console.error(
+      "驗證訂單失敗:",
+      error.response ? error.response.data : error.message
+    );
+
+    return null;
   }
 }
 
-// 調用驗證函數
-authenticateAndVerifySubscription();
+//validSubscriptionOrder(PACKAGE_NAME, SUBSCRIPTION_ID, PURCHASE_TOKEN);
 
-// module.exports = { getAccessToken };
+module.exports = {
+  validSubscriptionOrder,
+};

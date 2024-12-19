@@ -9,6 +9,7 @@ const port = process.env.PORT || 8080;
 const Config = require("./models").config;
 const admin = require("./utils/checkAdmin-util");
 const passport = require("passport");
+const path = require("path");
 require("./config/passport")();
 
 //連結 mongoDB
