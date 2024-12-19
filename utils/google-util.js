@@ -6,9 +6,6 @@ const dotenv = require("dotenv");
 dotenv.config();
 const port = process.env.PORT || 8080;
 
-// 指向你的服務帳戶 JSON 憑證文件
-const KEY_FILE_PATH = path.join(__dirname, "../lovepush-google-account.json"); // 本地開發使用本地憑證文件
-
 // 你的應用包名和訂閱產品ID
 const PACKAGE_NAME = "com.anonymous.ipush";
 const SUBSCRIPTION_ID = "lovepush_monthly_150";
@@ -21,22 +18,23 @@ async function validSubscriptionOrder(
   purchaseToken
 ) {
   try {
-    // const KEY_FILE_PATH = path.join(
-    //   __dirname,
-    //   "../lovepush-google-account.json"
-    // ); // 本地開發使用本地憑證文件
+    const isRemote = port == 8080;
+    let keyFilePath;
 
-    const auth = new JWT(
-      port == 8080
-        ? {
-            keyFile: path.join(__dirname, "../lovepush-google-account.json"), // 本地開發使用本地憑證文件
-            scopes: ["https://www.googleapis.com/auth/androidpublisher"], // 需要的授權範圍
-          }
-        : {
-            credentials: JSON.parse(process.env.LOVEPUSH_SERVICE_ACCOUNT), // 使用 credentials 而非 keyFile
-            scopes: ["https://www.googleapis.com/auth/androidpublisher"], // 需要的授權範圍
-          }
-    );
+    if (isRemote) {
+      const serviceAccount = JSON.parse(process.env.LOVEPUSH_SERVICE_ACCOUNT);
+      keyFilePath = path.join(__dirname, "temp-google-service-account.json");
+
+      // 寫入臨時檔案
+      fs.writeFileSync(keyFilePath, JSON.stringify(serviceAccount));
+    } else {
+      keyFilePath = path.join(__dirname, "../lovepush-google-account.json"); // 本地開發使用本地憑證文件
+    }
+
+    const auth = new JWT({
+      keyFile: keyFilePath, // 本地開發使用本地憑證文件
+      scopes: ["https://www.googleapis.com/auth/androidpublisher"], // 需要的授權範圍
+    });
 
     // 建立 androidpublisher 服務
     const androidpublisher = google.androidpublisher({
