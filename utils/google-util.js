@@ -15,24 +15,29 @@ const SUBSCRIPTION_ID = "lovepush_monthly_150";
 const PURCHASE_TOKEN =
   "nkifbgkkhhjnhbbmcchomppd.AO-J1OwSbGo4PQK51jDFSnf_Pcv5xehJeMxiZbf7HsSHN8Eo59DLuct3aS1tQHg6DH2F0D9kb6q3PIoNVVtha7XbLpVfF8ePIQ";
 
-const auth = new JWT(
-  port == 8080
-    ? {
-        keyFile: KEY_FILE_PATH,
-        scopes: ["https://www.googleapis.com/auth/androidpublisher"], // 需要的授權範圍
-      }
-    : {
-        credentials: JSON.parse(process.env.LOVEPUSH_SERVICE_ACCOUNT), // 使用 credentials 而非 keyFile
-        scopes: ["https://www.googleapis.com/auth/androidpublisher"], // 需要的授權範圍
-      }
-);
-
 async function validSubscriptionOrder(
   packageName,
   subscriptionId,
   purchaseToken
 ) {
   try {
+    // const KEY_FILE_PATH = path.join(
+    //   __dirname,
+    //   "../lovepush-google-account.json"
+    // ); // 本地開發使用本地憑證文件
+
+    const auth = new JWT(
+      port == 8080
+        ? {
+            keyFile: path.join(__dirname, "../lovepush-google-account.json"), // 本地開發使用本地憑證文件
+            scopes: ["https://www.googleapis.com/auth/androidpublisher"], // 需要的授權範圍
+          }
+        : {
+            credentials: JSON.parse(process.env.LOVEPUSH_SERVICE_ACCOUNT), // 使用 credentials 而非 keyFile
+            scopes: ["https://www.googleapis.com/auth/androidpublisher"], // 需要的授權範圍
+          }
+    );
+
     // 建立 androidpublisher 服務
     const androidpublisher = google.androidpublisher({
       version: "v3",
