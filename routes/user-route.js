@@ -804,7 +804,7 @@ router.post("/edit-info", async (req, res) => {
         updateData.userRegion = region;
       }
 
-      if (generalUtil.isNotNUllEmpty(mbti)) {
+      if (mbti != null) {
         updateData.userMBTI = mbti;
       }
 
