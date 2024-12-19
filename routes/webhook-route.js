@@ -60,7 +60,7 @@ router.post("/google", async (req, res) => {
         subscriptionNotification: { purchaseToken, subscriptionId },
       } = notification;
 
-      const result = googleUtil.validSubscriptionOrder(
+      const result = await googleUtil.validSubscriptionOrder(
         packageName,
         subscriptionId,
         purchaseToken
