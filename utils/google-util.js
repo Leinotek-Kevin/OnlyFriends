@@ -1,6 +1,6 @@
 const { google } = require("googleapis");
 const { JWT } = google.auth;
-
+const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -18,17 +18,17 @@ async function validSubscriptionOrder(
   purchaseToken
 ) {
   try {
-    const isRemote = port == 8080;
+    const isLocal = port == 8080;
     let keyFilePath;
 
-    if (isRemote) {
+    if (isLocal) {
+      keyFilePath = path.join(__dirname, "../lovepush-google-account.json"); // 本地開發使用本地憑證文件
+    } else {
       const serviceAccount = JSON.parse(process.env.LOVEPUSH_SERVICE_ACCOUNT);
       keyFilePath = path.join(__dirname, "temp-google-service-account.json");
 
       // 寫入臨時檔案
       fs.writeFileSync(keyFilePath, JSON.stringify(serviceAccount));
-    } else {
-      keyFilePath = path.join(__dirname, "../lovepush-google-account.json"); // 本地開發使用本地憑證文件
     }
 
     const auth = new JWT({
