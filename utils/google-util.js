@@ -6,12 +6,6 @@ const dotenv = require("dotenv");
 dotenv.config();
 const port = process.env.PORT || 8080;
 
-// 你的應用包名和訂閱產品ID
-const PACKAGE_NAME = "com.anonymous.ipush";
-const SUBSCRIPTION_ID = "lovepush_monthly_150";
-const PURCHASE_TOKEN =
-  "nkifbgkkhhjnhbbmcchomppd.AO-J1OwSbGo4PQK51jDFSnf_Pcv5xehJeMxiZbf7HsSHN8Eo59DLuct3aS1tQHg6DH2F0D9kb6q3PIoNVVtha7XbLpVfF8ePIQ";
-
 async function validSubscriptionOrder(
   packageName,
   subscriptionId,
