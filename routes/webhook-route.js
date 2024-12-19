@@ -26,7 +26,7 @@ router.post("/google", async (req, res) => {
       decodeMsg = Buffer.from(message.data, "base64").toString("utf-8");
     }
 
-    console.log("收到 google 消息", decodeMsg);
+    //console.log("收到 google 消息", decodeMsg);
 
     let {
       packageName,
@@ -39,23 +39,19 @@ router.post("/google", async (req, res) => {
       subscriptionId,
     };
 
+    console.log("收到 google 消息", data);
+
+    const result = googleUtil.validSubscriptionOrder(
+      packageName,
+      subscriptionId,
+      purchaseToken
+    );
+
     return res.status(200).send({
       status: true,
       message: "驗證訂單",
-      data,
+      data: result,
     });
-
-    // const result = googleUtil.validSubscriptionOrder(
-    //   packageName,
-    //   subscriptionId,
-    //   purchaseToken
-    // );
-
-    // return res.status(200).send({
-    //   status: true,
-    //   message: "驗證訂單",
-    //   data: result,
-    // });
   } catch (e) {
     console.log("收到異常 google 消息", e);
     return res.status(200).send({
