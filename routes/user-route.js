@@ -961,7 +961,7 @@ router.post("/edit-info", async (req, res) => {
       output.friendMotiveItems = FriendMotives.map((item) => ({
         itemID: item.itemID,
         description: language == "en" ? item.des_EN : item.des_ZH,
-        isSelect: traits.includes(item.itemID),
+        isSelect: friendMotive.includes(item.itemID),
       }));
 
       //價值觀
@@ -975,7 +975,7 @@ router.post("/edit-info", async (req, res) => {
       output.valueItems = Values.map((item) => ({
         itemID: item.itemID,
         description: language == "en" ? item.des_EN : item.des_ZH,
-        isSelect: traits.includes(item.itemID),
+        isSelect: values.includes(item.itemID),
       }));
 
       return res.status(200).send({
@@ -986,7 +986,6 @@ router.post("/edit-info", async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
