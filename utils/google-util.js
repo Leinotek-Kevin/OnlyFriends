@@ -43,14 +43,14 @@ async function validSubscriptionOrder(
       token: purchaseToken,
     });
 
-    console.log("訂單驗證成功:", response.data);
+    //console.log("訂單驗證成功:", response.data);
 
     return response.data;
   } catch (error) {
-    console.error(
-      "驗證訂單失敗:",
-      error.response ? error.response.data : error.message
-    );
+    // console.error(
+    //   "驗證訂單失敗:",
+    //   error.response ? error.response.data : error.message
+    // );
 
     return null;
   }

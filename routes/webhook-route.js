@@ -34,11 +34,13 @@ router.post("/google", async (req, res) => {
 
     let notification = JSON.parse(decodeMsg);
 
-    let notificationType = notification.subscriptionNotification;
-    const voidedPurchase = notification.voidedPurchaseNotification;
+    let subscriptionNotification = notification.subscriptionNotification;
+    const voidedPurchaseNotification = notification.voidedPurchaseNotification;
 
     //處理訂單訂閱狀態變化
-    if (notificationType) {
+    if (subscriptionNotification) {
+      let notificationType = subscriptionNotification.notificationType;
+
       switch (notificationType) {
         case 4:
           console.log("訂閱成功！");
@@ -69,9 +71,10 @@ router.post("/google", async (req, res) => {
         message: result ? "訂單驗證成功" : "訂單驗證失敗",
         data: result,
       });
-    } else if (voidedPurchase) {
+    } else if (voidedPurchaseNotification) {
       // 處理退款或訂單無效的情況
       // 根據 refundType 和 productType 來判斷退款的原因及處理
+      //console.log(`其他類型的通知: ${notificationType}`);
 
       return res.status(200).send({
         status: true,
