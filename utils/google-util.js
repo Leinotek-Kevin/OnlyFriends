@@ -78,39 +78,3 @@ module.exports = {
 //    acknowledgementState: 0, 訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認
 //   kind: 'androidpublisher#subscriptionPurchase' API 返回的對象類型
 //  }
-
-// 1 (SUBSCRIPTION_RECOVERED):
-// 訂閱從暫停狀態恢復。
-
-// 2 (SUBSCRIPTION_RENEWED):
-// 訂閱自動續訂成功。
-
-// 3 (SUBSCRIPTION_CANCELED):
-// 訂閱被取消，可能是用戶主動取消，也可能是由於支付失敗或其他原因。
-
-// 4 (SUBSCRIPTION_PURCHASED):
-// 用戶進行了新的訂閱購買。
-
-// 5 (SUBSCRIPTION_ON_HOLD):
-// 訂閱因支付問題而被暫停。
-
-// 6 (SUBSCRIPTION_IN_GRACE_PERIOD):
-// 訂閱進入寬限期，通常是因為支付問題，Google Play 會在此期間嘗試收款。
-
-// 7 (SUBSCRIPTION_RESTARTED):
-// 訂閱重新開始，這種情況可能發生在訂閱暫停後被用戶重新激活的情況下。
-
-// 8 (SUBSCRIPTION_PRICE_CHANGE_CONFIRMED):
-// 用戶確認了訂閱價格的變更。
-
-// 9 (SUBSCRIPTION_DEFERRED):
-// 訂閱延期，可能是由於某些原因推遲了下一次續訂的日期。
-
-// 10 (SUBSCRIPTION_PAUSED):
-// 訂閱被暫停，可能是用戶主動暫停了訂閱。
-
-// 11 (SUBSCRIPTION_REVOKED):
-// 訂閱被撤銷，可能是開發者或 Google Play 撤銷了訂閱。
-
-// 12 (SUBSCRIPTION_EXPIRED):
-// 訂閱過期，未成功續訂。

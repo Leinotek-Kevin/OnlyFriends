@@ -118,8 +118,15 @@ router.post("/google-purchase", async (req, res) => {
 router.post("/iOS-purchase", async (req, res) => {
   try {
     const data = JSON.parse(req.body);
+
+    console.log("iOS 購買信息:", data);
+
+    return res.status(200).send({
+      status: true,
+      message: "iOS 購買信息",
+    });
   } catch (e) {
-    return res.status(500).send({
+    return res.status(200).send({
       status: false,
       message: "Server Error!",
       e,
