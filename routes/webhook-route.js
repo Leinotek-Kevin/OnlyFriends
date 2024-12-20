@@ -22,56 +22,56 @@ router.post("/google-purchase", async (req, res) => {
       let notificationType = subscriptionNotification.notificationType;
 
       switch (notificationType) {
-        case "1":
+        case 1:
           console.log(
             "訂閱項目已從帳戶保留狀態恢復 :SUBSCRIPTION_RECOVERED (1)"
           );
           break;
-        case "2":
+        case 2:
           console.log("訂閱已續訂:SUBSCRIPTION_RENEWED (2)");
           break;
-        case "3":
+        case 3:
           console.log("自願或非自願取消訂閱: SUBSCRIPTION_CANCELED  (3)");
           break;
-        case "4":
+        case 4:
           console.log("使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)");
           break;
-        case "5":
+        case 5:
           console.log("訂閱項目已進入帳戶保留狀態: SUBSCRIPTION_ON_HOLD (5)");
           break;
-        case "6":
+        case 6:
           console.log("訂閱項目已進入寬限期:SUBSCRIPTION_IN_GRACE_PERIOD (6)");
           break;
-        case "7":
+        case 7:
           console.log(
             "使用者已從「Play」>「帳戶」>「訂閱」還原訂閱項目。訂閱項目已取消，但在使用者還原時尚未到期: SUBSCRIPTION_RESTARTED (7)"
           );
           break;
-        case "8":
+        case 8:
           console.log(
             "使用者已成功確認訂閱項目價格異動:  SUBSCRIPTION_PRICE_CHANGE_CONFIRMED (8)"
           );
           break;
-        case "9":
+        case 9:
           console.log(`訂閱項目的週期時間已延長:SUBSCRIPTION_DEFERRED (9) `);
           break;
-        case "10":
+        case 10:
           console.log("訂閱項目已暫停: SUBSCRIPTION_PAUSED (10) ");
           break;
-        case "11":
+        case 11:
           console.log(
             "訂閱暫停時間表已變更 : SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED (11)"
           );
           break;
-        case "12":
+        case 12:
           console.log(
             " 使用者在訂閱到期前已取消訂閱項目:SUBSCRIPTION_REVOKED (12)"
           );
           break;
-        case "13":
+        case 13:
           console.log("訂閱項目已到期:SUBSCRIPTION_EXPIRED (13) ");
           break;
-        case "20":
+        case 20:
           console.log(
             "未完成交易被取消 : SUBSCRIPTION_PENDING_PURCHASE_CANCELED (20)"
           );
