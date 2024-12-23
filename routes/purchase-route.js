@@ -65,11 +65,12 @@ router.post("/google-verify", async (req, res) => {
 
         if (acknowledgementState == 0) {
           //確定訂單
-          await googleUtil.acknowledgeSubscription(
-            packageName,
-            productId,
-            purchaseToken
-          );
+          console.log("訂閱尚未確定");
+          // await googleUtil.acknowledgeSubscription(
+          //   packageName,
+          //   productId,
+          //   purchaseToken
+          // );
         }
 
         const realOrderID = orderId.split[".."];

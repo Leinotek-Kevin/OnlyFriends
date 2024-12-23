@@ -34,11 +34,12 @@ router.post("/google-purchase", async (req, res) => {
 
       //確定訂閱訂單
       if (data.acknowledgementState == 0) {
-        await googleUtil.acknowledgeSubscription(
-          packageName,
-          subscriptionId,
-          purchaseToken
-        );
+        console.log("訂閱尚未確定");
+        // await googleUtil.acknowledgeSubscription(
+        //   packageName,
+        //   subscriptionId,
+        //   purchaseToken
+        // );
       }
 
       let notificationType = subscriptionNotification.notificationType;
