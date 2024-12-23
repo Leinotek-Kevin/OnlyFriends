@@ -118,4 +118,4 @@ purchaseSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("PurchaseSchema", purchaseSchema);
+module.exports = mongoose.model("Purchase", purchaseSchema);

@@ -144,6 +144,10 @@ router.post("/google-purchase", async (req, res) => {
         isAllow = false;
       }
 
+      //標記用戶是否已經訂閱
+      await User.updateOne({ userID }, { isSubscription: isAllow });
+
+      //購買紀錄
       await Purchase.findOneAndUpdate(
         {
           userID,

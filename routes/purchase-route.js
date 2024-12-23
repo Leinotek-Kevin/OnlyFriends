@@ -116,6 +116,10 @@ router.post("/google-verify", async (req, res) => {
           isAllow = false;
         }
 
+        //標記用戶是否已經訂閱
+        await User.updateOne({ userID }, { isSubscription: isAllow });
+
+        //購買紀錄
         const result = await Purchase.findOneAndUpdate(
           {
             userID,
