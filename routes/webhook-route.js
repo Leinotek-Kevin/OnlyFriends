@@ -17,21 +17,30 @@ router.post("/google-purchase", async (req, res) => {
     let subscriptionNotification = notification.subscriptionNotification;
     const voidedPurchaseNotification = notification.voidedPurchaseNotification;
 
-    let {
-      packageName,
-      subscriptionNotification: { purchaseToken, subscriptionId },
-    } = notification;
-
-    const data = await googleUtil.validSubscriptionOrder(
-      packageName,
-      subscriptionId,
-      purchaseToken
-    );
-
-    console.log("驗證結果", data);
-
     //處理訂單訂閱狀態變化
     if (subscriptionNotification) {
+      let {
+        packageName,
+        subscriptionNotification: { purchaseToken, subscriptionId },
+      } = notification;
+
+      const data = await googleUtil.validSubscriptionOrder(
+        packageName,
+        subscriptionId,
+        purchaseToken
+      );
+
+      console.log("驗證結果", data);
+
+      //確定訂閱訂單
+      if (data.acknowledgementState == 0) {
+        await googleUtil.acknowledgeSubscription(
+          packageName,
+          subscriptionId,
+          purchaseToken
+        );
+      }
+
       let notificationType = subscriptionNotification.notificationType;
 
       switch (notificationType) {
@@ -49,19 +58,6 @@ router.post("/google-purchase", async (req, res) => {
         case 4:
           console.log("使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)");
           //要處理 acknowledgementState
-          if (data.acknowledgementState == 0) {
-            console.log("訂單需要確認", data.acknowledgementState);
-
-            const result = await googleUtil.acknowledgeSubscription(
-              packageName,
-              subscriptionId,
-              purchaseToken
-            );
-
-            console.log("acknowledgementState", result ? "成功" : "不成功");
-          } else {
-            console.log("訂單無需確認", data.acknowledgementState);
-          }
           break;
         case 5:
           console.log("訂閱項目已進入帳戶保留狀態: SUBSCRIPTION_ON_HOLD (5)");

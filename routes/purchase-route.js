@@ -64,6 +64,7 @@ router.post("/google-verify", async (req, res) => {
         } = data;
 
         if (acknowledgementState == 0) {
+          //確定訂單
           await googleUtil.acknowledgeSubscription(
             packageName,
             productId,
