@@ -17,6 +17,11 @@ router.post("/google-purchase", async (req, res) => {
     let subscriptionNotification = notification.subscriptionNotification;
     const voidedPurchaseNotification = notification.voidedPurchaseNotification;
 
+    let {
+      packageName,
+      subscriptionNotification: { purchaseToken, subscriptionId },
+    } = notification;
+
     //處理訂單訂閱狀態變化
     if (subscriptionNotification) {
       let notificationType = subscriptionNotification.notificationType;
@@ -36,6 +41,27 @@ router.post("/google-purchase", async (req, res) => {
         case 4:
           console.log("使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)");
           //要處理 acknowledgementState
+          const data = await googleUtil.validSubscriptionOrder(
+            packageName,
+            subscriptionId,
+            purchaseToken
+          );
+
+          console.log("驗證結果", data);
+
+          if (data.acknowledgementState == 0) {
+            console.log("訂單需要確認", data.acknowledgementState);
+
+            const result = await googleUtil.acknowledgeSubscription(
+              packageName,
+              subscriptionId,
+              purchaseToken
+            );
+
+            console.log("acknowledgementState", result);
+          } else {
+            console.log("訂單無需確認", data.acknowledgementState);
+          }
           break;
         case 5:
           console.log("訂閱項目已進入帳戶保留狀態: SUBSCRIPTION_ON_HOLD (5)");
@@ -82,19 +108,6 @@ router.post("/google-purchase", async (req, res) => {
           console.log(`其他類型的通知: ${notificationType}`);
           break;
       }
-
-      let {
-        packageName,
-        subscriptionNotification: { purchaseToken, subscriptionId },
-      } = notification;
-
-      const result = await googleUtil.validSubscriptionOrder(
-        packageName,
-        subscriptionId,
-        purchaseToken
-      );
-
-      console.log("驗證結果", result);
     } else if (voidedPurchaseNotification) {
       // 根據 refundType 和 productType 來判斷退款的原因及處理
       //productType : PRODUCT_TYPE_SUBSCRIPTION (1) 訂閱交易已作廢 / PRODUCT_TYPE_ONE_TIME (2) 一次性消費交易已作廢

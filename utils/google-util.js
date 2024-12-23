@@ -6,11 +6,13 @@ const dotenv = require("dotenv");
 dotenv.config();
 const port = process.env.PORT || 8080;
 
+//前端回傳的 originalJson
 // {"orderId":"GPA.3357-5076-3532-61828","packageName":"com.anonymous.lottoto",
 // "productId":"lottoto_monthly_50","purchaseTime":1734928958104,
 // "purchaseState":0,"purchaseToken":"dolgljnhbohkplffkgjbcmmh.AO-J1OxKCHFJ9q0zW_9qdOnNVdJ5PBA62Dm450Nz7MVffXdulARLkzpEwG-vxpdCRovY9NXhlunguh5Hbket2fETZZ2CQ-c17YGtYCqY_-IACSgt8ayUB1c",
 // "quantity":1,"autoRenewing":true,"acknowledged":false}
 
+//驗證訂閱憑證交易
 async function validSubscriptionOrder(
   packageName,
   subscriptionId,
@@ -54,8 +56,56 @@ async function validSubscriptionOrder(
   }
 }
 
+//確認訂閱訂單成立
+async function acknowledgeSubscription(
+  packageName,
+  subscriptionId,
+  purchaseToken
+) {
+  try {
+    const isLocal = port == 8080;
+    let keyFilePath;
+
+    if (isLocal) {
+      keyFilePath = path.join(__dirname, "../lovepush-google-account.json"); // 本地開發使用本地憑證文件
+    } else {
+      const serviceAccount = JSON.parse(process.env.LOVEPUSH_SERVICE_ACCOUNT);
+      keyFilePath = path.join(__dirname, "temp-google-service-account.json");
+
+      // 寫入臨時檔案
+      fs.writeFileSync(keyFilePath, JSON.stringify(serviceAccount));
+    }
+
+    const auth = new JWT({
+      keyFile: keyFilePath, // 本地開發使用本地憑證文件
+      scopes: ["https://www.googleapis.com/auth/androidpublisher"], // 需要的授權範圍
+    });
+
+    // 建立 androidpublisher 服務
+    const androidpublisher = google.androidpublisher({
+      version: "v3",
+      auth: auth,
+    });
+
+    // 呼叫 Google Play API 驗證訂單
+    const response = await androidpublisher.purchases.subscriptions.acknowledge(
+      {
+        packageName,
+        subscriptionId,
+        token: purchaseToken,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log("acknowledgeSubscription", error);
+    return null;
+  }
+}
+
 module.exports = {
   validSubscriptionOrder,
+  acknowledgeSubscription,
 };
 
 //訂閱狀態變化通知
@@ -79,7 +129,7 @@ module.exports = {
 //    developerPayload: '',用來存放開發者自定義的資訊
 //    cancelReason: 1, 訂閱取消的原因（如果訂閱被取消）。常見的取消原因有：0: 用戶取消。 1: 付款問題（例如信用卡過期）
 //    orderId: 'GPA.3373-0997-2970-22735', Google Play 訂單的唯一識別碼
-//    purchaseType: 0, 購買的類型 0：表示標準購買
+//    purchaseType: 0, 購買的類型 0: 已購買（成功購買）1: 已取消（表示用戶退款或取消）2: 待處理（交易尚未完成
 //    acknowledgementState: 0, 訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認
 //   kind: 'androidpublisher#subscriptionPurchase' API 返回的對象類型
 //  }

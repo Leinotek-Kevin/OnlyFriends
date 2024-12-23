@@ -3,6 +3,7 @@ const User = require("../models").user;
 const Purchase = require("../models").purchase;
 const passport = require("passport");
 const googleUtil = require("../utils/google-util");
+const dateUtil = require("../utils/date-util");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -51,9 +52,32 @@ router.post("/google-verify", async (req, res) => {
         purchaseToken
       );
 
-      console.log(data);
-
       if (data) {
+        //分析驗證訂閱的資料
+        const {
+          orderId, // 訂單ＩＤ GPA.3357-5076-3532-61828..5 標示該筆訂單續訂5次
+          startTimeMillis, //這是訂閱生效的時間
+          expiryTimeMillis, // 這是訂閱結束的時間
+          cancelReason, //訂閱取消的原因（如果訂閱被取消）。常見的取消原因有：0: 用戶取消。 1: 付款問題（例如信用卡過期）
+          purchaseType, //購買的類型 0: 已購買（成功購買）1: 已取消（表示用戶退款或取消）2: 待處理（交易尚未完成)
+          acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認
+        } = data;
+
+        if (acknowledgementState == 0) {
+          const acknowledgeResult = await googleUtil.acknowledgeSubscription(
+            packageName,
+            productId,
+            purchaseToken
+          );
+
+          console.log("acknowledge:", acknowledgeResult);
+        }
+
+        const realOrderID = orderId.split[".."];
+        //訂閱期間
+        const startDate = dateUtil.getFormatDate(Number(startTimeMillis));
+        const endDate = dateUtil.getFormatDate(Number(expiryTimeMillis));
+
         return res.status(200).send({
           status: true,
           message: "驗證成功！允許使用產品權限",
@@ -67,6 +91,7 @@ router.post("/google-verify", async (req, res) => {
       }
     }
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",

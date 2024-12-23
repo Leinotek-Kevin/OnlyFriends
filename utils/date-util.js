@@ -61,7 +61,36 @@ const getTodayNight = () => {
   return timestamp;
 };
 
+const getFormatDate = (timestamp) => {
+  // 創建 Date 物件
+  const date = new Date(timestamp);
+
+  // 提取各個部分的 UTC 時間
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // 月份從 0 開始，所以要加 1
+  const day = String(date.getDay()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  // 提取星期幾
+  const weekdays = [
+    "星期日",
+    "星期一",
+    "星期二",
+    "星期三",
+    "星期四",
+    "星期五",
+    "星期六",
+  ];
+  const weekday = weekdays[date.getDay()]; // getUTCDay() 會返回 0-6，對應星期日到星期六
+
+  // 格式化輸出：UTC 年月日時分秒
+  return `${year}年${month}月${day}日 ${weekday} ${hours}時${minutes}分${seconds}秒`;
+};
+
 module.exports = {
+  getFormatDate,
   isToday,
   getToday,
   getYesterdayNight,
