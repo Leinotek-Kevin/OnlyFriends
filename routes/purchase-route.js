@@ -64,13 +64,11 @@ router.post("/google-verify", async (req, res) => {
         } = data;
 
         if (acknowledgementState == 0) {
-          const acknowledgeResult = await googleUtil.acknowledgeSubscription(
+          await googleUtil.acknowledgeSubscription(
             packageName,
             productId,
             purchaseToken
           );
-
-          console.log("acknowledge:", acknowledgeResult);
         }
 
         const realOrderID = orderId.split[".."];

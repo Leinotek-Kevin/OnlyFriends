@@ -22,6 +22,14 @@ router.post("/google-purchase", async (req, res) => {
       subscriptionNotification: { purchaseToken, subscriptionId },
     } = notification;
 
+    const data = await googleUtil.validSubscriptionOrder(
+      packageName,
+      subscriptionId,
+      purchaseToken
+    );
+
+    console.log("驗證結果", data);
+
     //處理訂單訂閱狀態變化
     if (subscriptionNotification) {
       let notificationType = subscriptionNotification.notificationType;
@@ -41,14 +49,6 @@ router.post("/google-purchase", async (req, res) => {
         case 4:
           console.log("使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)");
           //要處理 acknowledgementState
-          const data = await googleUtil.validSubscriptionOrder(
-            packageName,
-            subscriptionId,
-            purchaseToken
-          );
-
-          console.log("驗證結果", data);
-
           if (data.acknowledgementState == 0) {
             console.log("訂單需要確認", data.acknowledgementState);
 
@@ -58,7 +58,7 @@ router.post("/google-purchase", async (req, res) => {
               purchaseToken
             );
 
-            console.log("acknowledgementState", result);
+            console.log("acknowledgementState", result ? "成功" : "不成功");
           } else {
             console.log("訂單無需確認", data.acknowledgementState);
           }
