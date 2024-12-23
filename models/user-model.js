@@ -135,7 +135,7 @@ const userSchema = new Schema({
   //用戶系統設備
   osType: {
     type: String,
-    enum: ["0", "1"],
+    enum: ["0", "1"], //0:Android / 1: iOS
   },
 
   //是否是機器人

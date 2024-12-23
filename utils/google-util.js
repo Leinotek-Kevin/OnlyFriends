@@ -6,6 +6,11 @@ const dotenv = require("dotenv");
 dotenv.config();
 const port = process.env.PORT || 8080;
 
+// {"orderId":"GPA.3357-5076-3532-61828","packageName":"com.anonymous.lottoto",
+// "productId":"lottoto_monthly_50","purchaseTime":1734928958104,
+// "purchaseState":0,"purchaseToken":"dolgljnhbohkplffkgjbcmmh.AO-J1OxKCHFJ9q0zW_9qdOnNVdJ5PBA62Dm450Nz7MVffXdulARLkzpEwG-vxpdCRovY9NXhlunguh5Hbket2fETZZ2CQ-c17YGtYCqY_-IACSgt8ayUB1c",
+// "quantity":1,"autoRenewing":true,"acknowledged":false}
+
 async function validSubscriptionOrder(
   packageName,
   subscriptionId,
@@ -53,13 +58,13 @@ module.exports = {
   validSubscriptionOrder,
 };
 
-//訂閱回傳結果
+//訂閱狀態變化通知
 // {"version":"1.0","packageName":"com.anonymous.ipush","eventTimeMillis":"1734430600990","
 // subscriptionNotification":{"version":"1.0","notificationType":4,
 // "purchaseToken":"lndfcnmcdjahebbikcnhdokb.AO-J1OwbenosvkJQsvtKKvopSoI6dPP3PezGkK6WskhZFJxZX_WCc9EqHxNcSMKg0EVXAKfKDqElQ0uZeGbjtY6fj8vNgvf3jg",
 // "subscriptionId":"lovepush_monthly_150"}}
 
-//退訂的回傳
+//退款通知
 // {"version":"1.0","packageName":"com.anonymous.ipush","eventTimeMillis":"1734606334093",
 // "voidedPurchaseNotification":{"purchaseToken":"klklnbpjbipomjneihfpkegc.AO-J1Oy0pl5D_T4_kjt4UFZPOEQyZdVlpnGrEvGhC998-sTvqZ1w04ZqAVRpTFb9Q38hjUt3bjmTa0FRxtuFyMjr3fJqSgUIvw",
 // "orderId":"GPA.3346-3431-2321-61213","productType":1,"refundType":1}}
@@ -78,3 +83,5 @@ module.exports = {
 //    acknowledgementState: 0, 訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認
 //   kind: 'androidpublisher#subscriptionPurchase' API 返回的對象類型
 //  }
+
+//GPA.3357-5076-3532-61828..5 標示該筆訂單續訂5次

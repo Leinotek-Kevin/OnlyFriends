@@ -35,6 +35,7 @@ router.post("/google-purchase", async (req, res) => {
           break;
         case 4:
           console.log("使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)");
+          //要處理 acknowledgementState
           break;
         case 5:
           console.log("訂閱項目已進入帳戶保留狀態: SUBSCRIPTION_ON_HOLD (5)");

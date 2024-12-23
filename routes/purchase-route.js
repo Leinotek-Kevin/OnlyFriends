@@ -2,11 +2,77 @@ const router = require("express").Router();
 const User = require("../models").user;
 const Purchase = require("../models").purchase;
 const passport = require("passport");
+const googleUtil = require("../utils/google-util");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
   console.log("正在接收一個跟 purchase 有關的請求");
-  next();
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (err) {
+      return res.status(500).json({ status: false, message: "伺服器錯誤" });
+    }
+
+    if (!user) {
+      // 這裡返回自定義訊息
+      return res.status(200).send({
+        status: true,
+        message: "JWT 驗證失敗！查無此用戶!",
+        validCode: "0",
+      });
+    } else if (user.userValidCode == "2") {
+      return res.status(200).send({
+        status: true,
+        message: "該用戶已被停權！",
+        validCode: "2",
+      });
+    }
+
+    // 驗證成功，將 user 資料放入 req.user
+    req.user = user;
+    next();
+  })(req, res); // 注意這裡要馬上調用 authenticate 函數
+});
+
+//C-1 驗證購買收據憑證
+router.post("/google-verify", async (req, res) => {
+  try {
+    //productType : 產品類型 0:訂閱 1:單購
+    let { originalPurchaseJson, productType } = req.body;
+
+    //Android Receipt 驗證
+    const { packageName, productId, purchaseToken } =
+      JSON.parse(originalPurchaseJson);
+
+    if (productType == "0") {
+      //驗證訂閱
+      const data = await googleUtil.validSubscriptionOrder(
+        packageName,
+        productId,
+        purchaseToken
+      );
+
+      console.log(data);
+
+      if (data) {
+        return res.status(200).send({
+          status: true,
+          message: "驗證成功！允許使用產品權限",
+          data,
+        });
+      } else {
+        return res.status(200).send({
+          status: true,
+          message: "驗證失敗！查無訂單明細",
+        });
+      }
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
+    });
+  }
 });
 
 //C-1 申報用戶購買紀錄

@@ -996,7 +996,7 @@ router.post("/edit-info", async (req, res) => {
 });
 
 //B-12 讀取指定用戶個人簡易資料
-router.post("/sample-info", async (req, res) => {
+router.post("/simple-info", async (req, res) => {
   try {
     //這個 userID 一定是用戶自己
     let { userID } = req.user;
