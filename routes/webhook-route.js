@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const googleUtil = require("../utils/google-util");
+const User = require("../models").user;
+const Purchase = require("../models").purchase;
 
 router.post("/google-purchase", async (req, res) => {
   try {
