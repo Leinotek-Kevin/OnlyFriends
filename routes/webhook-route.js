@@ -146,41 +146,62 @@ router.post("/google-purchase", async (req, res) => {
         isAllow = false;
       }
 
+      console.log({
+        platform: "0",
+        productID: productId,
+        productType: "subscription",
+        orderID: realID,
+        startDate: startTimeMillis,
+        expiryDate: expiryTimeMillis,
+        price,
+        currency: priceCurrencyCode,
+        autoRenewing,
+        renewCount,
+        purchaseType,
+        paymentState,
+        cancelReason,
+        acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
+        purchaseMemo,
+        isAllow,
+        isActive: true,
+        recordDate: Date.now(),
+      });
+
       //標記用戶是否已經訂閱
-      await User.updateOne({ userID }, { isSubscription: isAllow });
+      //await User.updateOne({ userID }, { isSubscription: isAllow });
 
       //購買紀錄
-      await Purchase.findOneAndUpdate(
-        {
-          userID,
-          orderID: realID,
-        },
-        {
-          userID,
-          platform: "0",
-          productID: productId,
-          productType: "subscription",
-          orderID: realID,
-          startDate: startTimeMillis,
-          expiryDate: expiryTimeMillis,
-          price,
-          currency: priceCurrencyCode,
-          autoRenewing,
-          renewCount,
-          purchaseType,
-          paymentState,
-          cancelReason,
-          acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
-          purchaseMemo,
-          isAllow,
-          isActive: true,
-          recordDate: Date.now(),
-        },
-        {
-          upsert: true,
-          new: true,
-        }
-      );
+      // await Purchase.findOneAndUpdate(
+      //   {
+      //     userID,
+      //     orderID: realID,
+      //   },
+      //   {
+      //     userID,
+      //     platform: "0",
+      //     productID: productId,
+      //     productType: "subscription",
+      //     orderID: realID,
+      //     startDate: startTimeMillis,
+      //     expiryDate: expiryTimeMillis,
+      //     price,
+      //     currency: priceCurrencyCode,
+      //     autoRenewing,
+      //     renewCount,
+      //     purchaseType,
+      //     paymentState,
+      //     cancelReason,
+      //     acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
+      //     purchaseMemo,
+      //     isAllow,
+      //     isActive: true,
+      //     recordDate: Date.now(),
+      //   },
+      //   {
+      //     upsert: true,
+      //     new: true,
+      //   }
+      // );
     } else if (voidedPurchaseNotification) {
       // 根據 refundType 和 productType 來判斷退款的原因及處理
       //productType : PRODUCT_TYPE_SUBSCRIPTION (1) 訂閱交易已作廢 / PRODUCT_TYPE_ONE_TIME (2) 一次性消費交易已作廢
