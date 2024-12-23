@@ -127,11 +127,12 @@ module.exports = {
 //    priceAmountMicros: '150000000', 訂閱價格，單位是微元（1 微元 = 1,000,000 分之一的貨幣單位）。
 //    countryCode: 'TW', 購買訂閱的用戶的國家代碼
 //    developerPayload: '',用來存放開發者自定義的資訊
+//    paymentState : 1 , 0: 付款處於待處理狀態 , 1:付款已收到 , 2:用戶正在免費試用訂閱 , 3:付款已延遲，稍後會重新嘗試付款
 //    cancelReason: 1, 訂閱取消的原因（如果訂閱被取消）。常見的取消原因有：0: 用戶取消。 1: 付款問題（例如信用卡過期）
 //    orderId: 'GPA.3373-0997-2970-22735', Google Play 訂單的唯一識別碼
-//    purchaseType: 0, 購買的類型 0: 已購買（成功購買）1: 已取消（表示用戶退款或取消）2: 待處理（交易尚未完成
+//    purchaseType: 0, 購買的類型 訂閱項目的購買類型。只有在未使用標準應用程式內結帳流程完成購買交易時，才會設定這個欄位。可能的值為 0。測試 (即透過授權測試帳戶購買) 1. 促銷 (即使用促銷代碼購買)
 //    acknowledgementState: 0, 訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認
-//   kind: 'androidpublisher#subscriptionPurchase' API 返回的對象類型
+//    kind: 'androidpublisher#subscriptionPurchase' API 返回的對象類型
 //  }
 
 //GPA.3357-5076-3532-61828..5 標示該筆訂單續訂5次

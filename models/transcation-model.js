@@ -74,6 +74,18 @@ const transcationSchema = new Schema({
     type: String,
     default: "0",
   },
+
+  //訂單狀態追蹤
+  purchaseMemo: {
+    type: String,
+    default: "",
+  },
+
+  //訂單原始驗證結果
+  purchaseOriRecord: {
+    type: String,
+    default: "",
+  },
 });
 
 //隱藏 _id,__v
