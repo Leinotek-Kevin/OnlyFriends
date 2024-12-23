@@ -132,12 +132,17 @@ router.post("/google-purchase", async (req, res) => {
       //價格
       const price = Number(priceAmountMicros) / 1000000;
 
-      //判斷是否允許存取訂閱產品
       //訂閱已過期 || 付款處理中 || 待處理的延遲升級/降級 => 不允許訂閱
-      let isAllow =
-        expiryTimeMillis >= Date.now() &&
-        paymentState != 0 &&
-        paymentState != 3;
+      let isAllow = true;
+
+      if (
+        !expiryTimeMillis || // 檢查 expiryTimeMillis 是否存在
+        expiryTimeMillis < Date.now() || // 檢查訂閱是否過期
+        paymentState === 0 || // 付款處理中
+        paymentState === 3 // 待處理的延遲升級/降級
+      ) {
+        isAllow = false;
+      }
 
       await Purchase.findOneAndUpdate(
         {
