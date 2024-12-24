@@ -1042,6 +1042,7 @@ router.post("/simple-info", async (req, res) => {
     if (userID == targetUserID) {
       //看自己
       output.userID = userID;
+      output.likeLevel = 3;
     } else {
       //看別人
       output.userID = targetUserID;

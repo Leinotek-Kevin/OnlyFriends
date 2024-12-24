@@ -34,18 +34,24 @@ router.use((req, res, next) => {
   })(req, res); // 注意這裡要馬上調用 authenticate 函數
 });
 
-//C-1 驗證購買收據憑證
+//C-1 App 驗證購買收據憑證
 router.post("/google-verify", async (req, res) => {
   try {
     //productType : 產品類型 0:訂閱 1:單購
     let { originalPurchaseJson, productType } = req.body;
-    let { userID, isSubscription } = req.user;
+    let { userID } = req.user;
 
     //Android Receipt 驗證
     const { packageName, productId, purchaseToken } =
       JSON.parse(originalPurchaseJson);
 
     if (productType == "0") {
+      //刪除用戶訂閱紀錄
+      await Purchase.deleteMany({
+        userID,
+        productType,
+      });
+
       //驗證訂閱
       const data = await googleUtil.validSubscriptionOrder(
         packageName,
@@ -68,11 +74,8 @@ router.post("/google-verify", async (req, res) => {
           acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認
         } = data;
 
-        console.log("Google 驗證訂單", data);
-
         if (acknowledgementState == 0) {
           //確定訂單
-          console.log("執行訂閱確認");
           await googleUtil.acknowledgeSubscription(
             packageName,
             productId,
@@ -80,7 +83,7 @@ router.post("/google-verify", async (req, res) => {
           );
         }
 
-        //真正的訂單ID
+        //真正的訂單id
         const splitOrderID = orderId.split("..");
         let realID = splitOrderID[0];
         let renewCount = 0;
@@ -93,64 +96,43 @@ router.post("/google-verify", async (req, res) => {
         //價格
         const price = Number(priceAmountMicros) / 1000000;
 
-        // 找出這個使用者其他的訂閱購買紀錄,標記非活躍狀態
-        await Purchase.updateMany(
-          {
-            userID,
-            orderID: { $ne: realID }, // 排除驗證的 orderId
-          },
-          {
-            isActive: false,
-          }
-        );
-
         //訂閱已過期 || 付款處理中 || 待處理的延遲升級/降級 => 不允許訂閱
         let isAllow = true;
 
         if (
-          !expiryTimeMillis || // 檢查 expiryTimeMillis 是否存在
-          expiryTimeMillis < Date.now() || // 檢查訂閱是否過期
           paymentState === 0 || // 付款處理中
-          paymentState === 3 // 待處理的延遲升級/降級
+          paymentState === 3 || // 待處理的延遲升級/降級
+          !expiryTimeMillis || // 檢查 expiryTimeMillis 是否存在
+          expiryTimeMillis < Date.now() // 檢查訂閱是否過期
         ) {
           isAllow = false;
         }
 
         //標記用戶是否已經訂閱
-        //await User.updateOne({ userID }, { isSubscription: isAllow });
+        await User.updateOne({ userID }, { isSubscription: isAllow });
 
         //購買紀錄
-        const result = await Purchase.findOneAndUpdate(
-          {
-            userID,
-            orderID: realID,
-          },
-          {
-            userID,
-            platform: "0",
-            productID: productId,
-            productType: "subscription",
-            orderID: realID,
-            startDate: startTimeMillis,
-            expiryDate: expiryTimeMillis,
-            price,
-            currency: priceCurrencyCode,
-            autoRenewing,
-            renewCount,
-            purchaseType,
-            paymentState,
-            cancelReason,
-            acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
-            purchaseMemo: "",
-            isAllow,
-            isActive: true,
-            recordDate: Date.now(),
-          },
-          {
-            upsert: true,
-            new: true,
-          }
-        );
+        const result = await Purchase.create({
+          userID,
+          platform: "Android",
+          productID: productId,
+          productType: productType == "0" ? "subscription" : "in-app",
+          orderID: realID,
+          startDate: startTimeMillis,
+          expiryDate: expiryTimeMillis,
+          price,
+          currency: priceCurrencyCode,
+          autoRenewing,
+          renewCount,
+          purchaseType,
+          paymentState,
+          cancelReason,
+          acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
+          purchaseMemo: "",
+          isAllow,
+          isActive: true,
+          recordDate: Date.now(),
+        });
 
         return res.status(200).send({
           status: true,
