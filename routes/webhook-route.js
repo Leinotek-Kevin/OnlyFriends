@@ -141,7 +141,7 @@ router.post("/google-purchase", async (req, res) => {
 
       //更新該筆訂單的狀態
       //購買紀錄
-      const result = await Purchase.updateOne(
+      const result = await Purchase.findOneAndUpdate(
         { orderID: realID },
         {
           startDate: startTimeMillis,
@@ -155,6 +155,7 @@ router.post("/google-purchase", async (req, res) => {
           isAllow,
         },
         {
+          upsert: true,
           new: true,
         }
       );
