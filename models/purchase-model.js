@@ -102,8 +102,8 @@ const purchaseSchema = new Schema({
     type: Boolean,
   },
 
-  //訂單更新時間
-  recordDate: {
+  //訂單建立時間
+  createDate: {
     type: Number,
     default: Date.now(),
   },

@@ -16,6 +16,8 @@ router.post("/google-purchase", async (req, res) => {
 
     console.log("receive google purchase MSG : ", decodeMsg);
 
+    //確認是否是現在用戶的訂閱訂單
+
     let subscriptionNotification = notification.subscriptionNotification;
     const voidedPurchaseNotification = notification.voidedPurchaseNotification;
 
@@ -36,15 +38,6 @@ router.post("/google-purchase", async (req, res) => {
         purchaseToken
       );
 
-      //確定訂閱訂單
-      if (data.acknowledgementState == 0) {
-        // await googleUtil.acknowledgeSubscription(
-        //   packageName,
-        //   subscriptionId,
-        //   purchaseToken
-        // );
-      }
-
       //追蹤目前訂單情況
       switch (notificationType) {
         case 1:
@@ -59,6 +52,14 @@ router.post("/google-purchase", async (req, res) => {
           break;
         case 4:
           purchaseMemo = "使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)";
+          //確定訂閱訂單
+          if (data.acknowledgementState == 0) {
+            await googleUtil.acknowledgeSubscription(
+              packageName,
+              subscriptionId,
+              purchaseToken
+            );
+          }
           break;
         case 5:
           purchaseMemo = "訂閱項目已進入帳戶保留狀態: SUBSCRIPTION_ON_HOLD (5)";
@@ -104,6 +105,64 @@ router.post("/google-purchase", async (req, res) => {
 
       console.log("訂閱狀態通知", purchaseMemo);
       console.log("驗證結果", data);
+
+      //分析驗證訂閱的資料
+      const {
+        orderId, // 訂單ＩＤ GPA.3357-5076-3532-61828..5 標示該筆訂單續訂5次
+        startTimeMillis, //這是訂閱生效的時間
+        expiryTimeMillis, // 這是訂閱結束的時間
+        autoRenewing, //是否自動訂閱
+        paymentState, //付款狀態
+        cancelReason, //訂閱取消的原因（如果訂閱被取消）。常見的取消原因有：0: 用戶取消。 1: 付款問題（例如信用卡過期）
+        acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認
+      } = data;
+
+      //真正的訂單id
+      const splitOrderID = orderId.split("..");
+      let realID = splitOrderID[0];
+      let renewCount = 0;
+
+      if (splitOrderID.length > 1) {
+        // .. 後面是指續訂次數
+        renewCount = Number(splitOrderID[1]);
+      }
+
+      //訂閱已過期 || 付款處理中 || 待處理的延遲升級/降級 => 不允許訂閱
+      let isAllow = true;
+
+      if (
+        paymentState === 0 || // 付款處理中
+        paymentState === 3 || // 待處理的延遲升級/降級
+        !expiryTimeMillis || // 檢查 expiryTimeMillis 是否存在
+        expiryTimeMillis < Date.now() // 檢查訂閱是否過期
+      ) {
+        isAllow = false;
+      }
+
+      //更新該筆訂單的狀態
+      //購買紀錄
+      const result = await Purchase.updateOne(
+        { orderID: realID },
+        {
+          startDate: startTimeMillis,
+          expiryDate: expiryTimeMillis,
+          autoRenewing,
+          renewCount,
+          paymentState,
+          cancelReason,
+          acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
+          purchaseMemo,
+          isAllow,
+        },
+        {
+          new: true,
+        }
+      );
+
+      //檢查這筆訂單是不是目前的活躍訂單,並判斷用戶是否有訂閱權
+      if (result) {
+        console.log("更新返回結果", result);
+      }
     } else if (voidedPurchaseNotification) {
       // 根據 refundType 和 productType 來判斷退款的原因及處理
       //productType : PRODUCT_TYPE_SUBSCRIPTION (1) 訂閱交易已作廢 / PRODUCT_TYPE_ONE_TIME (2) 一次性消費交易已作廢

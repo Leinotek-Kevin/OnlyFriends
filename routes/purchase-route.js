@@ -46,12 +46,6 @@ router.post("/google-verify", async (req, res) => {
       JSON.parse(originalPurchaseJson);
 
     if (productType == "0") {
-      //刪除用戶訂閱紀錄
-      await Purchase.deleteMany({
-        userID,
-        productType,
-      });
-
       //驗證訂閱
       const data = await googleUtil.validSubscriptionOrder(
         packageName,
@@ -93,6 +87,12 @@ router.post("/google-verify", async (req, res) => {
           renewCount = Number(splitOrderID[1]);
         }
 
+        //驗證成功,標記該用戶其他訂閱紀錄為 非活躍
+        await Purchase.updateMany(
+          { userID, orderId: { $ne: realID } }, // 排除當前訂單
+          { $set: { isActive: false } } // 設置 isActive 為 false
+        );
+
         //價格
         const price = Number(priceAmountMicros) / 1000000;
 
@@ -108,8 +108,8 @@ router.post("/google-verify", async (req, res) => {
           isAllow = false;
         }
 
-        //標記用戶是否已經訂閱
-        await User.updateOne({ userID }, { isSubscription: isAllow });
+        //用戶訂閱狀態更新
+        await User.updateOne({ userID }, { $set: { isSubscription: isAllow } });
 
         //購買紀錄
         const result = await Purchase.findOneAndUpdate(
@@ -118,7 +118,7 @@ router.post("/google-verify", async (req, res) => {
             userID,
             platform: "Android",
             productID: productId,
-            productType: productType == "0" ? "subscription" : "in-app",
+            productType: "subscription",
             orderID: realID,
             startDate: startTimeMillis,
             expiryDate: expiryTimeMillis,
@@ -133,10 +133,10 @@ router.post("/google-verify", async (req, res) => {
             purchaseMemo: "",
             isAllow,
             isActive: true,
-            recordDate: Date.now(),
           },
           {
             upsert: true,
+            new: true,
           }
         );
 
