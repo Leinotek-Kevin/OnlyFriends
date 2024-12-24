@@ -85,6 +85,11 @@ const purchaseSchema = new Schema({
     default: "0",
   },
 
+  //退款類型
+  refundType: {
+    type: String,
+  },
+
   //訂單狀態追蹤
   purchaseMemo: {
     type: String,

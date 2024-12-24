@@ -163,6 +163,12 @@ router.post("/google-purchase", async (req, res) => {
       //檢查這筆訂單是不是目前的活躍訂單,並判斷用戶是否有訂閱權
       if (result) {
         console.log("更新返回結果", result);
+        if (data && data.isActive) {
+          await User.updateOne(
+            { userID: data.userID },
+            { isSubscription: isAllow }
+          );
+        }
       }
     } else if (voidedPurchaseNotification) {
       // 根據 refundType 和 productType 來判斷退款的原因及處理
@@ -170,9 +176,25 @@ router.post("/google-purchase", async (req, res) => {
       //refundType : REFUND_TYPE_FULL_REFUND (2) 交易已完全作廢 / REFUND_TYPE_QUANTITY_BASED_PARTIAL_REFUND 購買的商品遭到部分商品退款 僅適用於多件購買交易。購買動作可以是 部分作廢項目可能會多次作廢
       //purchaseMemo = "處理退款或訂單無效";
       console.log("處理退款或訂單無效");
-    }
 
-    //console.log(purchaseMemo);
+      let {
+        voidedPurchaseNotification: { orderId, refundType },
+      } = notification;
+
+      const data = await Purchase.findOne({ orderID: orderId });
+
+      if (data && data.isActive) {
+        await User.updateOne(
+          { userID: data.userID },
+          { isSubscription: false }
+        );
+      }
+
+      await Purchase.updateOne(
+        { orderID: orderId },
+        { refundType, isActive: false }
+      );
+    }
 
     return res.status(200).send({
       status: true,
