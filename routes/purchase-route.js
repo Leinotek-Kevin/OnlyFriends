@@ -76,11 +76,11 @@ router.post("/google-verify", async (req, res) => {
 
         if (acknowledgementState == 0) {
           //確定訂單
-          await googleUtil.acknowledgeSubscription(
-            packageName,
-            productId,
-            purchaseToken
-          );
+          // await googleUtil.acknowledgeSubscription(
+          //   packageName,
+          //   productId,
+          //   purchaseToken
+          // );
         }
 
         //真正的訂單id
@@ -112,27 +112,33 @@ router.post("/google-verify", async (req, res) => {
         await User.updateOne({ userID }, { isSubscription: isAllow });
 
         //購買紀錄
-        const result = await Purchase.create({
-          userID,
-          platform: "Android",
-          productID: productId,
-          productType: productType == "0" ? "subscription" : "in-app",
-          orderID: realID,
-          startDate: startTimeMillis,
-          expiryDate: expiryTimeMillis,
-          price,
-          currency: priceCurrencyCode,
-          autoRenewing,
-          renewCount,
-          purchaseType,
-          paymentState,
-          cancelReason,
-          acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
-          purchaseMemo: "",
-          isAllow,
-          isActive: true,
-          recordDate: Date.now(),
-        });
+        const result = await Purchase.findOneAndUpdate(
+          { userID, orderID: realID },
+          {
+            userID,
+            platform: "Android",
+            productID: productId,
+            productType: productType == "0" ? "subscription" : "in-app",
+            orderID: realID,
+            startDate: startTimeMillis,
+            expiryDate: expiryTimeMillis,
+            price,
+            currency: priceCurrencyCode,
+            autoRenewing,
+            renewCount,
+            purchaseType,
+            paymentState,
+            cancelReason,
+            acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
+            purchaseMemo: "",
+            isAllow,
+            isActive: true,
+            recordDate: Date.now(),
+          },
+          {
+            upsert: true,
+          }
+        );
 
         return res.status(200).send({
           status: true,

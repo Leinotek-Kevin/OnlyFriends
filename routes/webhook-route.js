@@ -38,11 +38,11 @@ router.post("/google-purchase", async (req, res) => {
 
       //確定訂閱訂單
       if (data.acknowledgementState == 0) {
-        await googleUtil.acknowledgeSubscription(
-          packageName,
-          subscriptionId,
-          purchaseToken
-        );
+        // await googleUtil.acknowledgeSubscription(
+        //   packageName,
+        //   subscriptionId,
+        //   purchaseToken
+        // );
       }
 
       //追蹤目前訂單情況
@@ -122,7 +122,7 @@ router.post("/google-purchase", async (req, res) => {
     return res.status(500).send({
       status: false,
       message: "訂單驗證出現異常！",
-      data: e,
+      e,
     });
   }
 });
