@@ -92,6 +92,7 @@ router.post("/google-purchase", async (req, res) => {
         purchaseToken
       );
 
+      console.log("訂閱狀態通知", purchaseMemo);
       console.log("驗證結果", data);
 
       //確定訂閱訂單
@@ -145,27 +146,6 @@ router.post("/google-purchase", async (req, res) => {
       ) {
         isAllow = false;
       }
-
-      console.log({
-        platform: "0",
-        productID: productId,
-        productType: "subscription",
-        orderID: realID,
-        startDate: startTimeMillis,
-        expiryDate: expiryTimeMillis,
-        price,
-        currency: priceCurrencyCode,
-        autoRenewing,
-        renewCount,
-        purchaseType,
-        paymentState,
-        cancelReason,
-        acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
-        purchaseMemo,
-        isAllow,
-        isActive: true,
-        recordDate: Date.now(),
-      });
 
       //標記用戶是否已經訂閱
       //await User.updateOne({ userID }, { isSubscription: isAllow });

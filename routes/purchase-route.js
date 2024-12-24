@@ -53,8 +53,6 @@ router.post("/google-verify", async (req, res) => {
         purchaseToken
       );
 
-      console.log(data);
-
       if (data) {
         //分析驗證訂閱的資料
         const {
@@ -69,6 +67,8 @@ router.post("/google-verify", async (req, res) => {
           purchaseType, //購買的類型
           acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認
         } = data;
+
+        console.log("Google 驗證訂單", data);
 
         if (acknowledgementState == 0) {
           //確定訂單
@@ -117,7 +117,7 @@ router.post("/google-verify", async (req, res) => {
         }
 
         //標記用戶是否已經訂閱
-        await User.updateOne({ userID }, { isSubscription: isAllow });
+        //await User.updateOne({ userID }, { isSubscription: isAllow });
 
         //購買紀錄
         const result = await Purchase.findOneAndUpdate(
@@ -327,6 +327,31 @@ router.delete("/record", async (req, res) => {
     return res.status(500).send({
       status: false,
       message: "Server Error",
+      e,
+    });
+  }
+});
+
+//取得驗證購買紀錄
+router.post("/verify-receipt", async (req, res) => {
+  try {
+    let { packageName, productId, purchaseToken, productType } = req.body;
+
+    const data = await googleUtil.validSubscriptionOrder(
+      packageName,
+      productId,
+      purchaseToken
+    );
+
+    return res.status(200).send({
+      status: true,
+      message: "成功驗證訂單",
+      data,
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Serror Error!",
       e,
     });
   }
