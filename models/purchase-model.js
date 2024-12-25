@@ -109,6 +109,8 @@ const purchaseSchema = new Schema({
   },
 });
 
+purchaseSchema.index({ createDate: -1 }); // -1 for descending
+
 //隱藏 _id,__v
 purchaseSchema.set("toJSON", {
   transform: (doc, ret, options) => {
