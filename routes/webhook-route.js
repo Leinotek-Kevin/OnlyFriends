@@ -167,7 +167,7 @@ async function checkAllowSubscription(userData) {
 
     //用戶最近一筆訂單記錄
     const lastPurchase = await Purchase.findOne({ userID })
-      .sort({ createdAt: -1 })
+      .sort({ createDate: -1 })
       .limit(1);
 
     if (lastPurchase) {
