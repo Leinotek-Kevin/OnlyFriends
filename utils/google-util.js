@@ -23,9 +23,9 @@ async function validSubscriptionOrder(
     let keyFilePath;
 
     if (isLocal) {
-      keyFilePath = path.join(__dirname, "../lovepush-google-account.json"); // 本地開發使用本地憑證文件
+      keyFilePath = path.join(__dirname, "../onlyfriends-developer.json"); // 本地開發使用本地憑證文件
     } else {
-      const serviceAccount = JSON.parse(process.env.LOVEPUSH_SERVICE_ACCOUNT);
+      const serviceAccount = JSON.parse(process.env.GOOGLE_DEVELOPER_ACCOUNT);
       keyFilePath = path.join(__dirname, "temp-google-service-account.json");
 
       // 寫入臨時檔案

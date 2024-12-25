@@ -3,29 +3,65 @@ const dotenv = require("dotenv");
 dotenv.config();
 const port = process.env.PORT || 8080;
 
-const APPLE_PRODUCTION_URL = "https://buy.itunes.apple.com/verifyReceipt";
-const APPLE_SANDBOX_URL = "https://sandbox.itunes.apple.com/verifyReceipt";
+const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const path = require("path");
+
+const APPLE_PRODUCTION_URL =
+  "https://api.storekit.itunes.apple.com/inApps/v1/transactions/";
+const APPLE_SANDBOX_URL =
+  "https://api.storekit-sandbox.itunes.apple.com/inApps/v1/transactions/";
 const SHARED_SECRET = process.env.iOS_SHARED_KEY;
 
-async function validSubscriptionOrder() {
-  try {
-    let verifyUrl = port == 8080 ? APPLE_SANDBOX_URL : APPLE_PRODUCTION_URL;
+async function generateAppleJWT() {
+  const privateKeyPath = path.join(__dirname, "../AuthKey.p8");
+  const privateKey = fs.readFileSync(privateKeyPath, "utf8");
 
-    const response = await axios.post(verifyUrl, {
-      "receipt-data": receiptData,
-      password: SHARED_SECRET,
+  const token = jwt.sign(
+    {
+      iss: "82fb0e4e-5037-479a-8ee0-f69995fd2bc8", // Apple Team ID
+      iat: Math.floor(Date.now() / 1000), // 發行時間
+      exp: Math.floor(Date.now() / 1000) + 60 * 10, // 設定過期時間，10 分鐘後過期
+      aud: "appstoreconnect-v1", // Audience 固定為這個值
+      bid: "com.leinotek.LovePush", // App bundle ID
+    },
+    privateKey,
+    {
+      algorithm: "ES256", // Apple 使用 ES256 加密算法
+      keyid: "V64KGQSL8Q", //API Key ID
+    }
+  );
+
+  console.log("Apple JWT :", token);
+  return token;
+}
+
+//獲取交易訊息
+async function getTranscationInfo() {
+  try {
+    let requestUrl = port == 8080 ? APPLE_SANDBOX_URL : APPLE_PRODUCTION_URL;
+
+    const jwtToken = await generateAppleJWT();
+
+    const response = await axios.get(requestUrl, {
+      params: { transactionId: "2000000815714769" }, // 將 transactionId 作為查詢參數
+      headers: { Authorization: `Bearer ${jwtToken}` }, // headers 應放在同一個配置對象裡
     });
 
+    console.log(response);
     return res.json(response);
   } catch (error) {
-    console.error("Receipt verification failed", error);
+    console.log(error);
     return null;
   }
 }
 
-module.exports = {
-  validSubscriptionOrder,
-};
+getTranscationInfo();
+
+// module.exports = {
+//   validSubscriptionOrder,
+//   generateAppleJWT,
+// };
 
 // {
 //     "status": 0,

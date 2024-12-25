@@ -25,5 +25,8 @@ yarn-error.log*
 /google-account-key.json
 
 /lovepush-google-account.json
+/onlyfriends-developer.json
+
+/AuthKey.p8
 
 /user.txt
