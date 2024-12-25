@@ -13,23 +13,21 @@ router.post("/google-purchase", async (req, res) => {
     }
 
     let notification = JSON.parse(decodeMsg);
-
     console.log("receive google purchase MSG : ", decodeMsg);
+    //分析獲得的通知訊息
+    let purchaseMemo = analyticsPurchaseMemo(notification);
+    console.log("訂閱狀態通知", purchaseMemo);
 
     //確認是否是現在用戶的訂閱訂單
+    const { subscriptionNotification, voidedPurchaseNotification } =
+      notification;
 
-    let subscriptionNotification = notification.subscriptionNotification;
-    const voidedPurchaseNotification = notification.voidedPurchaseNotification;
-
-    //處理訂單訂閱狀態變化
+    //訂閱訂單狀態變化通知
     if (subscriptionNotification) {
       let {
         packageName,
         subscriptionNotification: { purchaseToken, subscriptionId },
       } = notification;
-
-      let notificationType = subscriptionNotification.notificationType;
-      let purchaseMemo = "";
 
       //驗證 Google 訂單
       const data = await googleUtil.validSubscriptionOrder(
@@ -38,73 +36,16 @@ router.post("/google-purchase", async (req, res) => {
         purchaseToken
       );
 
-      //追蹤目前訂單情況
-      switch (notificationType) {
-        case 1:
-          purchaseMemo =
-            "訂閱項目已從帳戶保留狀態恢復 :SUBSCRIPTION_RECOVERED (1)";
-          break;
-        case 2:
-          purchaseMemo = "訂閱已續訂:SUBSCRIPTION_RENEWED (2)";
-          break;
-        case 3:
-          purchaseMemo = "自願或非自願取消訂閱: SUBSCRIPTION_CANCELED  (3)";
-          break;
-        case 4:
-          purchaseMemo = "使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)";
-          //確定訂閱訂單
-          if (data.acknowledgementState == 0) {
-            await googleUtil.acknowledgeSubscription(
-              packageName,
-              subscriptionId,
-              purchaseToken
-            );
-          }
-          break;
-        case 5:
-          purchaseMemo = "訂閱項目已進入帳戶保留狀態: SUBSCRIPTION_ON_HOLD (5)";
-          break;
-        case 6:
-          purchaseMemo =
-            "訂閱項目已進入寬限期:SUBSCRIPTION_IN_GRACE_PERIOD (6)";
-          break;
-        case 7:
-          purchaseMemo =
-            "使用者已從「Play」>「帳戶」>「訂閱」還原訂閱項目。訂閱項目已取消，但在使用者還原時尚未到期: SUBSCRIPTION_RESTARTED (7)";
-          break;
-        case 8:
-          purchaseMemo =
-            "使用者已成功確認訂閱項目價格異動:  SUBSCRIPTION_PRICE_CHANGE_CONFIRMED (8)";
-          break;
-        case 9:
-          purchaseMemo = "訂閱項目的週期時間已延長:SUBSCRIPTION_DEFERRED (9)";
-          break;
-        case 10:
-          purchaseMemo = "訂閱項目已暫停: SUBSCRIPTION_PAUSED (10) ";
-          break;
-        case 11:
-          purchaseMemo =
-            "訂閱暫停時間表已變更 : SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED (11)";
-          break;
-        case 12:
-          purchaseMemo =
-            "使用者在訂閱到期前已取消訂閱項目:SUBSCRIPTION_REVOKED (12)";
-          break;
-        case 13:
-          purchaseMemo = "訂閱項目已到期:SUBSCRIPTION_EXPIRED (13)";
-          break;
-        case 20:
-          purchaseMemo =
-            "未完成交易被取消 : SUBSCRIPTION_PENDING_PURCHASE_CANCELED (20)";
-          break;
-
-        default:
-          console.log(`其他類型的通知: ${notificationType}`);
-          break;
+      //確定訂閱訂單
+      if (data.acknowledgementState == 0) {
+        await googleUtil.acknowledgeSubscription(
+          packageName,
+          productId,
+          purchaseToken
+        );
       }
 
-      console.log("訂閱狀態通知", purchaseMemo);
-      console.log("驗證結果", data);
+      console.log("驗證結果:", data);
 
       //分析驗證訂閱的資料
       const {
@@ -155,45 +96,33 @@ router.post("/google-purchase", async (req, res) => {
           isAllow,
         },
         {
-          upsert: true,
           new: true,
         }
       );
 
-      //檢查這筆訂單是不是目前的活躍訂單,並判斷用戶是否有訂閱權
-      if (result) {
-        console.log("更新返回結果", result);
-        if (data && data.isActive) {
-          await User.updateOne(
-            { userID: data.userID },
-            { isSubscription: isAllow }
-          );
-        }
-      }
+      //檢查用戶最近一筆訂單記錄,並判斷是否有訂閱權
+      checkAllowSubscription(result);
     } else if (voidedPurchaseNotification) {
-      // 根據 refundType 和 productType 來判斷退款的原因及處理
-      //productType : PRODUCT_TYPE_SUBSCRIPTION (1) 訂閱交易已作廢 / PRODUCT_TYPE_ONE_TIME (2) 一次性消費交易已作廢
-      //refundType : REFUND_TYPE_FULL_REFUND (2) 交易已完全作廢 / REFUND_TYPE_QUANTITY_BASED_PARTIAL_REFUND 購買的商品遭到部分商品退款 僅適用於多件購買交易。購買動作可以是 部分作廢項目可能會多次作廢
-      //purchaseMemo = "處理退款或訂單無效";
-      console.log("處理退款或訂單無效");
-
+      // 根據 refundType來判斷退款的原因及處理
       let {
         voidedPurchaseNotification: { orderId, refundType },
       } = notification;
 
-      const data = await Purchase.findOne({ orderID: orderId });
-
-      if (data && data.isActive) {
-        await User.updateOne(
-          { userID: data.userID },
-          { isSubscription: false }
-        );
-      }
-
-      await Purchase.updateOne(
+      //更新該筆訂單狀態
+      const result = await Purchase.findOneAndUpdate(
         { orderID: orderId },
-        { refundType, isActive: false }
+        {
+          $set: {
+            refundType,
+            isAllow: false,
+            purchaseMemo,
+          },
+        },
+        { new: true }
       );
+
+      //檢查用戶最近一筆訂單記錄,並判斷是否有訂閱權
+      checkAllowSubscription(result);
     }
 
     return res.status(200).send({
@@ -228,6 +157,101 @@ router.post("/iOS-purchase", async (req, res) => {
     });
   }
 });
+
+//檢查用戶是否有訂閱權
+async function checkAllowSubscription(userData) {
+  if (userData) {
+    let { userID, orderID } = result;
+
+    //用戶最近一筆訂單記錄
+    const lastPurchase = await Purchase.findOne({ userID })
+      .sort({ createdAt: -1 })
+      .limit(1);
+
+    if (lastPurchase) {
+      let lastOrderID = lastPurchase.orderID;
+
+      if (orderID == lastOrderID) {
+        //表示目前通知的狀態是最近一筆訂單的狀態
+        await User.updateOne({ userID }, { isSubscription: result.isAllow });
+      }
+    }
+  }
+}
+
+//分析 Google 訂閱單購通知訊息
+function analyticsPurchaseMemo(notification) {
+  let purchaseMemo = "";
+
+  const { subscriptionNotification, voidedPurchaseNotification } = notification;
+
+  if (subscriptionNotification) {
+    let notificationType = subscriptionNotification.notificationType;
+    switch (notificationType) {
+      case 1:
+        purchaseMemo =
+          "訂閱項目已從帳戶保留狀態恢復 :SUBSCRIPTION_RECOVERED (1)";
+        break;
+      case 2:
+        purchaseMemo = "訂閱已續訂:SUBSCRIPTION_RENEWED (2)";
+        break;
+      case 3:
+        purchaseMemo = "自願或非自願取消訂閱: SUBSCRIPTION_CANCELED  (3)";
+        break;
+      case 4:
+        purchaseMemo = "使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)";
+        break;
+      case 5:
+        purchaseMemo = "訂閱項目已進入帳戶保留狀態: SUBSCRIPTION_ON_HOLD (5)";
+        break;
+      case 6:
+        purchaseMemo = "訂閱項目已進入寬限期:SUBSCRIPTION_IN_GRACE_PERIOD (6)";
+        break;
+      case 7:
+        purchaseMemo =
+          "使用者已從「Play」>「帳戶」>「訂閱」還原訂閱項目。訂閱項目已取消，但在使用者還原時尚未到期: SUBSCRIPTION_RESTARTED (7)";
+        break;
+      case 8:
+        purchaseMemo =
+          "使用者已成功確認訂閱項目價格異動:  SUBSCRIPTION_PRICE_CHANGE_CONFIRMED (8)";
+        break;
+      case 9:
+        purchaseMemo = "訂閱項目的週期時間已延長:SUBSCRIPTION_DEFERRED (9)";
+        break;
+      case 10:
+        purchaseMemo = "訂閱項目已暫停: SUBSCRIPTION_PAUSED (10) ";
+        break;
+      case 11:
+        purchaseMemo =
+          "訂閱暫停時間表已變更 : SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED (11)";
+        break;
+      case 12:
+        purchaseMemo =
+          "使用者在訂閱到期前已取消訂閱項目:SUBSCRIPTION_REVOKED (12)";
+        break;
+      case 13:
+        purchaseMemo = "訂閱項目已到期:SUBSCRIPTION_EXPIRED (13)";
+        break;
+      case 20:
+        purchaseMemo =
+          "未完成交易被取消 : SUBSCRIPTION_PENDING_PURCHASE_CANCELED (20)";
+        break;
+
+      default:
+        purchaseMemo = `其他類型的通知${notificationType}`;
+        break;
+    }
+  } else if (voidedPurchaseNotification) {
+    let refundType = voidedPurchaseNotification.refundType;
+
+    purchaseMemo =
+      refundType == "2"
+        ? "REFUND_TYPE_FULL_REFUND (2) 交易已完全作廢"
+        : "REFUND_TYPE_QUANTITY_BASED_PARTIAL_REFUND 購買的商品遭到部分商品退款";
+  }
+
+  return purchaseMemo;
+}
 
 module.exports = router;
 

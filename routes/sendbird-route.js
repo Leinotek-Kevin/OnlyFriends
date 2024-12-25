@@ -1,5 +1,8 @@
 const router = require("express").Router();
 const sbUtil = require("../utils/sendbird-util");
+const SendBird = require("sendbird");
+const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
+const User = require("../models").user;
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -175,5 +178,49 @@ router.post("/show-gmsg", async (req, res) => {
     });
   }
 });
+
+//建立 SendBird 用戶
+router.post("/create-user", async (req, res) => {
+  try {
+    const users = await User.find({});
+
+    for (let i = 0; i < users.length; i++) {
+      let { userID, userName } = users[i];
+      await connectAndSetNickname(userID, userName);
+    }
+
+    res.status(200).send({
+      status: true,
+      message: "建構用戶完成",
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+//ConnectUser And userName
+const connectAndSetNickname = async (userID, userName) => {
+  return new Promise((resolve, reject) => {
+    // 先連接 SendBird，用戶不存在則創建
+    sb.connect(userID, function (user, error) {
+      if (error) {
+        return reject(error);
+      }
+
+      // 連接成功後，立即更新暱稱
+      sb.updateCurrentUserInfo(userName, null, function (response, error) {
+        if (error) {
+          return reject(error);
+        }
+        resolve(response); // 暱稱更新成功
+      });
+    });
+  });
+};
 
 module.exports = router;

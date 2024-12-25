@@ -102,11 +102,6 @@ const purchaseSchema = new Schema({
     default: false,
   },
 
-  //是否標記銷毀
-  isActive: {
-    type: Boolean,
-  },
-
   //訂單建立時間
   createDate: {
     type: Number,

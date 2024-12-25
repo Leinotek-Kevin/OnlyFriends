@@ -70,11 +70,11 @@ router.post("/google-verify", async (req, res) => {
 
         if (acknowledgementState == 0) {
           //確定訂單
-          // await googleUtil.acknowledgeSubscription(
-          //   packageName,
-          //   productId,
-          //   purchaseToken
-          // );
+          await googleUtil.acknowledgeSubscription(
+            packageName,
+            productId,
+            purchaseToken
+          );
         }
 
         //真正的訂單id
@@ -86,12 +86,6 @@ router.post("/google-verify", async (req, res) => {
           // .. 後面是指續訂次數
           renewCount = Number(splitOrderID[1]);
         }
-
-        //驗證成功,標記該用戶其他訂閱紀錄為 非活躍
-        await Purchase.updateMany(
-          { userID, orderId: { $ne: realID } }, // 排除當前訂單
-          { $set: { isActive: false } } // 設置 isActive 為 false
-        );
 
         //價格
         const price = Number(priceAmountMicros) / 1000000;
@@ -132,7 +126,6 @@ router.post("/google-verify", async (req, res) => {
             acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
             purchaseMemo: "",
             isAllow,
-            isActive: true,
           },
           {
             upsert: true,
@@ -153,9 +146,13 @@ router.post("/google-verify", async (req, res) => {
           message: "驗證失敗！查無訂單明細",
         });
       }
+    } else if (productType == "1") {
+      return res.status(200).send({
+        status: true,
+        message: "目前沒有開放單購商品！",
+      });
     }
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
