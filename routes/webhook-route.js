@@ -96,6 +96,7 @@ router.post("/google-purchase", async (req, res) => {
           isAllow,
         },
         {
+          upsert: true,
           new: true,
         }
       );
