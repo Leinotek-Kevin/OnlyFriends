@@ -163,7 +163,7 @@ router.post("/iOS-purchase", async (req, res) => {
 //檢查用戶是否有訂閱權
 async function checkAllowSubscription(userData) {
   if (userData) {
-    let { userID, orderID } = result;
+    let { userID, orderID } = userData;
 
     //用戶最近一筆訂單記錄
     const lastPurchase = await Purchase.findOne({ userID })
@@ -175,7 +175,7 @@ async function checkAllowSubscription(userData) {
 
       if (orderID == lastOrderID) {
         //表示目前通知的狀態是最近一筆訂單的狀態
-        await User.updateOne({ userID }, { isSubscription: result.isAllow });
+        await User.updateOne({ userID }, { isSubscription: userData.isAllow });
       }
     }
   }
