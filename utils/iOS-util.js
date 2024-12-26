@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const port = process.env.PORT || 8080;
 const fs = require("fs");
+const jwt = require("jsonwebtoken");
 const path = require("path");
 const generalUtil = require("./general-util");
 
@@ -85,10 +86,8 @@ const anaTransNotification = (signedPayload) => {
       notificationInfo.data.renewalInfo =
         generalUtil.decodeSignInfoByJWT(signedRenewalInfo);
     }
-    console.log(notificationInfo);
     return notificationInfo;
   } catch (e) {
-    console.log(e);
     return null;
   }
 };
