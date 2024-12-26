@@ -164,7 +164,7 @@ router.post("/iOS-purchase", async (req, res) => {
     //   complete: false,
     // });
 
-    console.log("iOS 購買信息:renewalInfo", renewalInfo);
+    //console.log("iOS 購買信息:renewalInfo", renewalInfo);
 
     return res.status(200).send({
       status: true,
