@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const googleUtil = require("../utils/google-util");
 const iOSUtil = require("../utils/iOS-util");
+const generalUtil = require("../utils/general-util");
 const jwt = require("jsonwebtoken");
 const User = require("../models").user;
 const Purchase = require("../models").purchase;
@@ -146,25 +147,26 @@ router.post("/iOS-purchase", async (req, res) => {
   try {
     const { signedPayload } = req.body;
 
-    const notificationInfo = jwt.decode(signedPayload, {
+    let notificationInfo = jwt.decode(signedPayload, {
       complete: false,
     });
 
+    const { signedTransactionInfo, signedRenewalInfo } = notificationInfo;
+
+    if (signedTransactionInfo) {
+      delete notificationInfo.signedTransactionInfo;
+      notificationInfo.transactionInfo = generalUtil.decodeSignInfoByJWT(
+        signedTransactionInfo
+      );
+    }
+
+    if (signedRenewalInfo) {
+      delete notificationInfo.signedRenewalInfo;
+      notificationInfo.renewalInfo =
+        generalUtil.decodeSignInfoByJWT(signedRenewalInfo);
+    }
+
     console.log("iOS 購買信息:notificationInfo", notificationInfo);
-
-    // const { signedTransactionInfo, signedRenewalInfo } = notificationInfo;
-
-    // const transactionInfo = jwt.decode(signedTransactionInfo, {
-    //   complete: false,
-    // });
-
-    // console.log("iOS 購買信息:transactionInfo", transactionInfo);
-
-    // const renewalInfo = jwt.decode(signedRenewalInfo, {
-    //   complete: false,
-    // });
-
-    //console.log("iOS 購買信息:renewalInfo", renewalInfo);
 
     return res.status(200).send({
       status: true,

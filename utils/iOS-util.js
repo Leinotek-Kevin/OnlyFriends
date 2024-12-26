@@ -2,10 +2,9 @@ const axios = require("axios");
 const dotenv = require("dotenv");
 dotenv.config();
 const port = process.env.PORT || 8080;
-
-const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
+const generalUtil = require("./general-util");
 
 const APPLE_PRODUCTION_URL =
   "https://api.storekit.itunes.apple.com/inApps/v1/transactions/";
@@ -36,22 +35,6 @@ async function generateAppleJWT() {
   return token;
 }
 
-//解析交易訊息 signedTransactionInfo
-function decodeSignTransaction(signedTransactionInfo) {
-  try {
-    const transcationInfo = jwt.decode(signedTransactionInfo, {
-      complete: false,
-    });
-    //complete -> true : 返回 header、payload 和 signature ,
-    //complete -> false : 返回 payload
-    //console.log("TransactionInfo", transcationInfo);
-    return transcationInfo;
-  } catch (error) {
-    //console.error("Error decoding JWT:", error);
-    return null;
-  }
-}
-
 //獲取交易訊息
 async function getTranscationInfo() {
   try {
@@ -69,20 +52,9 @@ async function getTranscationInfo() {
 
     if (response && response.data) {
       let { signedTransactionInfo } = response.data;
-
-      // 解碼 JWT
-      try {
-        const transcationInfo = jwt.decode(signedTransactionInfo, {
-          complete: false,
-        });
-        //complete -> true : 返回 header、payload 和 signature ,
-        //complete -> false : 返回 payload
-        //console.log("TransactionInfo", transcationInfo);
-        return transcationInfo;
-      } catch (error) {
-        //console.error("Error decoding JWT:", error);
-        return null;
-      }
+      const transcationInfo = generalUtil.decodeSignInfoByJWT(
+        signedTransactionInfo
+      );
     }
 
     return response;
@@ -92,10 +64,10 @@ async function getTranscationInfo() {
   }
 }
 
-module.exports = {
-  generateAppleJWT,
-  decodeSignTransaction,
-};
+// module.exports = {
+//   generateAppleJWT,
+//   decodeSignTransaction,
+// };
 
 // TransactionInfo {
 //   transactionId: '2000000815714769', 交易的唯一識別碼 , 識別這筆交易，通常用來查詢交易狀態或進行退款等操作
