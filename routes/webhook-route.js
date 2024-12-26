@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const googleUtil = require("../utils/google-util");
+const iOSUtil = require("../utils/iOS-util");
 const User = require("../models").user;
 const Purchase = require("../models").purchase;
 
@@ -142,9 +143,11 @@ router.post("/google-purchase", async (req, res) => {
 //iOS
 router.post("/iOS-purchase", async (req, res) => {
   try {
-    //const data = JSON.parse(req.body);
+    const { signedPayload } = req.body;
 
-    console.log("iOS 購買信息:", req.body);
+    const data = iOSUtil.decodeSignTransaction(signedPayload);
+
+    console.log("iOS 購買信息:", data);
 
     return res.status(200).send({
       status: true,
