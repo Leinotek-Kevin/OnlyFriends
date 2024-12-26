@@ -145,26 +145,7 @@ router.post("/google-purchase", async (req, res) => {
 //iOS
 router.post("/iOS-purchase", async (req, res) => {
   try {
-    const { signedPayload } = req.body;
-
-    let notificationInfo = jwt.decode(signedPayload, {
-      complete: false,
-    });
-
-    const { signedTransactionInfo, signedRenewalInfo } = notificationInfo.data;
-
-    if (signedTransactionInfo) {
-      delete notificationInfo.data.signedTransactionInfo;
-      notificationInfo.transactionInfo = generalUtil.decodeSignInfoByJWT(
-        signedTransactionInfo
-      );
-    }
-
-    if (signedRenewalInfo) {
-      delete notificationInfo.data.signedRenewalInfo;
-      notificationInfo.renewalInfo =
-        generalUtil.decodeSignInfoByJWT(signedRenewalInfo);
-    }
+    const notificationInfo = anaTransNotification(req.body.signedPayload);
 
     console.log("iOS 購買信息:notificationInfo", notificationInfo);
 

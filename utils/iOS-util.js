@@ -64,10 +64,37 @@ async function getTranscationInfo() {
   }
 }
 
-// module.exports = {
-//   generateAppleJWT,
-//   decodeSignTransaction,
-// };
+//解析交易通知訊息
+const anaTransNotification = (signedPayload) => {
+  try {
+    let notificationInfo = jwt.decode(signedPayload, {
+      complete: false,
+    });
+
+    const { signedTransactionInfo, signedRenewalInfo } = notificationInfo.data;
+
+    if (signedTransactionInfo) {
+      delete notificationInfo.data.signedTransactionInfo;
+      notificationInfo.transactionInfo = generalUtil.decodeSignInfoByJWT(
+        signedTransactionInfo
+      );
+    }
+
+    if (signedRenewalInfo) {
+      delete notificationInfo.data.signedRenewalInfo;
+      notificationInfo.renewalInfo =
+        generalUtil.decodeSignInfoByJWT(signedRenewalInfo);
+    }
+    return notificationInfo;
+  } catch (e) {
+    return;
+  }
+};
+
+module.exports = {
+  generateAppleJWT,
+  anaTransNotification,
+};
 
 // TransactionInfo {
 //   transactionId: '2000000815714769', 交易的唯一識別碼 , 識別這筆交易，通常用來查詢交易狀態或進行退款等操作
