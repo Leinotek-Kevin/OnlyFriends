@@ -143,9 +143,8 @@ router.post("/google-purchase", async (req, res) => {
 //iOS
 router.post("/iOS-purchase", async (req, res) => {
   try {
-    const notificationInfo = iOSUtil.anaTransNotification(
-      req.body.signedPayload
-    );
+    let { signedPayload } = req.body;
+    const notificationInfo = iOSUtil.anaTransNotification(signedPayload);
 
     console.log("iOS 購買信息:notificationInfo", notificationInfo);
 
