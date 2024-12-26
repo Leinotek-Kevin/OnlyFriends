@@ -142,9 +142,9 @@ router.post("/google-purchase", async (req, res) => {
 //iOS
 router.post("/iOS-purchase", async (req, res) => {
   try {
-    const data = JSON.parse(req.body);
+    //const data = JSON.parse(req.body);
 
-    console.log("iOS 購買信息:", data);
+    console.log("iOS 購買信息:", req.body);
 
     return res.status(200).send({
       status: true,
