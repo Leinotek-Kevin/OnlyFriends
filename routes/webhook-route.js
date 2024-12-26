@@ -171,17 +171,7 @@ router.post("/iOS-purchase", async (req, res) => {
 
       // DID_RENEW 事件 (訂閱續訂)
       if (notificationType == "DID_RENEW") {
-        if (subtype == "DID_RENEW") {
-          console.log("訂閱成功續訂");
-        }
-
-        if (subtype == "AUTO_RENEW_ENABLED") {
-          console.log("用戶啟用自動續訂");
-        }
-
-        if (subtype == "AUTO_RENEW_DISABLED") {
-          console.log("用戶禁用自動續訂");
-        }
+        console.log("用戶續訂");
       }
 
       //EXPIRED 事件 (訂閱過期)
