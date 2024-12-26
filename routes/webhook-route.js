@@ -152,17 +152,17 @@ router.post("/iOS-purchase", async (req, res) => {
 
     console.log("iOS 購買信息:notificationInfo", notificationInfo);
 
-    const { signedTransactionInfo, signedRenewalInfo } = notificationInfo;
+    // const { signedTransactionInfo, signedRenewalInfo } = notificationInfo;
 
-    const transactionInfo = jwt.decode(signedTransactionInfo, {
-      complete: false,
-    });
+    // const transactionInfo = jwt.decode(signedTransactionInfo, {
+    //   complete: false,
+    // });
 
-    console.log("iOS 購買信息:transactionInfo", transactionInfo);
+    // console.log("iOS 購買信息:transactionInfo", transactionInfo);
 
-    const renewalInfo = jwt.decode(signedRenewalInfo, {
-      complete: false,
-    });
+    // const renewalInfo = jwt.decode(signedRenewalInfo, {
+    //   complete: false,
+    // });
 
     console.log("iOS 購買信息:renewalInfo", renewalInfo);
 
