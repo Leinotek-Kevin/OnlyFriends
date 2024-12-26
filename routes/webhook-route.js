@@ -152,6 +152,11 @@ router.post("/iOS-purchase", async (req, res) => {
     if (notificationInfo) {
       let { notificationType, subtype } = notificationInfo;
 
+      console.log(
+        "通知類型:",
+        `notificationType : ${notificationType} , subtype : ${subtype}`
+      );
+
       //處理通知可能的事件
       // SUBSCRIBED 事件 (訂閱購買)
       if (notificationType == "SUBSCRIBED") {
