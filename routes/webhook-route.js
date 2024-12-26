@@ -151,17 +151,17 @@ router.post("/iOS-purchase", async (req, res) => {
       complete: false,
     });
 
-    const { signedTransactionInfo, signedRenewalInfo } = notificationInfo;
+    const { signedTransactionInfo, signedRenewalInfo } = notificationInfo.data;
 
     if (signedTransactionInfo) {
-      delete notificationInfo.signedTransactionInfo;
+      delete notificationInfo.data.signedTransactionInfo;
       notificationInfo.transactionInfo = generalUtil.decodeSignInfoByJWT(
         signedTransactionInfo
       );
     }
 
     if (signedRenewalInfo) {
-      delete notificationInfo.signedRenewalInfo;
+      delete notificationInfo.data.signedRenewalInfo;
       notificationInfo.renewalInfo =
         generalUtil.decodeSignInfoByJWT(signedRenewalInfo);
     }
