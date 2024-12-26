@@ -73,7 +73,6 @@ router.post("/google-purchase", async (req, res) => {
 
       if (
         paymentState === 0 || // 付款處理中
-        paymentState === 3 || // 待處理的延遲升級/降級
         !expiryTimeMillis || // 檢查 expiryTimeMillis 是否存在
         expiryTimeMillis < Date.now() // 檢查訂閱是否過期
       ) {
@@ -152,6 +151,7 @@ router.post("/iOS-purchase", async (req, res) => {
       message: "iOS 購買信息",
     });
   } catch (e) {
+    console.log("iOS 購買錯誤:", e);
     return res.status(200).send({
       status: false,
       message: "Server Error!",
