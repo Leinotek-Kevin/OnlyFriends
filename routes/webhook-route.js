@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const googleUtil = require("../utils/google-util");
 const iOSUtil = require("../utils/iOS-util");
+const jwt = require("jsonwebtoken");
 const User = require("../models").user;
 const Purchase = require("../models").purchase;
 
