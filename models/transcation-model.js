@@ -71,6 +71,11 @@ const transcationSchema = new Schema({
   currency: {
     type: String,
   },
+
+  // 交易通知備註
+  transcationMemo: {
+    type: String,
+  },
 });
 
 transcationSchema.index({ expiresDate: -1 }); // -1 for descending

@@ -149,11 +149,84 @@ router.post("/iOS-purchase", async (req, res) => {
       req.body.signedPayload
     );
 
-    console.log("iOS 購買信息:notificationInfo", notificationInfo);
+    if (notificationInfo) {
+      let { notificationType, subtype } = notificationInfo;
+
+      //處理通知可能的事件
+      // SUBSCRIBED 事件 (訂閱購買)
+      if (notificationType == "SUBSCRIBED") {
+        if (subtype == "INITIAL_BUY") {
+          console.log("用戶首次訂閱");
+        }
+
+        if (subtype == "RESUBSCRIBE") {
+          console.log("用戶再次訂閱");
+        }
+      }
+
+      // DID_RENEW 事件 (訂閱續訂)
+      if (notificationType == "DID_RENEW") {
+        if (subtype == "DID_RENEW") {
+          console.log("訂閱成功續訂");
+        }
+
+        if (subtype == "AUTO_RENEW_ENABLED") {
+          console.log("用戶啟用自動續訂");
+        }
+
+        if (subtype == "AUTO_RENEW_DISABLED") {
+          console.log("用戶禁用自動續訂");
+        }
+      }
+
+      //EXPIRED 事件 (訂閱過期)
+      if (notificationType == "EXPIRED") {
+        if (subtype == "VOLUNTARY") {
+          console.log("用戶主動取消訂閱");
+        }
+      }
+
+      //DID_FAIL_TO_RENEW 事件 (續訂失敗)
+      if (notificationType == "DID_FAIL_TO_RENEW") {
+        if (subtype == "FAILURE") {
+          console.log("續訂失敗，通常是支付失敗");
+        }
+      }
+
+      //GRACE_PERIOD_EXPIRED 事件 (寬限期過期)
+      if (notificationType == "GRACE_PERIOD_EXPIRED") {
+        if (subtype == "GRACE_PERIOD") {
+          console.log("訂閱進入寬限期並且寬限期已過");
+        }
+      }
+
+      //REFUND 事件 (退款)
+      if (notificationType == "REFUND") {
+        if (subtype == "REFUND") {
+          console.log("用戶申請退款");
+        }
+      }
+
+      //REVOKE 事件 (撤銷訂閱)
+      if (notificationType == "REVOKE") {
+        if (subtype == "REVOKE") {
+          console.log("訂閱被撤銷，可能是由於支付問題或其他原因");
+        }
+      }
+
+      //PRICE_INCREASE 事件 (價格增加)
+      if (notificationType == "PRICE_INCREASE") {
+        if (subtype == "PRICE_INCREASE") {
+          console.log("訂閱的價格變動");
+        }
+      }
+    }
 
     return res.status(200).send({
       status: true,
-      message: "iOS 購買信息",
+      message: notificationInfo
+        ? "iOS 購買信息處理完成"
+        : "iOS 購買信息處理失敗",
     });
   } catch (e) {
     console.log("iOS 購買錯誤:", e);
