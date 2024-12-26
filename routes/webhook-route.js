@@ -146,7 +146,7 @@ router.post("/iOS-purchase", async (req, res) => {
     let { signedPayload } = req.body;
     const notificationInfo = iOSUtil.anaTransNotification(signedPayload);
 
-    console.log("iOS 購買信息:notificationInfo", notificationInfo);
+    //console.log("iOS 購買信息:notificationInfo", notificationInfo);
 
     return res.status(200).send({
       status: true,

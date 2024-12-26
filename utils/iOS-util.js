@@ -75,19 +75,21 @@ const anaTransNotification = (signedPayload) => {
 
     if (signedTransactionInfo) {
       delete notificationInfo.data.signedTransactionInfo;
-      notificationInfo.transactionInfo = generalUtil.decodeSignInfoByJWT(
+      notificationInfo.data.transactionInfo = generalUtil.decodeSignInfoByJWT(
         signedTransactionInfo
       );
     }
 
     if (signedRenewalInfo) {
       delete notificationInfo.data.signedRenewalInfo;
-      notificationInfo.renewalInfo =
+      notificationInfo.data.renewalInfo =
         generalUtil.decodeSignInfoByJWT(signedRenewalInfo);
     }
+    console.log(notificationInfo);
     return notificationInfo;
   } catch (e) {
-    return;
+    console.log(e);
+    return null;
   }
 };
 
