@@ -177,7 +177,7 @@ router.post("/iOS-purchase", async (req, res) => {
       //EXPIRED 事件 (訂閱過期)
       if (notificationType == "EXPIRED") {
         if (subtype == "VOLUNTARY") {
-          console.log("用戶主動取消訂閱");
+          console.log("訂閱已過期!");
         }
       }
 
@@ -188,10 +188,26 @@ router.post("/iOS-purchase", async (req, res) => {
         }
       }
 
+      if (notificationType == "DID_CHANGE_RENEWAL_PREF") {
+        if (subtype == "DOWNGRADE") {
+          //console.log("續訂失敗，通常是支付失敗");
+        }
+
+        if (subtype == "UPGRADE") {
+          //console.log("續訂失敗，通常是支付失敗");
+        }
+      }
+
       //GRACE_PERIOD_EXPIRED 事件 (寬限期過期)
       if (notificationType == "GRACE_PERIOD_EXPIRED") {
         if (subtype == "GRACE_PERIOD") {
           console.log("訂閱進入寬限期並且寬限期已過");
+        }
+      }
+
+      if (notificationType == "DID_CHANGE_RENEWAL_STATUS") {
+        if (subtype == "AUTO_RENEW_DISABLED") {
+          console.log("用戶取消訂閱");
         }
       }
 
