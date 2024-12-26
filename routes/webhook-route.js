@@ -1,8 +1,6 @@
 const router = require("express").Router();
 const googleUtil = require("../utils/google-util");
 const iOSUtil = require("../utils/iOS-util");
-const generalUtil = require("../utils/general-util");
-const jwt = require("jsonwebtoken");
 const User = require("../models").user;
 const Purchase = require("../models").purchase;
 
@@ -145,7 +143,9 @@ router.post("/google-purchase", async (req, res) => {
 //iOS
 router.post("/iOS-purchase", async (req, res) => {
   try {
-    const notificationInfo = anaTransNotification(req.body.signedPayload);
+    const notificationInfo = iOSUtil.anaTransNotification(
+      req.body.signedPayload
+    );
 
     console.log("iOS 購買信息:notificationInfo", notificationInfo);
 
