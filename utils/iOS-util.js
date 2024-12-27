@@ -37,13 +37,13 @@ async function generateAppleJWT() {
 }
 
 //獲取交易訊息
-async function getTranscationInfo() {
+async function getTranscationInfo(transactionID) {
   try {
     let requestUrl = port == 8080 ? APPLE_SANDBOX_URL : APPLE_PRODUCTION_URL;
 
     const jwtToken = await generateAppleJWT();
 
-    let url = requestUrl + "2000000816063134";
+    let url = requestUrl + transactionID;
 
     const response = await axios.get(url, {
       headers: {
@@ -95,13 +95,11 @@ const anaTransNotification = (signedPayload) => {
   }
 };
 
-getTranscationInfo();
-
-// module.exports = {
-//   generateAppleJWT,
-//   anaTransNotification,
-//   getTranscationInfo,
-// };
+module.exports = {
+  generateAppleJWT,
+  anaTransNotification,
+  getTranscationInfo,
+};
 
 // TransactionInfo {
 //   transactionId: '2000000815714769', 交易的唯一識別碼 , 識別這筆交易，通常用來查詢交易狀態或進行退款等操作
