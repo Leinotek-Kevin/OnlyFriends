@@ -212,7 +212,7 @@ router.post("/iOS-verify", async (req, res) => {
           { userID },
           {
             $set: {
-              isAllow,
+              isSubscription: isAllow,
             },
           }
         );
