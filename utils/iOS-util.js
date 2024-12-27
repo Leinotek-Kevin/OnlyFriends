@@ -32,7 +32,7 @@ async function generateAppleJWT() {
     }
   );
 
-  console.log("Apple JWT :", token);
+  //console.log("Apple JWT :", token);
   return token;
 }
 
@@ -51,14 +51,20 @@ async function getTranscationInfo() {
       }, // headers 應放在同一個配置對象裡
     });
 
+    console.log(response);
+
     if (response && response.data) {
       let { signedTransactionInfo } = response.data;
+
       const transcationInfo = generalUtil.decodeSignInfoByJWT(
         signedTransactionInfo
       );
+
+      console.log(transcationInfo);
+      return transcationInfo;
     }
 
-    return response;
+    return null;
   } catch (error) {
     console.log(error);
     return null;
@@ -92,10 +98,13 @@ const anaTransNotification = (signedPayload) => {
   }
 };
 
-module.exports = {
-  generateAppleJWT,
-  anaTransNotification,
-};
+getTranscationInfo();
+
+// module.exports = {
+//   generateAppleJWT,
+//   anaTransNotification,
+//   getTranscationInfo,
+// };
 
 // TransactionInfo {
 //   transactionId: '2000000815714769', 交易的唯一識別碼 , 識別這筆交易，通常用來查詢交易狀態或進行退款等操作

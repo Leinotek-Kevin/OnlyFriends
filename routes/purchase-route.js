@@ -1,8 +1,10 @@
 const router = require("express").Router();
 const User = require("../models").user;
 const Purchase = require("../models").purchase;
+const Transcation = require("../models").transcation;
 const passport = require("passport");
 const googleUtil = require("../utils/google-util");
+const iOSUtil = require("../utils/iOS-util");
 const dateUtil = require("../utils/date-util");
 
 //先驗證 user 是不是存在，並獲取 user info
@@ -167,6 +169,14 @@ router.post("/google-verify", async (req, res) => {
 //C-2 App iOS 驗證購買收據憑證
 router.post("/iOS-verify", async (req, res) => {
   try {
+    let { userID } = req.user;
+    let { transactionID } = req.body;
+
+    const info = await iOSUtil.getTranscationInfo(transactionID);
+
+    // await Transcation.findOneAndUpdate({
+    //   userID,
+    // });
   } catch (e) {
     return res.status(500).send({
       status: false,

@@ -5,6 +5,7 @@ module.exports = {
   matchHistory: require("./match-history-model"),
   matchNewest: require("./match-newest-model"),
   purchase: require("./purchase-model"),
+  transcation: require("./transcation-model"),
   sticker: require("./sticker-model"),
   topic: require("./topic-model"),
   report: require("./report-model"),

@@ -36,24 +36,8 @@ const transcationSchema = new Schema({
     enum: ["0", "1"],
   },
 
-  // 購買日期
-  purchaseDate: {
-    type: Number,
-  },
-
   //到期時間
   expiresDate: {
-    type: Number,
-  },
-
-  // 是否已退款
-  isRefunded: {
-    type: Boolean,
-    default: false,
-  },
-
-  // 退款日期
-  refundDate: {
     type: Number,
   },
 
@@ -72,9 +56,26 @@ const transcationSchema = new Schema({
     type: String,
   },
 
-  // 交易通知備註
+  //訂單狀態
+  status: {
+    type: String,
+  },
+
+  //訂單是否允許存取
+  isAllow: {
+    type: Boolean,
+    default: false,
+  },
+
+  //交易通知備註
   transcationMemo: {
     type: String,
+  },
+
+  //訂單建立時間
+  createDate: {
+    type: Number,
+    default: Date.now(),
   },
 });
 

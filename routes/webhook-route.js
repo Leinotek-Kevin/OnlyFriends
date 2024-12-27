@@ -5,6 +5,7 @@ const generalUtil = require("../utils/general-util");
 const jwt = require("jsonwebtoken");
 const User = require("../models").user;
 const Purchase = require("../models").purchase;
+const Transcation = require("../models").transcation;
 
 router.post("/google-purchase", async (req, res) => {
   try {
@@ -150,87 +151,124 @@ router.post("/iOS-purchase", async (req, res) => {
     );
 
     if (notificationInfo) {
-      let { notificationType, subtype } = notificationInfo;
-
-      console.log("交易通知資訊:", notificationInfo);
+      const { notificationType, subtype, data } = notificationInfo;
+      const { transactionInfo, renewalInfo } = data;
 
       console.log(
         "通知類型:",
-        `notificationType : ${notificationType} , subtype : ${subtype}`
+        `notificationType : ${notificationType} , subtype : ${subtype} transactionId : ${transactionInfo.transactionId}`
       );
 
-      //處理通知可能的事件
-      // SUBSCRIBED 事件 (訂閱購買)
-      if (notificationType == "SUBSCRIBED") {
-        if (subtype == "INITIAL_BUY") {
-          console.log("用戶首次訂閱");
+      const transactionId = transactionInfo.transactionId;
+      const originalTransactionId = transactionInfo.originalTransactionId;
+      const productId = transactionInfo.productId;
+      const expiresDate = transactionInfo.expiresDate;
+      const autoRenewStatus = renewalInfo.autoRenewStatus === 1;
+      const transcationMemo = `notificationType : ${notificationType} , subtype : ${subtype}`;
+      const now = Date.now();
+
+      // 查找或創建訂閱
+      let subscription = await Transcation.findOne({ originalTransactionId });
+
+      if (subscription) {
+        // 更新訂閱信息
+        subscription.transactionId = transactionId;
+        subscription.productID = productId;
+        subscription.expiresDate = expiresDate;
+        subscription.autoRenewStatus = autoRenewStatus;
+        subscription.transcationMemo = transcationMemo;
+
+        //處理通知可能的事件
+        switch (notificationType) {
+          //SUBSCRIBED 事件 (訂閱購買)
+          case "SUBSCRIBED":
+            if (subtype === "RESUBSCRIBE") {
+              subscription.status = "active";
+            }
+            break;
+          //DID_RENEW 事件 (訂閱續訂)
+          case "DID_RENEW":
+            subscription.status = "active";
+            subscription.expiresDate = expiresDate;
+            break;
+
+          //DID_CHANGE_RENEWAL_STATUS  用戶改變了訂閱的自動續訂狀態
+          case "DID_CHANGE_RENEWAL_STATUS":
+            if (autoRenewStatus) {
+              subscription.autoRenewStatus = true;
+            } else {
+              subscription.autoRenewStatus = false;
+            }
+            break;
+
+          //DID_FAIL_TO_RENEW 事件 (續訂失敗)
+          case "DID_FAIL_TO_RENEW":
+            if (expiresDate > now) {
+              subscription.status = "grace_period";
+            } else {
+              subscription.status = "expired";
+            }
+            break;
+
+          //EXPIRED 事件 (訂閱過期)
+          case "EXPIRED":
+            subscription.status = "expired";
+            break;
+
+          // GRACE_PERIOD_EXPIRED 事件 (寬限期過期)
+          case "GRACE_PERIOD_EXPIRED":
+            subscription.status = "expired";
+            break;
+
+          //REFUND 事件 (退款)
+          case "REFUND":
+            subscription.status = "refunded";
+            break;
+
+          //DID_CHANGE_RENEWAL_PREF (更改了自動續訂偏好) 通常是升降級方案
+          case "DID_CHANGE_RENEWAL_PREF":
+            if (subtype === "UPGRADE") {
+              subscription.status = "upgraded";
+              subscription.productID = renewalInfo.autoRenewProductId;
+            } else if (subtype === "DOWNGRADE") {
+              subscription.status = "downgraded";
+              subscription.productID = renewalInfo.autoRenewProductId;
+            }
+            break;
+
+          //REVOKE 事件 (撤銷訂閱)
+          case "REVOKE":
+            // 更新訂閱狀態
+            subscription.status = "revoked";
+            subscription.expiresDate = expiresDate || Date.now();
+            break;
         }
 
-        if (subtype == "RESUBSCRIBE") {
-          console.log("用戶再次訂閱");
-        }
-      }
+        // 儲存訂閱狀態
+        await subscription.save();
 
-      // DID_RENEW 事件 (訂閱續訂)
-      if (notificationType == "DID_RENEW") {
-        console.log("用戶續訂");
-      }
+        // 檢查並更新用戶的訂閱狀態
+        let { userID } = subscription.userID;
 
-      //EXPIRED 事件 (訂閱過期)
-      if (notificationType == "EXPIRED") {
-        if (subtype == "VOLUNTARY") {
-          console.log("訂閱已過期!");
-        }
-      }
+        if (userID) {
+          //按照過期時間降冪排序->新到舊
+          const lastSubscription = await Transcation.findOne({
+            userID,
+          })
+            .sort({ expiresDate: -1 })
+            .limit(1);
 
-      //DID_FAIL_TO_RENEW 事件 (續訂失敗)
-      if (notificationType == "DID_FAIL_TO_RENEW") {
-        if (subtype == "FAILURE") {
-          console.log("續訂失敗，通常是支付失敗");
-        }
-      }
+          let isAllow = isSubscriptionActive(lastSubscription);
 
-      if (notificationType == "DID_CHANGE_RENEWAL_PREF") {
-        if (subtype == "DOWNGRADE") {
-          //console.log("續訂失敗，通常是支付失敗");
-        }
-
-        if (subtype == "UPGRADE") {
-          //console.log("續訂失敗，通常是支付失敗");
-        }
-      }
-
-      //GRACE_PERIOD_EXPIRED 事件 (寬限期過期)
-      if (notificationType == "GRACE_PERIOD_EXPIRED") {
-        if (subtype == "GRACE_PERIOD") {
-          console.log("訂閱進入寬限期並且寬限期已過");
-        }
-      }
-
-      if (notificationType == "DID_CHANGE_RENEWAL_STATUS") {
-        if (subtype == "AUTO_RENEW_DISABLED") {
-          console.log("用戶取消訂閱");
-        }
-      }
-
-      //REFUND 事件 (退款)
-      if (notificationType == "REFUND") {
-        if (subtype == "REFUND") {
-          console.log("用戶申請退款");
-        }
-      }
-
-      //REVOKE 事件 (撤銷訂閱)
-      if (notificationType == "REVOKE") {
-        if (subtype == "REVOKE") {
-          console.log("訂閱被撤銷，可能是由於支付問題或其他原因");
-        }
-      }
-
-      //PRICE_INCREASE 事件 (價格增加)
-      if (notificationType == "PRICE_INCREASE") {
-        if (subtype == "PRICE_INCREASE") {
-          console.log("訂閱的價格變動");
+          //更改用戶訂閱狀態
+          await User.updateOne(
+            { userID },
+            {
+              $set: {
+                isAllow,
+              },
+            }
+          );
         }
       }
     }
@@ -344,6 +382,30 @@ function analyticsPurchaseMemo(notification) {
   }
 
   return purchaseMemo;
+}
+
+//這個訂閱訂單是否可以訂閱
+function isSubscriptionActive(subscription) {
+  const allowedStatuses = [
+    "active",
+    "grace_period",
+    "pending_renewal",
+    "upgraded",
+    "downgraded",
+  ];
+
+  // 判斷 subscription 是否存在
+  if (!subscription || !subscription.status) {
+    return false;
+  }
+
+  // 檢查訂閱的狀態是否在允許的狀態清單中
+  if (allowedStatuses.includes(subscription.status)) {
+    return true;
+  }
+
+  // 其他狀態表示訂閱無效
+  return false;
 }
 
 module.exports = router;
