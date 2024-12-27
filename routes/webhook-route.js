@@ -159,21 +159,21 @@ router.post("/iOS-purchase", async (req, res) => {
         `notificationType : ${notificationType} , subtype : ${subtype} transactionId : ${transactionInfo.transactionId}`
       );
 
-      const transactionId = transactionInfo.transactionId;
-      const originalTransactionId = transactionInfo.originalTransactionId;
-      const productId = transactionInfo.productId;
+      const transactionID = transactionInfo.transactionId;
+      const originalTransactionID = transactionInfo.originalTransactionId;
+      const productID = transactionInfo.productId;
       const expiresDate = transactionInfo.expiresDate;
       const autoRenewStatus = renewalInfo.autoRenewStatus === 1;
       const transcationMemo = `notificationType : ${notificationType} , subtype : ${subtype}`;
       const now = Date.now();
 
       // 查找或創建訂閱
-      let subscription = await Transcation.findOne({ originalTransactionId });
+      let subscription = await Transcation.findOne({ originalTransactionID });
 
       if (subscription) {
         // 更新訂閱信息
-        subscription.transactionId = transactionId;
-        subscription.productID = productId;
+        subscription.transactionID = transactionID;
+        subscription.productID = productID;
         subscription.expiresDate = expiresDate;
         subscription.autoRenewStatus = autoRenewStatus;
         subscription.transcationMemo = transcationMemo;

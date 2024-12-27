@@ -184,7 +184,7 @@ router.post("/iOS-verify", async (req, res) => {
           expiresDate > currentTime &&
           transaction.inAppOwnershipType == "PURCHASED";
 
-        const result = await Purchase.findOneAndUpdate(
+        const result = await Transcation.findOneAndUpdate(
           { originalTransactionId, userID },
           {
             $set: {
