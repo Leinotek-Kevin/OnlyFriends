@@ -152,6 +152,8 @@ router.post("/iOS-purchase", async (req, res) => {
     if (notificationInfo) {
       let { notificationType, subtype } = notificationInfo;
 
+      console.log("交易通知資訊:", notificationInfo);
+
       console.log(
         "通知類型:",
         `notificationType : ${notificationType} , subtype : ${subtype}`
