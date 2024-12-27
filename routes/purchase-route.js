@@ -170,13 +170,72 @@ router.post("/google-verify", async (req, res) => {
 router.post("/iOS-verify", async (req, res) => {
   try {
     let { userID } = req.user;
-    let { transactionID } = req.body;
+    let { transactionID, productType } = req.body;
 
-    const info = await iOSUtil.getTranscationInfo(transactionID);
+    if (productType == "0") {
+      const transaction = await iOSUtil.getTranscationInfo(transactionID);
 
-    // await Transcation.findOneAndUpdate({
-    //   userID,
-    // });
+      if (transaction) {
+        //檢查訂單是否有效
+        const currentTime = Date.now(); // 獲取當前時間 (Unix timestamp)
+        const expiresDate = transaction.expiresDate; // 從訂單中獲取 expiresDate
+
+        let isAllow =
+          expiresDate > currentTime &&
+          transaction.inAppOwnershipType == "PURCHASED";
+
+        const result = await Purchase.findOneAndUpdate(
+          { originalTransactionId, userID },
+          {
+            $set: {
+              userID,
+              platform: "iOS",
+              transactionId: transaction.transactionId,
+              originalTransactionId: transaction.originalTransactionId,
+              productID: transaction.productId,
+              productType,
+              expiresDate: transaction.expiresDate,
+              price: transaction.price / 1000,
+              currency: transaction.currency,
+              transcationMemo: transaction.type,
+              purchaseDate: transaction.purchaseDate,
+              isAllow,
+            },
+          },
+          {
+            upsert: true,
+            new: true,
+          }
+        );
+
+        //更改用戶訂閱狀態
+        await User.updateOne(
+          { userID },
+          {
+            $set: {
+              isAllow,
+            },
+          }
+        );
+
+        return res.status(200).send({
+          status: true,
+          message: "驗證成功!交易紀錄已更新！",
+          data: result,
+        });
+      } else {
+        return res.status(200).send({
+          status: true,
+          message: "驗證失敗！查無此交易",
+          e,
+        });
+      }
+    } else {
+      return res.status(200).send({
+        status: true,
+        message: "目前無開放單購商品",
+      });
+    }
   } catch (e) {
     return res.status(500).send({
       status: false,

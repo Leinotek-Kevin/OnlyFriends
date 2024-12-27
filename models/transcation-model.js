@@ -13,13 +13,13 @@ const transcationSchema = new Schema({
   platform: { type: String, enum: ["iOS", "Android"] }, // 用於區分平台
 
   // iOS 訂單ID 或 Android orderId
-  transactionId: {
+  transactionID: {
     type: String,
     default: "",
   },
 
   // iOS 初始訂單ID
-  originalTransactionId: {
+  originalTransactionID: {
     type: String,
     default: "",
   },
@@ -72,10 +72,9 @@ const transcationSchema = new Schema({
     type: String,
   },
 
-  //訂單建立時間
-  createDate: {
-    type: Number,
-    default: Date.now(),
+  //訂單購買時間
+  purchaseDate: {
+    type: String,
   },
 });
 

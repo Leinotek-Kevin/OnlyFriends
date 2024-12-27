@@ -43,15 +43,13 @@ async function getTranscationInfo() {
 
     const jwtToken = await generateAppleJWT();
 
-    let url = requestUrl + "2000000815714769";
+    let url = requestUrl + "2000000816063134";
 
     const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
       }, // headers 應放在同一個配置對象裡
     });
-
-    console.log(response);
 
     if (response && response.data) {
       let { signedTransactionInfo } = response.data;
@@ -60,7 +58,6 @@ async function getTranscationInfo() {
         signedTransactionInfo
       );
 
-      console.log(transcationInfo);
       return transcationInfo;
     }
 
