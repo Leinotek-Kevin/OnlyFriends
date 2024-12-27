@@ -265,7 +265,9 @@ router.post("/iOS-purchase", async (req, res) => {
             {
               $set: {
                 subTranscationID: lastSubscription.transactionID,
-                subExpiresDate: datelUtil.formatTimestamp(expiresDate),
+                subExpiresDate: datelUtil.formatTimestamp(
+                  lastSubscription.expiresDate
+                ),
                 isAllow,
               },
             }
