@@ -5,7 +5,6 @@ const Transcation = require("../models").transcation;
 const passport = require("passport");
 const googleUtil = require("../utils/google-util");
 const iOSUtil = require("../utils/iOS-util");
-const dateUtil = require("../utils/date-util");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {

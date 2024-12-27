@@ -151,6 +151,16 @@ const userSchema = new Schema({
     default: false,
   },
 
+  //訂閱截止時間
+  subExpiresDate: {
+    type: String,
+  },
+
+  //用戶目前的訂閱交易ID
+  subTranscationID: {
+    type: String,
+  },
+
   //該用戶推播關關狀態
   notificationStatus: {
     type: Boolean,
