@@ -184,7 +184,7 @@ router.post("/iOS-verify", async (req, res) => {
           transaction.inAppOwnershipType == "PURCHASED";
 
         const result = await Transcation.findOneAndUpdate(
-          { originalTransactionId, userID },
+          { originalTransactionId: transaction.originalTransactionId, userID },
           {
             $set: {
               userID,
