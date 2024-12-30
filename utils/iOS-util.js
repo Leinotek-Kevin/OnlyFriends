@@ -45,7 +45,7 @@ async function generateAppleJWT() {
     }
   );
 
-  console.log("Apple JWT :", token);
+  //console.log("Apple JWT :", token);
   return token;
 }
 
