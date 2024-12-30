@@ -168,7 +168,7 @@ router.post("/google-verify", async (req, res) => {
 //C-2 App iOS 驗證購買收據憑證
 router.post("/iOS-verify", async (req, res) => {
   try {
-    let { userID } = req.user;
+    let { userID, userEmail } = req.user;
     let { transactionID, productType } = req.body;
 
     if (productType == "0") {
@@ -188,6 +188,7 @@ router.post("/iOS-verify", async (req, res) => {
           {
             $set: {
               userID,
+              userEmail,
               platform: "iOS",
               transactionId: transaction.transactionId,
               originalTransactionId: transaction.originalTransactionId,
