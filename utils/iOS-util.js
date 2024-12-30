@@ -52,7 +52,10 @@ async function generateAppleJWT() {
 //獲取交易訊息
 async function getTranscationInfo(transactionID) {
   try {
-    let requestUrl = port == 8080 ? APPLE_SANDBOX_URL : APPLE_PRODUCTION_URL;
+    let requestUrl =
+      port == 8080 || process.env.HEROKU_ENV == DEBUG
+        ? APPLE_SANDBOX_URL
+        : APPLE_PRODUCTION_URL;
 
     const jwtToken = await generateAppleJWT();
 
