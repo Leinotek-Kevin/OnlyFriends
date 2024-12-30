@@ -63,5 +63,3 @@ const systemCheck = async () => {
   }
 };
 systemCheck();
-
-//執行午夜配對和樹洞配對和確認公開渠道

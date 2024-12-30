@@ -277,6 +277,47 @@ router.post("/query-history", async (req, res) => {
   }
 });
 
+//C-4 驗證交易訂單擁有者
+router.post("/verify-owner", async (req, res) => {
+  try {
+    let { userEmail } = req.user;
+    let { originalTransactionID, osType } = req.body;
+
+    const oriData = await Transcation.findOne({
+      platform: osType,
+      originalTransactionID,
+    });
+
+    if (oriData && oriData.userEmail) {
+      let isYourTranscation = userEmail == oriData.userEmail;
+
+      return res.status(200).send({
+        status: true,
+        message: isYourOrder ? "這筆訂單是你的" : "這筆訂單是別人的",
+        validCode: 1,
+        data: {
+          isYourTranscation,
+          transcationOwner: oriData.userEmail,
+        },
+      });
+    } else {
+      return res.status(200).send({
+        status: true,
+        message: "該筆訂單不存在！",
+        validCode: 1,
+        data: null,
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      validCode: -1,
+      e,
+    });
+  }
+});
+
 //取得驗證購買紀錄
 router.post("/verify-receipt", async (req, res) => {
   try {

@@ -9,6 +9,11 @@ const transcationSchema = new Schema({
     default: "",
   },
 
+  //用戶Email
+  userEmail: {
+    type: String,
+  },
+
   //手機系統
   platform: { type: String, enum: ["iOS", "Android"] }, // 用於區分平台
 

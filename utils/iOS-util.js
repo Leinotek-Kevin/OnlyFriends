@@ -11,19 +11,34 @@ const APPLE_PRODUCTION_URL =
   "https://api.storekit.itunes.apple.com/inApps/v1/transactions/";
 const APPLE_SANDBOX_URL =
   "https://api.storekit-sandbox.itunes.apple.com/inApps/v1/transactions/";
-const SHARED_SECRET = process.env.iOS_SHARED_KEY;
 
 async function generateAppleJWT() {
-  const privateKeyPath = path.join(__dirname, "../AuthKey.p8");
-  const privateKey = fs.readFileSync(privateKeyPath, "utf8");
+  // const privateKeyPath = path.join(__dirname, "../AuthKey.p8");
+  // const privateKey = fs.readFileSync(privateKeyPath, "utf8");
+
+  const isLocal = port == 8080;
+  let privateKeyPath;
+  let privateKey;
+
+  if (isLocal) {
+    privateKeyPath = path.join(__dirname, "../AuthKey.p8"); // 本地開發使用本地憑證文件
+    privateKey = fs.readFileSync(privateKeyPath, "utf8");
+  } else {
+    const authKey = JSON.parse(process.env.iOS_AUTHKEY);
+    privateKeyPath = path.join(__dirname, "temp-iOS-authkey.json");
+
+    // 寫入臨時檔案
+    fs.writeFileSync(privateKeyPath, JSON.stringify(authKey));
+    privateKey = fs.readFileSync(privateKeyPath, "utf8");
+  }
 
   const token = jwt.sign(
     {
       iss: "82fb0e4e-5037-479a-8ee0-f69995fd2bc8", // Apple Team ID
       iat: Math.floor(Date.now() / 1000), // 發行時間
-      exp: Math.floor(Date.now() / 1000) + 60 * 3, // 設定過期時間，3 分鐘後過期
+      exp: Math.floor(Date.now() / 1000) + 60 * 5, // 設定過期時間，5 分鐘後過期
       aud: "appstoreconnect-v1", // Audience 固定為這個值
-      bid: "com.leinotek.LovePush", // App bundle ID
+      bid: "com.leinotek.OnlyFriends", // App bundle ID
     },
     privateKey,
     {
