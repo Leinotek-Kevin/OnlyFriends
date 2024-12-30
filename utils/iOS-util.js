@@ -53,7 +53,7 @@ async function generateAppleJWT() {
 async function getTranscationInfo(transactionID) {
   try {
     let requestUrl =
-      port == 8080 || process.env.HEROKU_ENV == DEBUG
+      port == 8080 || process.env.HEROKU_ENV == "DEBUG"
         ? APPLE_SANDBOX_URL
         : APPLE_PRODUCTION_URL;
 
