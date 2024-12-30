@@ -24,7 +24,7 @@ async function generateAppleJWT() {
     privateKeyPath = path.join(__dirname, "../AuthKey.p8"); // 本地開發使用本地憑證文件
     privateKey = fs.readFileSync(privateKeyPath, "utf8");
   } else {
-    privateKeyPath = path.join(__dirname, "temp-iOS-authkey.txt");
+    privateKeyPath = path.join(__dirname, "temp-iOS-authkey.p8");
     // 寫入臨時檔案
     fs.writeFileSync(privateKeyPath, process.env.iOS_AUTHKEY);
     privateKey = fs.readFileSync(privateKeyPath, "utf8");
