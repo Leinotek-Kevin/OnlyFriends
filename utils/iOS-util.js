@@ -24,11 +24,9 @@ async function generateAppleJWT() {
     privateKeyPath = path.join(__dirname, "../AuthKey.p8"); // 本地開發使用本地憑證文件
     privateKey = fs.readFileSync(privateKeyPath, "utf8");
   } else {
-    const authKey = JSON.parse(process.env.iOS_AUTHKEY);
-    privateKeyPath = path.join(__dirname, "temp-iOS-authkey.json");
-
+    privateKeyPath = path.join(__dirname, "temp-iOS-authkey.txt");
     // 寫入臨時檔案
-    fs.writeFileSync(privateKeyPath, JSON.stringify(authKey));
+    fs.writeFileSync(privateKeyPath, process.env.iOS_AUTHKEY);
     privateKey = fs.readFileSync(privateKeyPath, "utf8");
   }
 
@@ -47,7 +45,7 @@ async function generateAppleJWT() {
     }
   );
 
-  //console.log("Apple JWT :", token);
+  console.log("Apple JWT :", token);
   return token;
 }
 
