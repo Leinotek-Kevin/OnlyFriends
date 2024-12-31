@@ -243,10 +243,10 @@ router.post("/iOS-purchase", async (req, res) => {
             break;
         }
 
+        subscription.isAllow = isSubscriptionActive(subscription);
+
         // 儲存訂閱狀態
         await subscription.save();
-
-        console.log("subscription", subscription);
 
         // 檢查並更新用戶的訂閱狀態
         let { userID } = subscription;
@@ -259,11 +259,7 @@ router.post("/iOS-purchase", async (req, res) => {
             .sort({ expiresDate: -1 })
             .limit(1);
 
-          console.log("subscription", lastSubscription);
-
           let isAllow = isSubscriptionActive(lastSubscription);
-
-          console.log("isAllow", isAllow);
 
           //更改用戶訂閱狀態
           await User.updateOne(
