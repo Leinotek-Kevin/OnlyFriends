@@ -1009,14 +1009,6 @@ router.post("/simple-info", async (req, res) => {
     //指定對象ID ,語系:zh , en
     let { targetUserID, language } = req.body;
 
-    if (userID == targetUserID) {
-      //查詢的對象是自己
-      //顯示自己所有的資料
-    } else {
-      //查詢的對象是別人
-      const targetInfo = await User.findOne({ userID: targetUserID });
-    }
-
     //先判斷 targetUserID 是不是用戶自己,如果不是,就是對象,就要給好感度
     const targetInfo = await User.findOne({ userID: targetUserID });
 
@@ -1062,7 +1054,7 @@ router.post("/simple-info", async (req, res) => {
 
       //我對別人的好感度累積 level
       if (req.user.isSubscription) {
-        //如果看別人～但是你有訂閱～那level就是3
+        //如果你看別人～但是你有訂閱～那level就是3
         output.likeLevel = 3;
       } else {
         const relation = await UserRelation.findOne({ userID });
