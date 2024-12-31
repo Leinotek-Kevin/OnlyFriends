@@ -145,7 +145,26 @@ const Values = Object.freeze([
   { itemID: "18", des_ZH: "AA制", des_EN: "Dutch Pay" },
 ]);
 
+const TopicNames = Object.freeze([
+  {
+    itemID: "t-default-00",
+    des_ZH: "預設",
+    des_EN: "Default",
+  },
+  {
+    itemID: "t-cat-01",
+    des_ZH: "療癒貓貓 1",
+    des_EN: "Heal Cat 1",
+  },
+  {
+    itemID: "t-cat-02",
+    des_ZH: "療癒貓貓 2",
+    des_EN: "Heal Cat 2",
+  },
+]);
+
 module.exports = {
+  TopicNames,
   ReportReasons,
   Interesteds,
   Traits,

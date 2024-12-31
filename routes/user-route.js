@@ -8,6 +8,7 @@ const Config = require("../models").config;
 const Report = require("../models").report;
 const Sticker = require("../models").sticker;
 const Topic = require("../models").topic;
+const { TopicNames } = require("../config/enum");
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
@@ -739,14 +740,19 @@ router.post("/get-stickers", async (req, res) => {
 router.post("/get-topics", async (req, res) => {
   try {
     let { isSubscription } = req.user;
+    let { language } = req.body;
     let topics = await Topic.find({}).sort({ priority: -1 });
 
     let result = [];
 
     topics.forEach((topic) => {
+      let nameInfo = TopicNames.find((item) => item.itemID == topic.topicID);
+      let topicName = language == "en" ? nameInfo.des_EN : nameInfo.des_ZH;
+
       let temp = {
         ...topic._doc,
         isFreeToYou: isSubscription ? true : topic.topicPlan == "F",
+        topicName,
       };
 
       delete temp._id;
@@ -998,11 +1004,18 @@ router.post("/edit-info", async (req, res) => {
 //B-12 讀取指定用戶個人簡易資料
 router.post("/simple-info", async (req, res) => {
   try {
-    //這個 userID 一定是用戶自己
     let { userID } = req.user;
 
     //指定對象ID ,語系:zh , en
     let { targetUserID, language } = req.body;
+
+    if (userID == targetUserID) {
+      //查詢的對象是自己
+      //顯示自己所有的資料
+    } else {
+      //查詢的對象是別人
+      const targetInfo = await User.findOne({ userID: targetUserID });
+    }
 
     //先判斷 targetUserID 是不是用戶自己,如果不是,就是對象,就要給好感度
     const targetInfo = await User.findOne({ userID: targetUserID });
@@ -1046,8 +1059,10 @@ router.post("/simple-info", async (req, res) => {
     } else {
       //看別人
       output.userID = targetUserID;
+
       //我對別人的好感度累積 level
-      if (isSubscription) {
+      if (req.user.isSubscription) {
+        //如果看別人～但是你有訂閱～那level就是3
         output.likeLevel = 3;
       } else {
         const relation = await UserRelation.findOne({ userID });
