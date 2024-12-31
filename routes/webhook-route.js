@@ -246,6 +246,8 @@ router.post("/iOS-purchase", async (req, res) => {
         // 儲存訂閱狀態
         await subscription.save();
 
+        console.log("subscription", subscription);
+
         // 檢查並更新用戶的訂閱狀態
         let { userID } = subscription.userID;
 
@@ -270,7 +272,7 @@ router.post("/iOS-purchase", async (req, res) => {
                 subExpiresDate: datelUtil.formatTimestamp(
                   lastSubscription.expiresDate
                 ),
-                isAllow,
+                isSubscription: isAllow,
               },
             }
           );
