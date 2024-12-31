@@ -259,6 +259,8 @@ router.post("/iOS-purchase", async (req, res) => {
             .sort({ expiresDate: -1 })
             .limit(1);
 
+          console.log("subscription", lastSubscription);
+
           let isAllow = isSubscriptionActive(lastSubscription);
 
           console.log("isAllow", isAllow);
