@@ -259,6 +259,8 @@ router.post("/iOS-purchase", async (req, res) => {
 
           let isAllow = isSubscriptionActive(lastSubscription);
 
+          console.log("isAllow", isAllow);
+
           //更改用戶訂閱狀態
           await User.updateOne(
             { userID },
