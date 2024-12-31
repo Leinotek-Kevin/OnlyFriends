@@ -249,7 +249,7 @@ router.post("/iOS-purchase", async (req, res) => {
         console.log("subscription", subscription);
 
         // 檢查並更新用戶的訂閱狀態
-        let { userID } = subscription.userID;
+        let { userID } = subscription;
 
         if (userID) {
           //按照過期時間降冪排序->新到舊
