@@ -15,7 +15,7 @@ const transcationSchema = new Schema({
   },
 
   //手機系統
-  platform: { type: String, enum: ["iOS", "Android"] }, // 用於區分平台
+  osType: { type: String, enum: ["0", "1"] }, // 用於區分平台
 
   // iOS 訂單ID 或 Android orderId
   transactionID: {

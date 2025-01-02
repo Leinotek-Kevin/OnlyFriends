@@ -111,7 +111,7 @@ router.post("/google-verify", async (req, res) => {
           { userID, orderID: realID },
           {
             userID,
-            platform: "Android",
+            osType: "0",
             productID: productId,
             productType: "subscription",
             orderID: realID,
@@ -189,7 +189,7 @@ router.post("/iOS-verify", async (req, res) => {
             $set: {
               userID,
               userEmail,
-              platform: "iOS",
+              osType: "1",
               transactionID: transaction.transactionId,
               originalTransactionID: transaction.originalTransactionId,
               productID: transaction.productId,
@@ -285,17 +285,22 @@ router.post("/verify-owner", async (req, res) => {
     let { userEmail } = req.user;
     let { originalTransactionID, osType } = req.body;
 
-    const oriData = await Transcation.findOne({
-      platform: osType,
-      originalTransactionID,
-    });
+    let oriData;
+
+    if (osType == "1") {
+      //iOS
+      oriData = await Transcation.findOne({
+        osType,
+        originalTransactionID,
+      });
+    }
 
     if (oriData && oriData.userEmail) {
       let isYourTranscation = userEmail == oriData.userEmail;
 
       return res.status(200).send({
         status: true,
-        message: isYourOrder ? "這筆訂單是你的" : "這筆訂單是別人的",
+        message: isYourTranscation ? "這筆訂單是你的" : "這筆訂單是別人的",
         validCode: 1,
         data: {
           isYourTranscation,
@@ -311,6 +316,7 @@ router.post("/verify-owner", async (req, res) => {
       });
     }
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",

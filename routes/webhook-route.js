@@ -243,6 +243,7 @@ router.post("/iOS-purchase", async (req, res) => {
             break;
         }
 
+        //判斷這筆訂單能否允許
         subscription.isAllow = isSubscriptionActive(subscription);
 
         // 儲存訂閱狀態
@@ -259,8 +260,6 @@ router.post("/iOS-purchase", async (req, res) => {
             .sort({ expiresDate: -1 })
             .limit(1);
 
-          let isAllow = isSubscriptionActive(lastSubscription);
-
           //更改用戶訂閱狀態
           await User.updateOne(
             { userID },
@@ -270,7 +269,7 @@ router.post("/iOS-purchase", async (req, res) => {
                 subExpiresDate: datelUtil.formatTimestamp(
                   lastSubscription.expiresDate
                 ),
-                isSubscription: isAllow,
+                isSubscription: lastSubscription.isAllow,
               },
             }
           );
