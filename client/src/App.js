@@ -5,7 +5,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/">
+        <Route>
           <Route index element={<HomeComponent />}></Route>
         </Route>
       </Routes>
