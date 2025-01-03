@@ -41,7 +41,7 @@ app.use("/api/purchase", routes.purchase);
 app.use("/api/other", routes.other);
 
 //URL/ 除了上面的 route 路徑之外的都會導到 client , index.html
-if (process.env.NODE_ENV === "producet" || process.env.NODE_ENV === "staging") {
+if (true) {
   app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
   });
