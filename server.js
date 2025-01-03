@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const routes = require("./routes");
 const cors = require("cors");
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080; //process.env.PORT 是 Heroku 自動動態設定的
 const Config = require("./models").config;
 const admin = require("./utils/checkAdmin-util");
 const passport = require("passport");
@@ -26,6 +26,7 @@ mongoose
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(express.static(path.join(__dirname, "client", "build")));
 
 //Handle Router
 app.use("/api/test", routes.test);
@@ -38,6 +39,16 @@ app.use("/api/letter", routes.letter);
 app.use("/api/system", routes.system);
 app.use("/api/purchase", routes.purchase);
 app.use("/api/other", routes.other);
+
+//URL/ 除了上面的 route 路徑之外的都會導到 client , index.html
+if (
+  process.env.NODE_ENV === "production" ||
+  process.env.NODE_ENV === "staging"
+) {
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+  });
+}
 
 //監聽 http request
 app.listen(port, () => {
