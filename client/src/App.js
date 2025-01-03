@@ -6,7 +6,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route>
-          <Route index element={<HomeComponent />}></Route>
+          <Route path="home" element={<HomeComponent />}></Route>
         </Route>
       </Routes>
     </BrowserRouter>
