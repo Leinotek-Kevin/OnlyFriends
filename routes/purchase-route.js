@@ -246,39 +246,6 @@ router.post("/iOS-verify", async (req, res) => {
   }
 });
 
-//C-3 查詢用戶購買紀錄
-router.post("/query-history", async (req, res) => {
-  try {
-    let { userID } = req.user;
-    let { productType } = req.body;
-
-    let data = [];
-
-    if (productType) {
-      data = await Purchase.find({
-        userID,
-        productType: productType == "0" ? "subscription" : "in-app",
-      }).sort({ createDate: -1 });
-    } else {
-      data = await Purchase.find({
-        userID,
-      }).sort({ createDate: -1 });
-    }
-
-    return res.status(200).send({
-      status: true,
-      message: "獲取用戶購買紀錄",
-      data,
-    });
-  } catch (e) {
-    return res.status(500).send({
-      status: false,
-      message: "Serror Error!",
-      e,
-    });
-  }
-});
-
 //C-4 驗證交易訂單擁有者
 router.post("/verify-owner", async (req, res) => {
   try {
