@@ -26,7 +26,7 @@ mongoose
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.use(express.static(path.join(__dirname, "client", "build")));
+//app.use(express.static(path.join(__dirname, "client", "build")));
 
 //Handle Router
 app.use("/api/test", routes.test);
@@ -41,18 +41,18 @@ app.use("/api/purchase", routes.purchase);
 app.use("/api/other", routes.other);
 
 //URL/ 除了上面的 route 路徑之外的都會導到 client , index.html
-if (
-  process.env.NODE_ENV === "production" ||
-  process.env.NODE_ENV === "staging"
-) {
-  console.log("有執行");
-  app.get("*", (req, res) => {
-    console.log("有執行get");
-    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
-  });
-} else {
-  console.log("沒有執行");
-}
+// if (
+//   process.env.NODE_ENV === "production" ||
+//   process.env.NODE_ENV === "staging"
+// ) {
+//   console.log("有執行");
+//   app.get("*", (req, res) => {
+//     console.log("有執行get");
+//     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+//   });
+// } else {
+//   console.log("沒有執行");
+// }
 
 //port 3000 是 React 預設
 //監聽 http request
