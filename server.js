@@ -41,10 +41,7 @@ app.use("/api/purchase", routes.purchase);
 app.use("/api/other", routes.other);
 
 //URL/ 除了上面的 route 路徑之外的都會導到 client , index.html
-if (
-  process.env.NODE_ENV === "production" ||
-  process.env.NODE_ENV === "staging"
-) {
+if (process.env.NODE_ENV === "producet" || process.env.NODE_ENV === "staging") {
   console.log("有執行");
   app.get("*", (req, res) => {
     console.log("有執行get");
