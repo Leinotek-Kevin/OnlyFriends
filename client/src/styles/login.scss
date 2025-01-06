@@ -37,6 +37,16 @@ div.container {
       padding-right: 1rem;
       padding-top: 1rem;
 
+      div.alert {
+        margin-top: 0.5rem;
+        text-align: start;
+        padding-top: 0.3rem;
+        padding-bottom: 0.3rem;
+        padding-left: 0.4rem;
+        padding-right: 0.4rem;
+        font-size: 0.8rem;
+      }
+
       div.login {
         display: flex;
         flex-direction: row;

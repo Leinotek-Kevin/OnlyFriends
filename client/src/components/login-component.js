@@ -1,7 +1,41 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/login.css";
+import AuthService from "../services/auth-service";
 
-const LoginComponent = () => {
+const LoginComponent = ({ userToken, setUserToken }) => {
+  let navigate = useNavigate();
+  let [email, setEmail] = useState("");
+  let [message, setMessage] = useState("");
+
+  const handleChangeEmail = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const handleLogin = async () => {
+    try {
+      if (email) {
+        let response = await AuthService.login(email);
+        console.log("response", response);
+        let validCode = response.data.validCode;
+
+        if (validCode == 1) {
+          //將使用者的登入訊息存在本地
+          localStorage.setItem("userToken", response.data.token);
+          setUserToken(AuthService.getUserToken());
+          navigate("/dashboard");
+        } else {
+          setMessage(response.data.message);
+        }
+      } else {
+        setMessage("尚未輸入您的信箱！");
+      }
+    } catch (e) {
+      console.log(e);
+      setMessage(e.response.data.message);
+    }
+  };
+
   return (
     <div class="container">
       <main>
@@ -17,11 +51,13 @@ const LoginComponent = () => {
               type="email"
               class="form-control"
               placeholder="name@example.com"
+              onChange={handleChangeEmail}
             ></input>
+            {message && <div class="alert alert-danger">{message}</div>}
           </div>
 
           <div class="login">
-            <button type="button" class="login-btn">
+            <button type="button" class="login-btn" onClick={handleLogin}>
               登入
             </button>
           </div>

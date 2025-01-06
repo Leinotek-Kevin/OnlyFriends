@@ -178,7 +178,6 @@ router.post("/login", async (req, res) => {
       token: "JWT " + token, //返回 JWT token,
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",
@@ -297,6 +296,55 @@ router.post("/delete", (req, res) => {
       });
     }
   })(req, res);
+});
+
+//A-5 官方人員驗證登入
+router.post("/official-login", async (req, res) => {
+  let { userEmail } = req.body;
+
+  try {
+    const findUser = await User.findOne({ userEmail });
+
+    if (findUser) {
+      //如果有使用者
+      let { identity } = findUser;
+
+      if (identity == 1) {
+        //官方人員
+        //製作 json web token
+        const tokenObject = { userID: findUser.userID, userEmail };
+        const token = jwt.sign(tokenObject, process.env.PASSPORT_SECRET);
+
+        return res.status(200).send({
+          status: true,
+          message: "登入成功",
+          validCode: "1",
+          token: "JWT " + token, //返回 JWT token,
+        });
+      } else {
+        //資料庫不存在使用者
+        return res.status(200).send({
+          status: true,
+          message: "很抱歉！本系統僅限官方人員使用！",
+          validCode: "0",
+        });
+      }
+    } else {
+      //資料庫不存在使用者
+      return res.status(200).send({
+        status: true,
+        message: "尚未註冊！查無此用戶！",
+        validCode: "0",
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      validCode: "-1",
+      e,
+    });
+  }
 });
 
 //強制刪除所有用戶帳號
