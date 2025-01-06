@@ -1148,14 +1148,19 @@ router.post("/crud-chatopic", async (req, res) => {
     let { action, topicID, sendbirdUrl } = req.body;
 
     if (action == "0") {
-      const data = await MatchNeswest.findOne({
+      const match = await MatchNeswest.findOne({
         sendbirdUrl,
       });
 
       res.status(200).send({
         status: true,
-        message: data ? "查詢指定渠道主題" : "指定渠道不存在",
-        data,
+        message: match ? "查詢指定渠道主題" : "指定渠道不存在",
+        validCode: 1,
+        data: {
+          topicID: match.topicID,
+          topicBackGround: match.topicBackGround,
+          topicColors: match.topicColors,
+        },
       });
     } else {
       const topic = await Topic.findOne({
@@ -1176,12 +1181,14 @@ router.post("/crud-chatopic", async (req, res) => {
 
         res.status(200).send({
           status: true,
+          validCode: 1,
           message: data.modifiedCount > 0 ? "修改成功！" : "沒有修改",
         });
       } else {
         res.status(200).send({
           status: true,
           message: "查無此主題！",
+          validCode: 1,
         });
       }
     }
@@ -1189,6 +1196,7 @@ router.post("/crud-chatopic", async (req, res) => {
     res.status(500).send({
       status: false,
       message: "Server Error!",
+      validCode: -1,
       e,
     });
   }
