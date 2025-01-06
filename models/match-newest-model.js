@@ -66,6 +66,57 @@ const matchNewestSchema = new Schema({
     type: Array,
     default: [],
   },
+
+  topicID: {
+    type: String,
+    default: "t-default-00",
+  },
+
+  //主題背景
+  topicBackGround: {
+    type: String,
+    default:
+      "https://firebasestorage.googleapis.com/v0/b/onlyfriends-20295.appspot.com/o/topic%2Ft-default-00%2Ft-default-00-background.png?alt=media&token=3961662e-d56a-4fa2-b728-168587df0f03",
+  },
+
+  //主題色系
+  topicColors: {
+    //狀態欄色碼
+    statusColor: {
+      type: String,
+      default: "FFFFFF",
+    },
+
+    //多功能欄色碼
+    functionColor: {
+      type: String,
+      default: "EBEBEB",
+    },
+
+    //自己訊息色碼
+    selfMsgColor: {
+      type: String,
+      default: "A4B9EB",
+    },
+
+    //已讀標記色碼
+    readTagColor: {
+      type: String,
+      default: "A4B9EB",
+    },
+
+    //系統時間色碼
+    systemTimeColor: {
+      type: String,
+      default: "D1D1D1",
+    },
+
+    //傳送按鈕色碼
+    sendBtnColor: {
+      type: String,
+      default: "A4B9EB",
+    },
+  },
 });
 
 matchNewestSchema.index({ user1ID: 1, user2ID: 1 });

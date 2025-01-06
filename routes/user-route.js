@@ -250,6 +250,8 @@ router.post("/today-matches", async (req, res) => {
           likeLevel: 1,
           letterYourContent: "",
           letterObjectContent: "",
+          topicBackGround: match.topicBackGround,
+          topicColors: match.topicColors,
         };
 
         //一般配對
@@ -1133,6 +1135,58 @@ router.post("/simple-info", async (req, res) => {
     });
   } catch (e) {
     return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
+    });
+  }
+});
+
+//B-13 變更聊天室主題
+router.post("/crud-chatopic", async (req, res) => {
+  try {
+    let { action, topicID, sendbirdUrl } = req.body;
+
+    if (action == "0") {
+      const data = await MatchNeswest.findOne({
+        sendbirdUrl,
+      });
+
+      res.status(200).send({
+        status: true,
+        message: data ? "查詢指定渠道主題" : "指定渠道不存在",
+        data,
+      });
+    } else {
+      const topic = await Topic.findOne({
+        topicID,
+      });
+
+      if (topic) {
+        const data = await MatchNeswest.updateOne(
+          {
+            sendbirdUrl,
+          },
+          {
+            topicID: topic.topicID,
+            topicBackGround: topic.topicBackGround,
+            topicColors: topic.topicColors,
+          }
+        );
+
+        res.status(200).send({
+          status: true,
+          message: data.modifiedCount > 0 ? "修改成功！" : "沒有修改",
+        });
+      } else {
+        res.status(200).send({
+          status: true,
+          message: "查無此主題！",
+        });
+      }
+    }
+  } catch (e) {
+    res.status(500).send({
       status: false,
       message: "Server Error!",
       e,

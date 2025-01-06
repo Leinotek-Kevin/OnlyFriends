@@ -191,9 +191,9 @@ const runGeneralMatch = async () => {
           user2ID: targetUser.userID, // 確保存儲 user2ID
           user1_ID: currentUser._id, // 確保存儲 user1_ID
           user2_ID: targetUser._id, // 確保存儲 user2_ID
-          sendbirdUrl: url,
-          isChecked: false,
-          matchUIType: 1,
+          sendbirdUrl: url, //渠道名稱
+          isChecked: false, //是否已經校正過
+          matchUIType: 1, //一般配對類型
         };
 
         if (targetUser.isSubscription) {
