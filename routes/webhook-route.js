@@ -86,7 +86,7 @@ router.post("/google-purchase", async (req, res) => {
           if (acknowledgementState == 0) {
             await googleUtil.acknowledgeSubscription(
               packageName,
-              productId,
+              subscriptionId,
               purchaseToken
             );
           }
