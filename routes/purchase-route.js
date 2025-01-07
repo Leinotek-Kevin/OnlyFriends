@@ -126,9 +126,9 @@ router.post("/google-verify", async (req, res) => {
             new: true,
           }
         );
-
+        console.log("google-date", expiryTimeMillis);
         const formatExpired = datelUtil.formatTimestamp(expiryTimeMillis);
-        console.log(formatExpired);
+        console.log("formatExpired", formatExpired);
 
         //更改用戶訂閱狀態
         await User.updateOne(
