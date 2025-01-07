@@ -16,7 +16,7 @@ router.post("/google-purchase", async (req, res) => {
     }
 
     let notification = JSON.parse(decodeMsg);
-    console.log("receive google purchase MSG : ", decodeMsg);
+
     //分析獲得的通知訊息
     let purchaseMemo = analyticsPurchaseMemo(notification);
     console.log("訂閱狀態通知", purchaseMemo);
