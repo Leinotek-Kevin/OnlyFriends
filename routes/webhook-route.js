@@ -16,6 +16,7 @@ router.post("/google-purchase", async (req, res) => {
     }
 
     let notification = JSON.parse(decodeMsg);
+    console.log("原始訊息", notification);
 
     const memo = analyticsPurchaseMemo(notification);
     console.log(memo);
@@ -56,15 +57,102 @@ router.post("/google-purchase", async (req, res) => {
       } = data;
 
       //真正的訂單id
-      const splitOrderID = orderId.split("..");
-      let realID = splitOrderID[0];
+      const realID = orderId.split("..")[0];
+      //訂單備註追蹤
+      let purchaseMemo;
+      let status;
 
       // 查找或創建訂閱
-      // let subscription = await Transcation.findOne({ transactionID: orderId });
+      switch (notificationType) {
+        case 1:
+          purchaseMemo =
+            "訂閱項目已從帳戶保留狀態恢復 :SUBSCRIPTION_RECOVERED (1)";
+          //訂閱可存取
+          status = "active";
+          break;
+        case 2:
+          purchaseMemo = "訂閱已續訂:SUBSCRIPTION_RENEWED (2)";
+          //訂閱可存取
+          status = "active";
+          break;
+        case 3:
+          purchaseMemo = "自願或非自願取消訂閱: SUBSCRIPTION_CANCELED  (3)";
+          //訂閱可存取
+          status = "active";
+          break;
+        case 4:
+          purchaseMemo = "使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)";
+          //訂閱可存取//如果訂單尚未確認,再發出確認訂單需求
+          if (acknowledgementState == 0) {
+            await googleUtil.acknowledgeSubscription(
+              packageName,
+              productId,
+              purchaseToken
+            );
+          }
+          status = "active";
+          break;
+        case 5:
+          purchaseMemo = "訂閱項目已進入帳戶保留狀態: SUBSCRIPTION_ON_HOLD (5)";
+          //訂閱不可存取
+          status = "account_hold";
+          break;
+        case 6:
+          //訂閱可存取 paymentState = 0
+          purchaseMemo =
+            "訂閱項目已進入寬限期:SUBSCRIPTION_IN_GRACE_PERIOD (6)";
+          status = "grace_period";
+          break;
+        case 7:
+          purchaseMemo =
+            "使用者已從「Play」>「帳戶」>「訂閱」還原訂閱項目。訂閱項目已取消，但在使用者還原時尚未到期: SUBSCRIPTION_RESTARTED (7)";
+          //訂閱可存取
+          status = "active";
+          break;
+        case 8:
+          purchaseMemo =
+            "使用者已成功確認訂閱項目價格異動:  SUBSCRIPTION_PRICE_CHANGE_CONFIRMED (8)";
+          //訂閱可存取
+          status = "active";
+          break;
+        case 9:
+          purchaseMemo = "訂閱項目的週期時間已延長:SUBSCRIPTION_DEFERRED (9)";
+          //訂閱可存取
+          status = "active";
+          break;
+        case 10:
+          purchaseMemo = "訂閱項目已暫停: SUBSCRIPTION_PAUSED (10) ";
+          //訂閱不可存取
+          status = "paused";
+          break;
+        case 11:
+          purchaseMemo =
+            "訂閱暫停時間表已變更 : SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED (11)";
+          //訂閱可存取
+          status = "active";
+          break;
+        case 12:
+          purchaseMemo =
+            "使用者在訂閱到期前已取消訂閱項目:SUBSCRIPTION_REVOKED (12)";
+          //訂閱可存取
+          status = "active";
+          break;
+        case 13:
+          purchaseMemo = "訂閱項目已到期:SUBSCRIPTION_EXPIRED (13)";
+          //訂閱不可存取
+          status = "expired";
+          break;
+        case 20:
+          purchaseMemo =
+            "未完成交易被取消 : SUBSCRIPTION_PENDING_PURCHASE_CANCELED (20)";
+          //訂閱不可存取
+          status = "canceled";
+          break;
 
-      // if (subscription) {
-      //   switch (notificationType) {
-      //   }
+        default:
+          purchaseMemo = `其他類型的通知${notificationType}`;
+          break;
+      }
 
       //   //更新該筆訂單的狀態
       //   //購買紀錄
@@ -210,7 +298,7 @@ router.post("/iOS-purchase", async (req, res) => {
         }
 
         //判斷這筆訂單能否允許
-        subscription.isAllow = isSubscriptionActive(subscription);
+        subscription.isAllow = isSubscriptionActive(subscription.status);
 
         // 儲存訂閱狀態
         await subscription.save();
@@ -355,7 +443,7 @@ function analyticsPurchaseMemo(notification) {
 }
 
 //這個訂閱訂單是否可以訂閱
-function isSubscriptionActive(subscription) {
+function isSubscriptionActive(currentStatus) {
   const allowedStatuses = [
     "active",
     "grace_period",
@@ -364,13 +452,8 @@ function isSubscriptionActive(subscription) {
     "downgraded",
   ];
 
-  // 判斷 subscription 是否存在
-  if (!subscription || !subscription.status) {
-    return false;
-  }
-
   // 檢查訂閱的狀態是否在允許的狀態清單中
-  if (allowedStatuses.includes(subscription.status)) {
+  if (allowedStatuses.includes(currentStatus)) {
     return true;
   }
 
