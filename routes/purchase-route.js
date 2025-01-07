@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const User = require("../models").user;
 const Purchase = require("../models").purchase;
+const datelUtil = require("../utils/date-util");
 const Transcation = require("../models").transcation;
 const passport = require("passport");
 const googleUtil = require("../utils/google-util");
@@ -40,7 +41,7 @@ router.post("/google-verify", async (req, res) => {
   try {
     //productType : 產品類型 0:訂閱 1:單購
     let { originalPurchaseJson, productType } = req.body;
-    let { userID } = req.user;
+    let { userID, userEmail } = req.user;
 
     //Android Receipt 驗證
     const { packageName, productId, purchaseToken } =
@@ -58,13 +59,11 @@ router.post("/google-verify", async (req, res) => {
         //分析驗證訂閱的資料
         const {
           orderId, // 訂單ＩＤ GPA.3357-5076-3532-61828..5 標示該筆訂單續訂5次
-          startTimeMillis, //這是訂閱生效的時間
           expiryTimeMillis, // 這是訂閱結束的時間
           autoRenewing, //是否自動訂閱
           priceCurrencyCode, //幣別
           priceAmountMicros, //原子價格
           paymentState, //付款狀態
-          cancelReason, //訂閱取消的原因（如果訂閱被取消）。常見的取消原因有：0: 用戶取消。 1: 付款問題（例如信用卡過期）
           purchaseType, //購買的類型
           acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認
         } = data;
@@ -88,10 +87,7 @@ router.post("/google-verify", async (req, res) => {
           renewCount = Number(splitOrderID[1]);
         }
 
-        //價格
-        const price = Number(priceAmountMicros) / 1000000;
-
-        //訂閱已過期 || 付款處理中 || 待處理的延遲升級/降級 => 不允許訂閱
+        // //訂閱已過期 || 付款處理中 || 待處理的延遲升級/降級 => 不允許訂閱
         let isAllow = true;
 
         if (
@@ -103,34 +99,43 @@ router.post("/google-verify", async (req, res) => {
           isAllow = false;
         }
 
-        //用戶訂閱狀態更新
-        await User.updateOne({ userID }, { $set: { isSubscription: isAllow } });
-
-        //購買紀錄
-        const result = await Purchase.findOneAndUpdate(
-          { userID, orderID: realID },
+        //建立交易購買紀錄
+        const result = await Transcation.findOneAndUpdate(
+          { transactionID: realID, userID },
           {
-            userID,
-            osType: "0",
-            productID: productId,
-            productType: "subscription",
-            orderID: realID,
-            startDate: startTimeMillis,
-            expiryDate: expiryTimeMillis,
-            price,
-            currency: priceCurrencyCode,
-            autoRenewing,
-            renewCount,
-            purchaseType,
-            paymentState,
-            cancelReason,
-            acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
-            purchaseMemo: "",
-            isAllow,
+            $set: {
+              userID,
+              userEmail,
+              osType: "0",
+              transactionID: realID,
+              productID: productId,
+              productType,
+              expiresDate: expiryTimeMillis,
+              autoRenewStatus: autoRenewing,
+              price: Number(priceAmountMicros) / 1000000,
+              currency: priceCurrencyCode,
+              transcationMemo: purchaseType,
+              paymentState,
+              acknowledgementState,
+              purchaseDate: Date.now(),
+              isAllow,
+            },
           },
           {
             upsert: true,
             new: true,
+          }
+        );
+
+        //更改用戶訂閱狀態
+        await User.updateOne(
+          { userID },
+          {
+            $set: {
+              isSubscription: isAllow,
+              subExpiresDate: datelUtil.formatTimestamp(expiryTimeMillis),
+              subTranscationID: orderId,
+            },
           }
         );
 
@@ -157,6 +162,7 @@ router.post("/google-verify", async (req, res) => {
       });
     }
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
@@ -214,6 +220,10 @@ router.post("/iOS-verify", async (req, res) => {
           {
             $set: {
               isSubscription: isAllow,
+              subExpiresDate: datelUtil.formatTimestamp(
+                transaction.expiresDate
+              ),
+              subTranscationID: transaction.transactionId,
             },
           }
         );

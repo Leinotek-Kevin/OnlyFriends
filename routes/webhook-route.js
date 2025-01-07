@@ -63,7 +63,6 @@ router.post("/google-purchase", async (req, res) => {
         // .. 後面是指續訂次數
         renewCount = Number(splitOrderID[1]);
       }
-
       //訂閱已過期 || 付款處理中 || 待處理的延遲升級/降級 => 不允許訂閱
       let isAllow = true;
 
@@ -87,7 +86,7 @@ router.post("/google-purchase", async (req, res) => {
           paymentState,
           cancelReason,
           acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
-          purchaseMemo,
+          //purchaseMemo,
           isAllow,
         },
         {

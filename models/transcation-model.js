@@ -81,6 +81,16 @@ const transcationSchema = new Schema({
   purchaseDate: {
     type: String,
   },
+
+  //付款狀態
+  paymentState: {
+    type: String,
+  },
+
+  //訂閱是否已經被確認(Android 專用)
+  acknowledgementState: {
+    type: Number,
+  },
 });
 
 transcationSchema.index({ expiresDate: -1 }); // -1 for descending
