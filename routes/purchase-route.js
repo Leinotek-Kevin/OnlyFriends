@@ -68,14 +68,14 @@ router.post("/google-verify", async (req, res) => {
           acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認
         } = data;
 
-        // if (acknowledgementState == 0) {
-        //   //確定訂單
-        //   await googleUtil.acknowledgeSubscription(
-        //     packageName,
-        //     productId,
-        //     purchaseToken
-        //   );
-        // }
+        if (acknowledgementState == 0) {
+          //確定訂單
+          await googleUtil.acknowledgeSubscription(
+            packageName,
+            productId,
+            purchaseToken
+          );
+        }
 
         //真正的訂單id
         const splitOrderID = orderId.split("..");
