@@ -17,12 +17,6 @@ router.post("/google-purchase", async (req, res) => {
 
     let notification = JSON.parse(decodeMsg);
 
-    //分析獲得的通知訊息
-    // let purchaseMemo = analyticsPurchaseMemo(notification);
-    // console.log("訂閱狀態通知", purchaseMemo);
-
-    console.log("訂單通知訊息", notification);
-
     //確認是否是現在用戶的訂閱訂單
     const { subscriptionNotification, voidedPurchaseNotification } =
       notification;
@@ -31,7 +25,11 @@ router.post("/google-purchase", async (req, res) => {
     if (subscriptionNotification) {
       let {
         packageName,
-        subscriptionNotification: { purchaseToken, subscriptionId },
+        subscriptionNotification: {
+          purchaseToken,
+          subscriptionId,
+          notificationType,
+        },
       } = notification;
 
       //驗證 Google 訂單
@@ -57,67 +55,40 @@ router.post("/google-purchase", async (req, res) => {
       //真正的訂單id
       const splitOrderID = orderId.split("..");
       let realID = splitOrderID[0];
-      let renewCount = 0;
 
-      if (splitOrderID.length > 1) {
-        // .. 後面是指續訂次數
-        renewCount = Number(splitOrderID[1]);
-      }
-      //訂閱已過期 || 付款處理中 || 待處理的延遲升級/降級 => 不允許訂閱
-      let isAllow = true;
+      // 查找或創建訂閱
+      // let subscription = await Transcation.findOne({ transactionID: orderId });
 
-      if (
-        paymentState === 0 || // 付款處理中
-        !expiryTimeMillis || // 檢查 expiryTimeMillis 是否存在
-        expiryTimeMillis < Date.now() // 檢查訂閱是否過期
-      ) {
-        isAllow = false;
-      }
+      // if (subscription) {
+      //   switch (notificationType) {
+      //   }
 
-      //更新該筆訂單的狀態
-      //購買紀錄
-      const result = await Purchase.findOneAndUpdate(
-        { orderID: realID },
-        {
-          startDate: startTimeMillis,
-          expiryDate: expiryTimeMillis,
-          autoRenewing,
-          renewCount,
-          paymentState,
-          cancelReason,
-          acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
-          //purchaseMemo,
-          isAllow,
-        },
-        {
-          upsert: true,
-          new: true,
-        }
-      );
-
-      //檢查用戶最近一筆訂單記錄,並判斷是否有訂閱權
-      checkAllowSubscription(result);
+      //   //更新該筆訂單的狀態
+      //   //購買紀錄
+      //   const result = await Purchase.findOneAndUpdate(
+      //     { orderID: realID },
+      //     {
+      //       startDate: startTimeMillis,
+      //       expiryDate: expiryTimeMillis,
+      //       autoRenewing,
+      //       renewCount,
+      //       paymentState,
+      //       cancelReason,
+      //       acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
+      //       //purchaseMemo,
+      //       isAllow,
+      //     },
+      //     {
+      //       upsert: true,
+      //       new: true,
+      //     }
+      //   );
+      // }
     } else if (voidedPurchaseNotification) {
       // 根據 refundType來判斷退款的原因及處理
       let {
         voidedPurchaseNotification: { orderId, refundType },
       } = notification;
-
-      //更新該筆訂單狀態
-      const result = await Purchase.findOneAndUpdate(
-        { orderID: orderId },
-        {
-          $set: {
-            refundType,
-            isAllow: false,
-            purchaseMemo,
-          },
-        },
-        { new: true }
-      );
-
-      //檢查用戶最近一筆訂單記錄,並判斷是否有訂閱權
-      checkAllowSubscription(result);
     }
 
     return res.status(200).send({
