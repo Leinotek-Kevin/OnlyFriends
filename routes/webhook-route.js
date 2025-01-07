@@ -35,11 +35,11 @@ router.post("/google-purchase", async (req, res) => {
       } = notification;
 
       //驗證 Google 訂單
-      // const data = await googleUtil.validSubscriptionOrder(
-      //   packageName,
-      //   subscriptionId,
-      //   purchaseToken
-      // );
+      const data = await googleUtil.validSubscriptionOrder(
+        packageName,
+        subscriptionId,
+        purchaseToken
+      );
 
       console.log("驗證訂閱結果:", data);
 
