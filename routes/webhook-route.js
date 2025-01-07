@@ -17,6 +17,9 @@ router.post("/google-purchase", async (req, res) => {
 
     let notification = JSON.parse(decodeMsg);
 
+    const memo = analyticsPurchaseMemo(notification);
+    console.log(memo);
+
     //確認是否是現在用戶的訂閱訂單
     const { subscriptionNotification, voidedPurchaseNotification } =
       notification;
