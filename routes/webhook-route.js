@@ -18,8 +18,10 @@ router.post("/google-purchase", async (req, res) => {
     let notification = JSON.parse(decodeMsg);
 
     //分析獲得的通知訊息
-    let purchaseMemo = analyticsPurchaseMemo(notification);
-    console.log("訂閱狀態通知", purchaseMemo);
+    // let purchaseMemo = analyticsPurchaseMemo(notification);
+    // console.log("訂閱狀態通知", purchaseMemo);
+
+    console.log("訂單通知訊息", notification);
 
     //確認是否是現在用戶的訂閱訂單
     const { subscriptionNotification, voidedPurchaseNotification } =
@@ -33,26 +35,17 @@ router.post("/google-purchase", async (req, res) => {
       } = notification;
 
       //驗證 Google 訂單
-      const data = await googleUtil.validSubscriptionOrder(
-        packageName,
-        subscriptionId,
-        purchaseToken
-      );
+      // const data = await googleUtil.validSubscriptionOrder(
+      //   packageName,
+      //   subscriptionId,
+      //   purchaseToken
+      // );
 
-      //確定訂閱訂單
-      if (data.acknowledgementState == 0) {
-        await googleUtil.acknowledgeSubscription(
-          packageName,
-          subscriptionId,
-          purchaseToken
-        );
-      }
-
-      console.log("驗證結果:", data);
+      console.log("驗證訂閱結果:", data);
 
       //分析驗證訂閱的資料
       const {
-        orderId, // 訂單ＩＤ GPA.3357-5076-3532-61828..5 標示該筆訂單續訂5次
+        orderId, // 訂單ID GPA.3357-5076-3532-61828..5 標示該筆訂單續訂5次
         startTimeMillis, //這是訂閱生效的時間
         expiryTimeMillis, // 這是訂閱結束的時間
         autoRenewing, //是否自動訂閱
