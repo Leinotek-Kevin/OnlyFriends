@@ -42,6 +42,8 @@ router.post("/google-verify", async (req, res) => {
     let { originalPurchaseJson, productType } = req.body;
     let { userID } = req.user;
 
+    console.log("originalPurchaseJson", originalPurchaseJson);
+
     //Android Receipt 驗證
     const { packageName, productId, purchaseToken } =
       JSON.parse(originalPurchaseJson);

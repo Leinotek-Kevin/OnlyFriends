@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import AuthService from "./services/auth-service";
-import HomeComponent from "./components/home-component";
 import LoginComponent from "./components/login-component";
 import LandingComponent from "./components/landing-component";
+import DashboardComponent from "./components/dashboard-component";
+import UsersComponent from "./components/users-component";
+import ReportsComponent from "./components/reports-component";
 
 function App() {
   let [userToken, setUserToken] = useState(AuthService.getUserToken());
@@ -11,10 +13,11 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/">
-          {/* outlet 展示首次進來的第一個 index 畫面是 HomeComponent */}
+          {/* 初始畫面-> Landing Page */}
           <Route index element={<LandingComponent />}></Route>
+          {/*系統登入頁*/}
           <Route
-            path="admin"
+            path="login"
             element={
               <LoginComponent
                 userToken={userToken}
@@ -22,15 +25,37 @@ function App() {
               />
             }
           ></Route>
+          {/*系統數據儀表板*/}
           <Route
             path="dashboard"
             element={
-              <HomeComponent
+              <DashboardComponent
                 userToken={userToken}
                 setUserToken={setUserToken}
               />
             }
-          ></Route>
+          >
+            {/*用戶列表*/}
+            <Route
+              path="users"
+              element={
+                <UsersComponent
+                  userToken={userToken}
+                  setUserToken={setUserToken}
+                ></UsersComponent>
+              }
+            ></Route>
+            {/*檢舉列表*/}
+            <Route
+              path="reports"
+              element={
+                <ReportsComponent
+                  userToken={userToken}
+                  setUserToken={setUserToken}
+                ></ReportsComponent>
+              }
+            ></Route>
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
