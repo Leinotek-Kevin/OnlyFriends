@@ -126,9 +126,6 @@ router.post("/google-verify", async (req, res) => {
             new: true,
           }
         );
-        console.log("google-date", expiryTimeMillis);
-        const formatExpired = datelUtil.formatTimestamp(expiryTimeMillis);
-        console.log("formatExpired", formatExpired);
 
         //更改用戶訂閱狀態
         await User.updateOne(
@@ -136,7 +133,7 @@ router.post("/google-verify", async (req, res) => {
           {
             $set: {
               isSubscription: isAllow,
-              subExpiresDate: formatExpired,
+              subExpiresDate: datelUtil.formatTimestamp(expiryTimeMillis),
               subTranscationID: orderId,
             },
           }
@@ -165,7 +162,6 @@ router.post("/google-verify", async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
