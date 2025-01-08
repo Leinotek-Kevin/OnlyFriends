@@ -12,6 +12,7 @@ const transcationSchema = new Schema({
   //用戶Email
   userEmail: {
     type: String,
+    default: "",
   },
 
   //手機系統
@@ -90,6 +91,12 @@ const transcationSchema = new Schema({
   //訂閱是否已經被確認(Android 專用)
   acknowledgementState: {
     type: Number,
+  },
+
+  //狀態變更時間
+  statusUpdateTime: {
+    type: Number,
+    default: Date.now(),
   },
 });
 
