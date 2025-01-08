@@ -69,14 +69,6 @@ router.post("/google-purchase", async (req, res) => {
         case 4:
           transcationMemo =
             "使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)";
-          //訂閱可存取//如果訂單尚未確認,再發出確認訂單需求
-          // if (acknowledgementState == 0) {
-          //   await googleUtil.acknowledgeSubscription(
-          //     packageName,
-          //     subscriptionId,
-          //     purchaseToken
-          //   );
-          // }
           orderStatus = "active";
           break;
         case 5:
@@ -160,7 +152,7 @@ router.post("/google-purchase", async (req, res) => {
       let userEmail = currentOrder ? currentOrder.userEmail : "";
 
       //更新該筆訂單的狀態
-      await Transcation.findOneAndUpdate(
+      const data = await Transcation.findOneAndUpdate(
         { transactionID: realOrderID },
         {
           osType: "0",
@@ -182,11 +174,12 @@ router.post("/google-purchase", async (req, res) => {
         },
         {
           upsert: true,
+          new: true,
         }
       );
 
       //檢查用戶訂閱狀態
-      checkAllowSubscription(userID);
+      checkAllowSubscription(data.userID);
     } else if (voidedPurchaseNotification) {
       // 根據 refundType來判斷退款的原因及處理
       let {
