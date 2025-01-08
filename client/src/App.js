@@ -6,6 +6,7 @@ import LandingComponent from "./components/landing-component";
 import DashboardComponent from "./components/dashboard-component";
 import UsersComponent from "./components/users-component";
 import ReportsComponent from "./components/reports-component";
+import Layout from "./components/layout";
 
 function App() {
   let [userToken, setUserToken] = useState(AuthService.getUserToken());
@@ -17,7 +18,7 @@ function App() {
           <Route index element={<LandingComponent />}></Route>
           {/*系統登入頁*/}
           <Route
-            path="login"
+            path="admin"
             element={
               <LoginComponent
                 userToken={userToken}
@@ -29,10 +30,7 @@ function App() {
           <Route
             path="dashboard"
             element={
-              <DashboardComponent
-                userToken={userToken}
-                setUserToken={setUserToken}
-              />
+              <Layout userToken={userToken} setUserToken={setUserToken} />
             }
           >
             {/*用戶列表*/}

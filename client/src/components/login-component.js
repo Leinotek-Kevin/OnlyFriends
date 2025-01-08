@@ -16,7 +16,6 @@ const LoginComponent = ({ userToken, setUserToken }) => {
     try {
       if (email) {
         let response = await AuthService.login(email);
-        console.log("response", response);
         let validCode = response.data.validCode;
 
         if (validCode == 1) {
@@ -37,27 +36,27 @@ const LoginComponent = ({ userToken, setUserToken }) => {
   };
 
   return (
-    <div class="container">
+    <div className="container">
       <main>
-        <div class="title">
+        <div className="title">
           <img src="/images/ic-logo.png" alt="Logo" />
         </div>
-        <div class="login-box">
+        <div className="login-box">
           <div>
-            <label for="exampleFormControlInput1" class="form-label">
+            <label for="exampleFormControlInput1" className="form-label">
               請輸入您的信箱(Please Input Your Email)
             </label>
             <input
               type="email"
-              class="form-control"
+              className="form-control"
               placeholder="name@example.com"
               onChange={handleChangeEmail}
             ></input>
-            {message && <div class="alert alert-danger">{message}</div>}
+            {message && <div className="alert alert-danger">{message}</div>}
           </div>
 
-          <div class="login">
-            <button type="button" class="login-btn" onClick={handleLogin}>
+          <div className="login">
+            <button type="button" className="login-btn" onClick={handleLogin}>
               登入
             </button>
           </div>
