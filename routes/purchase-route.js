@@ -95,7 +95,7 @@ router.post("/google-verify", async (req, res) => {
 
         //建立交易購買紀錄
         const result = await Transcation.findOneAndUpdate(
-          { transactionID: realID, userID },
+          { transactionID: realID },
           {
             $set: {
               userID,
