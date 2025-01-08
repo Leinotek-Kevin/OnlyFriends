@@ -45,29 +45,30 @@ router.post("/google-purchase", async (req, res) => {
       console.log("驗證訂閱結果:", orderInfo);
 
       //訂單備註追蹤
-      let purchaseMemo;
+      let transcationMemo;
       let orderStatus;
 
       // 追蹤目前訂單狀態
       switch (notificationType) {
         case 1:
-          purchaseMemo =
+          transcationMemo =
             "訂閱項目已從帳戶保留狀態恢復 :SUBSCRIPTION_RECOVERED (1)";
           //訂閱可存取
           orderStatus = "active";
           break;
         case 2:
-          purchaseMemo = "訂閱已續訂:SUBSCRIPTION_RENEWED (2)";
+          transcationMemo = "訂閱已續訂:SUBSCRIPTION_RENEWED (2)";
           //訂閱可存取
           orderStatus = "active";
           break;
         case 3:
-          purchaseMemo = "自願或非自願取消訂閱: SUBSCRIPTION_CANCELED  (3)";
+          transcationMemo = "自願或非自願取消訂閱: SUBSCRIPTION_CANCELED  (3)";
           //訂閱可存取
           orderStatus = "active";
           break;
         case 4:
-          purchaseMemo = "使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)";
+          transcationMemo =
+            "使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)";
           //訂閱可存取//如果訂單尚未確認,再發出確認訂單需求
           if (acknowledgementState == 0) {
             await googleUtil.acknowledgeSubscription(
@@ -79,64 +80,66 @@ router.post("/google-purchase", async (req, res) => {
           orderStatus = "active";
           break;
         case 5:
-          purchaseMemo = "訂閱項目已進入帳戶保留狀態: SUBSCRIPTION_ON_HOLD (5)";
+          transcationMemo =
+            "訂閱項目已進入帳戶保留狀態: SUBSCRIPTION_ON_HOLD (5)";
           //訂閱不可存取
           orderStatus = "account_hold";
           break;
         case 6:
           //訂閱可存取 paymentState = 0
-          purchaseMemo =
+          transcationMemo =
             "訂閱項目已進入寬限期:SUBSCRIPTION_IN_GRACE_PERIOD (6)";
           orderStatus = "grace_period";
           break;
         case 7:
-          purchaseMemo =
+          transcationMemo =
             "使用者已從「Play」>「帳戶」>「訂閱」還原訂閱項目。訂閱項目已取消，但在使用者還原時尚未到期: SUBSCRIPTION_RESTARTED (7)";
           //訂閱可存取
           orderStatus = "active";
           break;
         case 8:
-          purchaseMemo =
+          transcationMemo =
             "使用者已成功確認訂閱項目價格異動:  SUBSCRIPTION_PRICE_CHANGE_CONFIRMED (8)";
           //訂閱可存取
           orderStatus = "active";
           break;
         case 9:
-          purchaseMemo = "訂閱項目的週期時間已延長:SUBSCRIPTION_DEFERRED (9)";
+          transcationMemo =
+            "訂閱項目的週期時間已延長:SUBSCRIPTION_DEFERRED (9)";
           //訂閱可存取
           orderStatus = "active";
           break;
         case 10:
-          purchaseMemo = "訂閱項目已暫停: SUBSCRIPTION_PAUSED (10) ";
+          transcationMemo = "訂閱項目已暫停: SUBSCRIPTION_PAUSED (10) ";
           //訂閱不可存取
           orderStatus = "paused";
           break;
         case 11:
-          purchaseMemo =
+          transcationMemo =
             "訂閱暫停時間表已變更 : SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED (11)";
           //訂閱可存取
           orderStatus = "active";
           break;
         case 12:
-          purchaseMemo =
+          transcationMemo =
             "使用者在訂閱到期前已取消訂閱項目:SUBSCRIPTION_REVOKED (12)";
           //訂閱可存取
           orderStatus = "active";
           break;
         case 13:
-          purchaseMemo = "訂閱項目已到期:SUBSCRIPTION_EXPIRED (13)";
+          transcationMemo = "訂閱項目已到期:SUBSCRIPTION_EXPIRED (13)";
           //訂閱不可存取
           orderStatus = "expired";
           break;
         case 20:
-          purchaseMemo =
+          transcationMemo =
             "未完成交易被取消 : SUBSCRIPTION_PENDING_PURCHASE_CANCELED (20)";
           //訂閱不可存取
           orderStatus = "canceled";
           break;
 
         default:
-          purchaseMemo = `其他類型的通知${notificationType}`;
+          transcationMemo = `其他類型的通知${notificationType}`;
           orderStatus = "other";
           break;
       }
@@ -172,7 +175,8 @@ router.post("/google-purchase", async (req, res) => {
           autoRenewStatus: orderInfo.autoRenewing,
           paymentState,
           acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
-          purchaseMemo,
+          status: orderStatus,
+          transcationMemo,
           isAllow,
           statusUpdateTime: Date.now(),
         },
@@ -198,6 +202,7 @@ router.post("/google-purchase", async (req, res) => {
       const data = await Transcation.findOneAndUpdate(
         { transactionID: orderId },
         {
+          status: "refund",
           transcationMemo,
           isAllow: false,
           statusUpdateTime: Date.now(),

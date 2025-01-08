@@ -80,12 +80,6 @@ router.post("/google-verify", async (req, res) => {
         //真正的訂單id
         const splitOrderID = orderId.split("..");
         let realID = splitOrderID[0];
-        let renewCount = 0;
-
-        if (splitOrderID.length > 1) {
-          // .. 後面是指續訂次數
-          renewCount = Number(splitOrderID[1]);
-        }
 
         // //訂閱已過期 || 付款處理中 || 待處理的延遲升級/降級 => 不允許訂閱
         let isAllow = true;
@@ -117,7 +111,7 @@ router.post("/google-verify", async (req, res) => {
               transcationMemo: purchaseType,
               paymentState,
               acknowledgementState,
-              purchaseDate: Date.now(),
+              purchaseDate: String(Date.now()),
               isAllow,
             },
           },
@@ -317,6 +311,30 @@ router.post("/verify-receipt", async (req, res) => {
       status: true,
       message: "成功驗證訂單",
       data,
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Serror Error!",
+      e,
+    });
+  }
+});
+
+//刪除所有或指定對象購買紀錄
+router.post("/delete-transaction", async (req, res) => {
+  try {
+    let { userID } = req.body;
+
+    if (userID) {
+      await Transcation.deleteMany({ userID });
+    } else {
+      await Transcation.deleteMany({});
+    }
+
+    return res.status(200).send({
+      status: true,
+      message: "成功刪除購買紀錄",
     });
   } catch (e) {
     return res.status(500).send({
