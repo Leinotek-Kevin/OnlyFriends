@@ -86,9 +86,10 @@ body {
 a.sidebar-link {
   padding: 0.625rem 1.325rem;
   color: #fff;
-  display: block;
+  display: flex;
   font-size: 0.9rem;
   white-space: nowrap;
+  align-items: center;
   border-left: 3px solid transparent;
 }
 
