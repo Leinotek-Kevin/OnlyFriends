@@ -3,7 +3,6 @@ const googleUtil = require("../utils/google-util");
 const iOSUtil = require("../utils/iOS-util");
 const datelUtil = require("../utils/date-util");
 const User = require("../models").user;
-const Purchase = require("../models").purchase;
 const Transcation = require("../models").transcation;
 
 router.post("/google-purchase", async (req, res) => {
@@ -213,7 +212,6 @@ router.post("/google-purchase", async (req, res) => {
       message: "處理完畢",
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "訂單驗證出現異常！",

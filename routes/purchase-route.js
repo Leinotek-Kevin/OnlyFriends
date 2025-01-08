@@ -183,7 +183,7 @@ router.post("/iOS-verify", async (req, res) => {
           transaction.inAppOwnershipType == "PURCHASED";
 
         const result = await Transcation.findOneAndUpdate(
-          { originalTransactionID: transaction.originalTransactionId, userID },
+          { originalTransactionID: transaction.originalTransactionId },
           {
             $set: {
               userID,
@@ -249,19 +249,23 @@ router.post("/iOS-verify", async (req, res) => {
   }
 });
 
-//C-4 驗證交易訂單擁有者
+//C-3 驗證交易訂單擁有者
 router.post("/verify-owner", async (req, res) => {
   try {
     let { userEmail } = req.user;
-    let { originalTransactionID, osType } = req.body;
+    let { verifyTransactionID, osType } = req.body;
 
     let oriData;
 
     if (osType == "1") {
       //iOS
       oriData = await Transcation.findOne({
-        osType,
-        originalTransactionID,
+        originalTransactionID: verifyTransactionID,
+      });
+    } else {
+      //Android
+      oriData = await Transcation.findOne({
+        transactionID: verifyTransactionID,
       });
     }
 
