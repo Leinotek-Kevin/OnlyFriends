@@ -70,13 +70,13 @@ router.post("/google-purchase", async (req, res) => {
           transcationMemo =
             "使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)";
           //訂閱可存取//如果訂單尚未確認,再發出確認訂單需求
-          if (acknowledgementState == 0) {
-            await googleUtil.acknowledgeSubscription(
-              packageName,
-              subscriptionId,
-              purchaseToken
-            );
-          }
+          // if (acknowledgementState == 0) {
+          //   await googleUtil.acknowledgeSubscription(
+          //     packageName,
+          //     subscriptionId,
+          //     purchaseToken
+          //   );
+          // }
           orderStatus = "active";
           break;
         case 5:
