@@ -302,6 +302,45 @@ const deleteMsg = async (channelUrl) => {
     });
 };
 
+// openChannel
+const sendMsgOpenChannel = async (msg, customType) => {
+  // SendBird API URL
+  const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/open_channels/${process.env.SENDBIRD_OPEN_CHANNEL}/messages`;
+
+  // API Token
+  const apiToken = process.env.SENDBIRD_API_TOKEN;
+
+  // Request Headers
+  const headers = {
+    "Content-Type": "application/json, charset=utf8",
+    "Api-Token": apiToken,
+  };
+
+  // Request Body (JSON data)
+  const data = {
+    message_type: "MESG",
+    user_id: process.env.SENDBIRD_OPERATOR_ID,
+    message: msg,
+    custom_type: customType,
+  };
+
+  return axios
+    .post(url, data, { headers })
+    .then((response) => {
+      let { status } = response;
+
+      if (status == 200) {
+        return true;
+      }
+    })
+    .catch((e) => {
+      let { status } = e;
+      if (status == 400) {
+        return false;
+      }
+    });
+};
+
 module.exports = {
   isGroupChannelExist,
   deleteGroupChannel,
@@ -312,4 +351,5 @@ module.exports = {
   lastMsgGroupChannel,
   deleteUser,
   deleteMsg,
+  sendMsgOpenChannel,
 };

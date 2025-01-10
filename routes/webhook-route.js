@@ -357,17 +357,22 @@ async function checkAllowSubscription(userID) {
       .sort({ expiresDate: -1 })
       .limit(1);
 
+    let updateData = {
+      subTranscationID: lastSubscription.transactionID,
+      subExpiresDate: datelUtil.formatTimestamp(lastSubscription.expiresDate),
+      isSubscription: lastSubscription.isAllow,
+    };
+
+    //如果用戶失去訂閱就還原希望對象地區
+    if (!lastSubscription.isAllow) {
+      updateData.objectCondition.objectRegion = "";
+    }
+
     //更改用戶訂閱狀態
     await User.updateOne(
       { userID },
       {
-        $set: {
-          subTranscationID: lastSubscription.transactionID,
-          subExpiresDate: datelUtil.formatTimestamp(
-            lastSubscription.expiresDate
-          ),
-          isSubscription: lastSubscription.isAllow,
-        },
+        $set: updateData,
       }
     );
   }

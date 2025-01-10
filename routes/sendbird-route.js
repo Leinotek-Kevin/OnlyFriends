@@ -223,4 +223,25 @@ const connectAndSetNickname = async (userID, userName) => {
   });
 };
 
+//測試SB發送公開渠道訊息
+router.post("/send-omsg", async (req, res) => {
+  try {
+    let { msg, customType } = req.body;
+
+    const result = await sbUtil.sendMsgOpenChannel(msg, customType);
+
+    return res.status(200).send({
+      status: true,
+      message: result ? "成功發送訊息" : "發送訊息失敗",
+      data: result,
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
+    });
+  }
+});
+
 module.exports = router;

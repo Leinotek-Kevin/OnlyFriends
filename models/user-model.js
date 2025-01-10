@@ -128,7 +128,7 @@ const userSchema = new Schema({
     //希望地區
     objectRegion: {
       type: String,
-      default: "B",
+      default: "",
     },
   },
 
