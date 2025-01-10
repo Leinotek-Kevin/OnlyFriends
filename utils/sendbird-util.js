@@ -15,6 +15,9 @@ const isGroupChannelExist = async (channelUrl) => {
     "Api-Token": apiToken,
   };
 
+  console.log(process.env.SENDBIRD_APP_ID);
+  console.log(process.env.SENDBIRD_API_TOKEN);
+
   return axios
     .get(url, { headers })
     .then((response) => {
