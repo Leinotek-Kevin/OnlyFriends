@@ -364,7 +364,7 @@ async function checkAllowSubscription(userID) {
     };
 
     if (!lastSubscription.isAllow) {
-      // 如果用戶沒有訂閱，將 objectCondition.objectRegion 設為空字串
+      // 如果用戶沒有訂閱，將期望對象地區改為預設
       updateData["objectCondition.objectRegion"] = "";
     }
 

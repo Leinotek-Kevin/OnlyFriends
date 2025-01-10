@@ -342,7 +342,7 @@ router.post("/check-channel", async (req, res) => {
     let { chatCover } = await Config.findOne({});
 
     if (match != null) {
-      if (match.isChecked) {
+      if (false) {
         return res.status(200).send({
           status: true,
           message: "這個渠道已經檢查過嚕！",
@@ -352,16 +352,18 @@ router.post("/check-channel", async (req, res) => {
         //檢查渠道-> 先檢查是否存在,如果存在就刪掉重建 ,不存在就直接建立
         const channel = await sbUtil.isGroupChannelExist(channelUrl);
 
+        console.log(channel);
+
         if (channel) {
-          // console.log("渠道存在！檢查背景圖片是不是預設，不是就更改");
+          console.log("渠道存在！檢查背景圖片是不是預設，不是就更改");
           const srcCover = channel.cover_url;
 
           if (srcCover != chatCover) {
-            // console.log("將背景改為預設");
+            console.log("將背景改為預設");
             await sbUtil.updateGroupChannel(channelUrl, chatCover);
           }
         } else {
-          // console.log("渠道不存在！直接建立");
+          console.log("渠道不存在！直接建立");
           await sbUtil.createGroupChannel(channelUrl, chatCover);
         }
 
