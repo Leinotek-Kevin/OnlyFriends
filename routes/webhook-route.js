@@ -363,9 +363,9 @@ async function checkAllowSubscription(userID) {
       isSubscription: lastSubscription.isAllow,
     };
 
-    //如果用戶失去訂閱就還原希望對象地區
     if (!lastSubscription.isAllow) {
-      updateData.objectCondition.objectRegion = "";
+      // 如果用戶沒有訂閱，將 objectCondition.objectRegion 設為空字串
+      updateData["objectCondition.objectRegion"] = "";
     }
 
     //更改用戶訂閱狀態
