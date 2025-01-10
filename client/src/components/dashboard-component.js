@@ -7,6 +7,8 @@ import "../styles/dashboard.css";
 const DashboardComponent = ({ userToken, setUserToken }) => {
   let navigate = useNavigate();
 
+  console.log("userToken", userToken);
+
   useEffect(() => {
     const hamBurger = document.querySelector(".toggle-btn");
 
@@ -39,6 +41,8 @@ const DashboardComponent = ({ userToken, setUserToken }) => {
         draggable: true, // 允許滑動關閉
         progress: undefined, // 默認的進度條
       });
+    } else {
+      navigate("/admin"); // 如果没有 token，跳转到登录页面
     }
   }, [userToken]);
 

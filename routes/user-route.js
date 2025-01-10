@@ -250,6 +250,7 @@ router.post("/today-matches", async (req, res) => {
           likeLevel: 1,
           letterYourContent: "",
           letterObjectContent: "",
+          topicID: match.topicID,
           topicBackGround: match.topicBackGround,
           topicColors: match.topicColors,
         };

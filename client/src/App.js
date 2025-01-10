@@ -3,7 +3,6 @@ import { useState } from "react";
 import AuthService from "./services/auth-service";
 import LoginComponent from "./components/login-component";
 import LandingComponent from "./components/landing-component";
-import DashboardComponent from "./components/dashboard-component";
 import UsersComponent from "./components/users-component";
 import ReportsComponent from "./components/reports-component";
 import Layout from "./components/layout";
