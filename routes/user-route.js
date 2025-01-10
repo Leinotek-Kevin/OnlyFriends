@@ -342,7 +342,7 @@ router.post("/check-channel", async (req, res) => {
     let { chatCover } = await Config.findOne({});
 
     if (match != null) {
-      if (false) {
+      if (match.isChecked) {
         return res.status(200).send({
           status: true,
           message: "這個渠道已經檢查過嚕！",
@@ -353,15 +353,15 @@ router.post("/check-channel", async (req, res) => {
         const channel = await sbUtil.isGroupChannelExist(channelUrl);
 
         if (channel) {
-          console.log("渠道存在！檢查背景圖片是不是預設，不是就更改");
+          // console.log("渠道存在！檢查背景圖片是不是預設，不是就更改");
           const srcCover = channel.cover_url;
 
           if (srcCover != chatCover) {
-            console.log("將背景改為預設");
+            // console.log("將背景改為預設");
             await sbUtil.updateGroupChannel(channelUrl, chatCover);
           }
         } else {
-          console.log("渠道不存在！直接建立");
+          // console.log("渠道不存在！直接建立");
           await sbUtil.createGroupChannel(channelUrl, chatCover);
         }
 
@@ -1156,7 +1156,7 @@ router.post("/crud-chatopic", async (req, res) => {
       res.status(200).send({
         status: true,
         message: match ? "查詢指定渠道主題" : "指定渠道不存在",
-        validCode: 1,
+        validCode: "1",
         data: {
           topicID: match.topicID,
           topicBackGround: match.topicBackGround,
@@ -1182,14 +1182,14 @@ router.post("/crud-chatopic", async (req, res) => {
 
         res.status(200).send({
           status: true,
-          validCode: 1,
+          validCode: "1",
           message: data.modifiedCount > 0 ? "修改成功！" : "沒有修改",
         });
       } else {
         res.status(200).send({
           status: true,
           message: "查無此主題！",
-          validCode: 1,
+          validCode: "1",
         });
       }
     }
@@ -1197,7 +1197,7 @@ router.post("/crud-chatopic", async (req, res) => {
     res.status(500).send({
       status: false,
       message: "Server Error!",
-      validCode: -1,
+      validCode: "-1",
       e,
     });
   }
