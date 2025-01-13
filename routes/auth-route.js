@@ -154,6 +154,7 @@ router.post("/login", async (req, res) => {
           status: true,
           message: "該用戶已被停權！",
           validCode: "2",
+          officialLink: process.env.ONLY_FRIENDS_OFFICIAL_LINK,
         });
       }
 
@@ -164,6 +165,7 @@ router.post("/login", async (req, res) => {
         status: true,
         message: "尚未註冊！查無此用戶！",
         validCode: "0",
+        officialLink: process.env.ONLY_FRIENDS_OFFICIAL_LINK,
       });
     }
 
@@ -176,6 +178,7 @@ router.post("/login", async (req, res) => {
       message: "登入成功",
       validCode: "1",
       token: "JWT " + token, //返回 JWT token,
+      officialLink: process.env.ONLY_FRIENDS_OFFICIAL_LINK,
     });
   } catch (e) {
     return res.status(500).send({
