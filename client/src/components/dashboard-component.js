@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import AuthService from "../services/auth-service";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/dashboard.css";
+import AgeDistributionChart from "../components/testComponent";
 
 const DashboardComponent = ({ userToken, setUserToken }) => {
   let navigate = useNavigate();
-
-  console.log("userToken", userToken);
 
   useEffect(() => {
     const hamBurger = document.querySelector(".toggle-btn");
@@ -20,11 +20,32 @@ const DashboardComponent = ({ userToken, setUserToken }) => {
       hamBurger.addEventListener("click", toggleSidebar);
     }
 
+    const logoutBtn = document.querySelector("div.sidebar-footer");
+
+    const logoutEvent = (e) => {
+      e.preventDefault();
+      // 顯示確認對話框
+      const confirmed = window.confirm("你確定要登出 OnlyFriends 系統嗎？");
+
+      if (confirmed) {
+        AuthService.logout();
+        navigate("/admin");
+      }
+    };
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", logoutEvent);
+    }
+
     // Clean up the event listener when the component unmounts
     //移除事件監聽,避免內存外洩
     return () => {
       if (hamBurger) {
         hamBurger.removeEventListener("click", toggleSidebar);
+      }
+
+      if (logoutBtn) {
+        logoutBtn.removeEventListener("click", logoutEvent);
       }
     };
   }, []);
@@ -166,8 +187,8 @@ const DashboardComponent = ({ userToken, setUserToken }) => {
         </div>
       </aside>
       <div class="main p-3">
-        <div class="text-center">
-          <h1>Dashboard </h1>
+        <div class="chart" style={{ width: "300px", height: "450px" }}>
+          <AgeDistributionChart />
         </div>
       </div>
       {/* 加入 ToastContainer 以显示 Toast */}

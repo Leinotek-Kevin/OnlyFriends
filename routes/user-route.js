@@ -78,6 +78,7 @@ router.post("/info", async (req, res) => {
       ...req.user._doc,
       isTodayRegister,
       isTodayEverSend,
+      officialLink: process.env.ONLY_FRIENDS_OFFICIAL_LINK,
     };
 
     //刪掉不要的字段

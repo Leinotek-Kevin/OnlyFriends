@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import "../styles/login.css";
 import AuthService from "../services/auth-service";
 
@@ -63,10 +64,10 @@ const LoginComponent = ({ userToken, setUserToken }) => {
           <p>*本系統僅限官方人員使用</p>
         </div>
       </main>
-
       <footer>
         <p>Copyright © 2025 OnlyFriends by Leinotek Co,.Ltd.</p>
       </footer>
+      <ToastContainer /> {/* 確保這個容器存在 */}
     </div>
   );
 };

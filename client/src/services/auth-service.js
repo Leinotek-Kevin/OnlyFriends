@@ -9,7 +9,7 @@ class AuthService {
 
   logout() {
     //移除本地儲存的使用者 item
-    localStorage.removeItem("user");
+    localStorage.removeItem("userToken");
   }
 
   getUserToken() {
