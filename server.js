@@ -38,6 +38,7 @@ app.use("/api/user", routes.user);
 app.use("/api/letter", routes.letter);
 app.use("/api/system", routes.system);
 app.use("/api/purchase", routes.purchase);
+app.use("/api/cloudmsg", routes.cloudmsg);
 app.use("/api/other", routes.other);
 
 //URL/ 除了上面的 route 路徑之外的都會導到 client , index.html

@@ -8,4 +8,5 @@ module.exports = {
   purchase: require("./purchase-route"),
   other: require("./other-route"),
   webhook: require("./webhook-route"),
+  cloudmsg: require("./cloudmsg-route"),
 };

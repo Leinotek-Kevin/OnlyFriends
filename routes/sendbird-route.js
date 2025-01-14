@@ -226,9 +226,14 @@ const connectAndSetNickname = async (userID, userName) => {
 //測試SB發送公開渠道訊息
 router.post("/send-omsg", async (req, res) => {
   try {
-    let { msg, customType } = req.body;
+    let { msg, link, image, customType } = req.body;
 
-    const result = await sbUtil.sendMsgOpenChannel(msg, customType);
+    const result = await sbUtil.sendMsgOpenChannel(
+      msg,
+      link,
+      image,
+      customType
+    );
 
     return res.status(200).send({
       status: true,

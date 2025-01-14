@@ -306,7 +306,7 @@ const deleteMsg = async (channelUrl) => {
 };
 
 // openChannel
-const sendMsgOpenChannel = async (msg, customType) => {
+const sendMsgOpenChannel = async (msg, link, image, customType) => {
   // SendBird API URL
   const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/open_channels/${process.env.SENDBIRD_OPEN_CHANNEL}/messages`;
 
@@ -319,16 +319,38 @@ const sendMsgOpenChannel = async (msg, customType) => {
     "Api-Token": apiToken,
   };
 
+  const innerData = {
+    link: "",
+    image: "",
+  };
+
+  if (link) {
+    innerData.link = link;
+  }
+
+  if (image) {
+    innerData.image = image;
+  }
+
   // Request Body (JSON data)
-  const data = {
+  const requestData = {
     message_type: "MESG",
     user_id: process.env.SENDBIRD_OPERATOR_ID,
     message: msg,
     custom_type: customType,
+    data: JSON.stringify(innerData),
   };
 
+  if (link) {
+    requestData.data.link = link;
+  }
+
+  if (image) {
+    requestData.data.image = image;
+  }
+
   return axios
-    .post(url, data, { headers })
+    .post(url, requestData, { headers })
     .then((response) => {
       let { status } = response;
 

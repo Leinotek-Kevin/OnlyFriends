@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 
 const User = require("../models").user;
 const UserRelation = require("../models").userRelation;
-const MatchNeswest = require("../models").matchNewest;
+const MatchNewest = require("../models").matchNewest;
 const Config = require("../models").config;
 const Report = require("../models").report;
 const Sticker = require("../models").sticker;
@@ -202,7 +202,7 @@ router.post("/today-matches", async (req, res) => {
       dateUtil.getTomorrowNight() - Date.now() <= 30 * 60 * 1000;
 
     //獲取今天所有配對
-    const newestMatches = await MatchNeswest.find({
+    const newestMatches = await MatchNewest.find({
       $or: [{ user1ID: userID }, { user2ID: userID }],
     })
       .populate("user1_ID", [
@@ -336,7 +336,7 @@ router.post("/check-channel", async (req, res) => {
   try {
     let { channelUrl } = req.body;
 
-    const match = await MatchNeswest.findOne({
+    const match = await MatchNewest.findOne({
       sendbirdUrl: channelUrl,
     });
 
@@ -366,7 +366,7 @@ router.post("/check-channel", async (req, res) => {
           await sbUtil.createGroupChannel(channelUrl, chatCover);
         }
 
-        await MatchNeswest.updateOne(
+        await MatchNewest.updateOne(
           {
             sendbirdUrl: channelUrl,
           },
@@ -1150,7 +1150,7 @@ router.post("/crud-chatopic", async (req, res) => {
     let { action, topicID, sendbirdUrl } = req.body;
 
     if (action == "0") {
-      const match = await MatchNeswest.findOne({
+      const match = await MatchNewest.findOne({
         sendbirdUrl,
       });
 
@@ -1170,7 +1170,7 @@ router.post("/crud-chatopic", async (req, res) => {
       });
 
       if (topic) {
-        const data = await MatchNeswest.updateOne(
+        const data = await MatchNewest.updateOne(
           {
             sendbirdUrl,
           },
