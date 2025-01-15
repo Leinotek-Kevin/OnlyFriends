@@ -11,8 +11,9 @@ const admin = require("./utils/checkAdmin-util");
 const passport = require("passport");
 const path = require("path");
 require("./config/passport")();
-
 const sb = require("./utils/sendbird-util");
+
+// const testService = require("./service/user-back-remind-service");
 
 //連結 mongoDB
 mongoose

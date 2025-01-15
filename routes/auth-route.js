@@ -276,6 +276,7 @@ router.post("/delete", (req, res) => {
       await User.updateOne(
         { userID },
         {
+          deviceToken: "",
           userEmail: copyMail,
           userValidCode: "3",
         }

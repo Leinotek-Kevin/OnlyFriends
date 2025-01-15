@@ -43,7 +43,7 @@ const runGeneralMatchRemind = async () => {
       navigateSign: "home",
     });
   } catch (e) {
-    console.log("提醒用戶發送紙飛機", e);
+    console.log("提醒用戶查看今天的配對", e);
   }
 };
 
