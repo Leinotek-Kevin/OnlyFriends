@@ -16,6 +16,9 @@ class CloudMsgService {
             image,
           },
           data: {
+            title,
+            body,
+            image,
             behaviorType,
             navigateSign,
           },
@@ -48,10 +51,7 @@ class CloudMsgService {
         body,
         image,
       },
-      data: {
-        behaviorType,
-        navigateSign,
-      },
+      data: { title, body, image, behaviorType, navigateSign },
 
       topic, // 指定主題
     };
@@ -61,6 +61,9 @@ class CloudMsgService {
       admin
         .messaging()
         .send(message)
+        .then((response) => {
+          console.log("發送主題通知:", response);
+        })
         .catch((error) => {
           console.log("發送主題通知時出錯:", error);
         });

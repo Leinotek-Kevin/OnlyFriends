@@ -208,10 +208,14 @@ router.post("/logout", (req, res) => {
     }
 
     try {
-      let { userEmail, isLogin } = user;
+      let { userEmail, isLogin, deviceToken, osType, userID } = user;
 
       if (isLogin) {
         const data = await User.updateOne({ userEmail }, { isLogin: false });
+
+        //移除這個帳號在 sendbird 綁定的 deviceToken
+        await sendbirdUtil.removeRegisterToken(osType, userID, deviceToken);
+
         return res.status(200).send({
           status: true,
           message: "登出成功！",
