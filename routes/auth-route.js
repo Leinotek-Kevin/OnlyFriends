@@ -173,6 +173,7 @@ router.post("/login", async (req, res) => {
       message: "登入成功",
       validCode: "1",
       token: "JWT " + token, //返回 JWT token,
+      lastLoginTime: updateData.lastLoginTime,
     });
   } catch (e) {
     return res.status(500).send({
@@ -295,7 +296,53 @@ router.post("/delete", (req, res) => {
   })(req, res);
 });
 
-//A-5 官方人員驗證登入
+//A-5 回報指定用戶的上線登入時間
+router.post("/record-login", (req, res) => {
+  passport.authenticate("jwt", { session: false }, async (err, user, info) => {
+    if (err) {
+      return res.status(500).json({ status: false, message: "Server Error" });
+    }
+
+    if (!user) {
+      // 這裡返回自定義訊息
+      return res.status(200).json({
+        status: true,
+        message: "登出失敗！查無此用戶!",
+        validCode: "0",
+      });
+    } else if (user.userValidCode == "2") {
+      return res.status(200).send({
+        status: true,
+        message: "該用戶已被停權！",
+        validCode: "2",
+      });
+    }
+
+    try {
+      let { userID } = user;
+      let { lastLoginTime } = req.body;
+
+      if (lastLoginTime) {
+        await User.updateOne({ userID }, { lastLoginTime });
+      }
+
+      return res.status(200).send({
+        status: true,
+        message: "最近上線登入紀錄成功",
+        lastLoginTime: Number(lastLoginTime),
+        validCode: "1",
+      });
+    } catch (e) {
+      return res.status(500).send({
+        status: false,
+        message: "Server Error",
+        validCode: "-1",
+      });
+    }
+  })(req, res);
+});
+
+//A-6 官方人員驗證登入
 router.post("/official-login", async (req, res) => {
   let { userEmail } = req.body;
 
