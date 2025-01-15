@@ -12,6 +12,8 @@ const passport = require("passport");
 const path = require("path");
 require("./config/passport")();
 
+const sb = require("./utils/sendbird-util");
+
 //連結 mongoDB
 mongoose
   .connect(process.env.MONGODB_CONNECTION)
@@ -75,4 +77,5 @@ const systemCheck = async () => {
     });
   }
 };
+
 systemCheck();

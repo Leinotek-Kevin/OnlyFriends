@@ -2,6 +2,29 @@ const axios = require("axios");
 const dotenv = require("dotenv");
 dotenv.config();
 
+const SendBird = require("sendbird");
+const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
+
+//建立＆更新用戶
+const createAndUpdateUser = async (userID, userName) => {
+  return new Promise((resolve, reject) => {
+    // 先連接 SendBird，用戶不存在則創建
+    sb.connect(userID, function (user, error) {
+      if (error) {
+        return reject(error);
+      }
+
+      // 連接成功後，立即更新暱稱
+      sb.updateCurrentUserInfo(userName, null, function (response, error) {
+        if (error) {
+          return reject(error);
+        }
+        resolve(response); // 暱稱更新成功
+      });
+    });
+  });
+};
+
 const isGroupChannelExist = async (channelUrl) => {
   // SendBird API URL
   const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels/${channelUrl}`;
@@ -377,4 +400,5 @@ module.exports = {
   deleteUser,
   deleteMsg,
   sendMsgOpenChannel,
+  createAndUpdateUser,
 };

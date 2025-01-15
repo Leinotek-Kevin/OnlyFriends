@@ -12,6 +12,7 @@ const { TopicNames } = require("../config/enum");
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
+const sendbirdUtil = require("../utils/sendbird-util");
 const sbUtil = require("../utils/sendbird-util");
 const generalUtil = require("../utils/general-util");
 const passport = require("passport");
@@ -143,6 +144,11 @@ router.post("/info", async (req, res) => {
           upsert: true,
         }
       );
+
+      //更改 sendbird 用戶暱稱
+      if (generalUtil.isNotNUllEmpty(updateData.userName)) {
+        await sendbirdUtil.createAndUpdateUser(userID, updateData.userName);
+      }
 
       return res.status(200).send({
         status: true,
@@ -886,6 +892,11 @@ router.post("/edit-info", async (req, res) => {
           $set: updateData,
         }
       );
+
+      //更改 sendbird 用戶暱稱
+      if (generalUtil.isNotNUllEmpty(updateData.userName)) {
+        await sendbirdUtil.createAndUpdateUser(userID, updateData.userName);
+      }
 
       return res.status(200).send({
         status: true,
