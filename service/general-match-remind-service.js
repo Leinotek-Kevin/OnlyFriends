@@ -31,7 +31,7 @@ const runGeneralMatchRemind = async () => {
         match.user1_ID.notificationStatus &&
         match.user1_ID.deviceTokens
       ) {
-        match.user1_ID.deviceTokens.foreach((token) => {
+        match.user1_ID.deviceTokens.forEach((token) => {
           if (token) {
             targetUsers.add(token);
           }
@@ -44,7 +44,7 @@ const runGeneralMatchRemind = async () => {
         match.user2_ID.notificationStatus &&
         match.user2_ID.deviceTokens
       ) {
-        match.user2_ID.deviceTokens.foreach((token) => {
+        match.user2_ID.deviceTokens.forEach((token) => {
           if (token) {
             targetUsers.add(token);
           }

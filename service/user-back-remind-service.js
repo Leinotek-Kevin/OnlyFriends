@@ -56,7 +56,7 @@ const runUserBackRemind = async () => {
         match.user1_ID.deviceTokens &&
         match.user1_ID.lastLoginTime < todayNight
       ) {
-        match.user1_ID.deviceTokens.foreach((token) => {
+        match.user1_ID.deviceTokens.forEach((token) => {
           if (token) {
             targetMatchUsers.add(token);
           }
@@ -70,7 +70,7 @@ const runUserBackRemind = async () => {
         match.user2_ID.deviceTokens &&
         match.user2_ID.lastLoginTime < todayNight
       ) {
-        match.user2_ID.deviceTokens.foreach((token) => {
+        match.user2_ID.deviceTokens.forEach((token) => {
           if (token) {
             targetMatchUsers.add(token);
           }

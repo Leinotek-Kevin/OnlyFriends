@@ -68,12 +68,6 @@ const userSchema = new Schema({
     required: true,
   },
 
-  //用戶裝置 id
-  deviceToken: {
-    type: String,
-    default: "",
-  },
-
   //用戶裝置 ids
   deviceTokens: {
     type: Array,
