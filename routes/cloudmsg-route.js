@@ -7,10 +7,10 @@ router.post("/device", async (req, res) => {
   let { userID } = req.body;
 
   const foundUser = await User.findOne({ userID });
-  const { deviceToken } = foundUser;
+  const { deviceTokens } = foundUser;
 
-  if (deviceToken) {
-    const result = await cloudmsg.sendMsgToDevice([deviceToken], req.body);
+  if (deviceTokens) {
+    const result = await cloudmsg.sendMsgToDevice(deviceTokens, req.body);
 
     return res
       .status(200)

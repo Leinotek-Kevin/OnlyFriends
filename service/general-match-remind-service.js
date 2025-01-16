@@ -18,6 +18,7 @@ const runGeneralMatchRemind = async () => {
       if (
         match.user1_ID &&
         match.user1_ID.userValidCode == "1" &&
+        match.user1_ID.notificationStatus &&
         match.user1_ID.deviceTokens
       ) {
         match.user1_ID.deviceTokens.foreach((token) => {
@@ -30,6 +31,7 @@ const runGeneralMatchRemind = async () => {
       if (
         match.user2_ID &&
         match.user2_ID.userValidCode == "1" &&
+        match.user2_ID.notificationStatus &&
         match.user2_ID.deviceTokens
       ) {
         match.user2_ID.deviceTokens.foreach((token) => {
