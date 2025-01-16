@@ -7,6 +7,7 @@ const runAlertMatch = async () => {
       "午夜新配對快要到嚕！",
       "matchAlert"
     );
+    console.log("午夜新配對快要到嚕！", "發送完畢");
   } catch (e) {
     console.log("午夜提醒訊息發送失敗", e);
   }
