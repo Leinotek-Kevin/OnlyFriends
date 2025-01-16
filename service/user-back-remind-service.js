@@ -80,13 +80,18 @@ const runUserBackRemind = async () => {
 
     const finalTargetMatchUsers = Array.from(targetMatchUsers);
 
-    await cloudMsgService.sendMsgToDevice(finalTargetMatchUsers, {
-      title: "🔥 新朋友等你互動！",
-      body: "今天你有新配對，快來聊聊吧！",
-      image: "",
-      behaviorType: "102",
-      navigateSign: "home",
-    });
+    const result = await cloudMsgService.sendMsgToDevice(
+      finalTargetMatchUsers,
+      {
+        title: "🔥 新朋友等你互動！",
+        body: "今天你有新配對，快來聊聊吧！",
+        image: "",
+        behaviorType: "102",
+        navigateSign: "home",
+      }
+    );
+
+    console.log("有配對但沒上線", result ? "發送完畢" : "發送有問題");
 
     //-----------------------------------------------------------------------------//
     //提醒沒有配對到且今天都還沒有上線的用戶
@@ -110,13 +115,18 @@ const runUserBackRemind = async () => {
       }
     });
 
-    await cloudMsgService.sendMsgToDevice(targetNonMatchDevices, {
-      title: "⏰ 不要錯過明天的緣分！",
-      body: "錯過今天，明天就沒配對機會了！快回來和新朋友相遇吧！",
-      image: "",
-      behaviorType: "103",
-      navigateSign: "home",
-    });
+    const result2 = await cloudMsgService.sendMsgToDevice(
+      targetNonMatchDevices,
+      {
+        title: "⏰ 不要錯過明天的緣分！",
+        body: "錯過今天，明天就沒配對機會了！快回來和新朋友相遇吧！",
+        image: "",
+        behaviorType: "103",
+        navigateSign: "home",
+      }
+    );
+
+    console.log("沒有配對但沒上線", result2 ? "發送完畢" : "發送有問題");
   } catch (e) {
     console.log("提醒還沒上線的用戶上線", e);
   }
