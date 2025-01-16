@@ -13,8 +13,6 @@ const path = require("path");
 require("./config/passport")();
 const sb = require("./utils/sendbird-util");
 
-// const testService = require("./service/user-back-remind-service");
-
 //連結 mongoDB
 mongoose
   .connect(process.env.MONGODB_CONNECTION)

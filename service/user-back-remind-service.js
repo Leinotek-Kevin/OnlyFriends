@@ -16,13 +16,13 @@ const runUserBackRemind = async () => {
     })
       .populate("user1_ID", [
         "userID",
-        "deviceToken",
+        "deviceTokens",
         "userValidCode",
         "lastLoginTime",
       ])
       .populate("user2_ID", [
         "userID",
-        "deviceToken",
+        "deviceTokens",
         "userValidCode",
         "lastLoginTime",
       ]);
@@ -39,20 +39,28 @@ const runUserBackRemind = async () => {
 
       if (
         match.user1_ID &&
-        match.user1_ID.deviceToken &&
         match.user1_ID.userValidCode == "1" &&
-        match.user1_ID.lastLoginTime < todayNight
+        match.user1_ID.lastLoginTime < todayNight &&
+        match.user1_ID.deviceTokens
       ) {
-        targetMatchUsers.add(match.user1_ID.deviceToken);
+        match.user1_ID.deviceTokens.foreach((token) => {
+          if (token) {
+            targetMatchUsers.add(token);
+          }
+        });
       }
 
       if (
         match.user2_ID &&
-        match.user2_ID.deviceToken &&
         match.user2_ID.userValidCode == "1" &&
-        match.user2_ID.lastLoginTime < todayNight
+        match.user2_ID.lastLoginTime < todayNight &&
+        match.user2_ID.deviceTokens
       ) {
-        targetMatchUsers.add(match.user2_ID.deviceToken);
+        match.user2_ID.deviceTokens.foreach((token) => {
+          if (token) {
+            targetMatchUsers.add(token);
+          }
+        });
       }
     });
 
@@ -79,11 +87,14 @@ const runUserBackRemind = async () => {
     const targetNonMatchDevices = [];
 
     targetNonMatchUsers.forEach((user) => {
-      if (user && user.deviceToken) {
-        targetNonMatchDevices.push(user.deviceToken);
+      if (user && user.deviceTokens) {
+        user.deviceTokens.forEach((token) => {
+          if (token) {
+            targetNonMatchDevices.push(token);
+          }
+        });
       }
     });
-    console.log(targetNonMatchDevices);
 
     await cloudMsgService.sendMsgToDevice(targetNonMatchDevices, {
       title: "⏰ 不要錯過明天的緣分！",

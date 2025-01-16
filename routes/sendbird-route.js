@@ -249,4 +249,31 @@ router.post("/send-omsg", async (req, res) => {
   }
 });
 
+//測試SB刪除使用者
+router.post("/remove-token", async (req, res) => {
+  try {
+    let { userID } = req.body;
+
+    const userInfo = await User.findOne({ userID });
+    const { osType, deviceToken } = userInfo;
+
+    const result = await sbUtil.removeRegisterToken(
+      osType,
+      userID,
+      deviceToken
+    );
+
+    return res.status(200).send({
+      status: true,
+      message: result ? "成功解除token綁定" : "解除token綁定",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
+    });
+  }
+});
+
 module.exports = router;

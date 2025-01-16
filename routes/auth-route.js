@@ -66,6 +66,7 @@ router.post("/register", async (req, res) => {
         userRegion,
         userQuestion,
         identity,
+        deviceTokens: [],
         registerTime: Date.now(),
         lastLoginTime: Date.now(),
         isLogin: true,
@@ -83,7 +84,7 @@ router.post("/register", async (req, res) => {
 
       // 如果有提供 deviceToken，才將其加入更新資料中
       if (generalUtil.isNotNUllEmpty(deviceToken)) {
-        createData.deviceToken = deviceToken;
+        createData.deviceTokens.push(deviceToken);
       }
 
       // 如果有提供 osType，才將其加入更新資料中
@@ -132,26 +133,31 @@ router.post("/login", async (req, res) => {
       isLogin: true,
     };
 
-    // 如果有提供 deviceToken，才將其加入更新資料中
-    if (generalUtil.isNotNUllEmpty(deviceToken)) {
-      updateData.deviceToken = deviceToken;
-    }
-
-    // 如果有提供 deviceToken，才將其加入更新資料中
-    if (generalUtil.isNotNUllEmpty(osType)) {
-      updateData.osType = osType;
-    }
-
     if (findUser) {
-      //如果有使用者
-      userID = findUser.userID;
-
       if (findUser.userValidCode == "2") {
         return res.status(200).send({
           status: true,
           message: "該用戶已被停權！",
           validCode: "2",
         });
+      }
+
+      //用戶 ID
+      userID = findUser.userID;
+
+      // 如果有提供 deviceToken，才將其加入更新資料中
+      if (generalUtil.isNotNUllEmpty(deviceToken)) {
+        let currentTokens = findUser.deviceTokens;
+
+        if (!currentTokens.includes(deviceToken)) {
+          currentTokens.push(deviceToken);
+        }
+        updateData.deviceTokens = currentTokens;
+      }
+
+      // 如果有提供 osType，才將其加入更新資料中
+      if (generalUtil.isNotNUllEmpty(osType)) {
+        updateData.osType = osType;
       }
 
       await User.updateOne({ userID }, { $set: updateData });
@@ -208,20 +214,32 @@ router.post("/logout", (req, res) => {
     }
 
     try {
-      let { userEmail, isLogin, deviceToken, osType, userID } = user;
+      let { isLogin, osType, userID, deviceTokens } = user;
+      let { fcmToken, apnsToken } = req.body;
 
       if (isLogin) {
-        const data = await User.updateOne({ userEmail }, { isLogin: false });
+        //移除這個帳號在 sendbird 綁定的裝置 token
+        const targetDeviceToken = osType == "1" ? apnsToken : fcmToken;
+        await sendbirdUtil.removeRegisterToken(
+          osType,
+          userID,
+          targetDeviceToken
+        );
 
-        //移除這個帳號在 sendbird 綁定的 deviceToken
-        await sendbirdUtil.removeRegisterToken(osType, userID, deviceToken);
+        //OF 資料庫解除這個帳號的 fcmToken 綁定
+        //用戶有一個以上的 token
+        if (deviceTokens) {
+          deviceTokens = deviceTokens.filter((token) => token !== fcmToken);
+        }
 
-        return res.status(200).send({
-          status: true,
-          message: "登出成功！",
-          validCode: "1",
-        });
+        await User.updateOne({ userID }, { isLogin: false, deviceTokens });
       }
+
+      return res.status(200).send({
+        status: true,
+        message: "登出成功！",
+        validCode: "1",
+      });
     } catch (e) {
       return res.status(500).send({
         status: false,
@@ -280,7 +298,7 @@ router.post("/delete", (req, res) => {
       await User.updateOne(
         { userID },
         {
-          deviceToken: "",
+          deviceTokens: [],
           userEmail: copyMail,
           userValidCode: "3",
         }

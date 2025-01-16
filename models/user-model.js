@@ -74,6 +74,12 @@ const userSchema = new Schema({
     default: "",
   },
 
+  //用戶裝置 ids
+  deviceTokens: {
+    type: Array,
+    default: [],
+  },
+
   //用戶提問
   userQuestion: {
     type: String,

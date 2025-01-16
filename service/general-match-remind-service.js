@@ -9,26 +9,34 @@ const runGeneralMatchRemind = async () => {
     const newestMatches = await MatchNewest.find({
       matchUIType: 1,
     })
-      .populate("user1_ID", ["userID", "deviceToken", "userValidCode"])
-      .populate("user2_ID", ["userID", "deviceToken", "userValidCode"]);
+      .populate("user1_ID", ["userID", "deviceTokens", "userValidCode"])
+      .populate("user2_ID", ["userID", "deviceTokens", "userValidCode"]);
 
     const targetUsers = new Set();
 
     newestMatches.map((match) => {
       if (
         match.user1_ID &&
-        match.user1_ID.deviceToken &&
-        match.user1_ID.userValidCode == "1"
+        match.user1_ID.userValidCode == "1" &&
+        match.user1_ID.deviceTokens
       ) {
-        targetUsers.add(match.user1_ID.deviceToken);
+        match.user1_ID.deviceTokens.foreach((token) => {
+          if (token) {
+            targetUsers.add(token);
+          }
+        });
       }
 
       if (
         match.user2_ID &&
-        match.user2_ID.deviceToken &&
-        match.user2_ID.userValidCode == "1"
+        match.user2_ID.userValidCode == "1" &&
+        match.user2_ID.deviceTokens
       ) {
-        targetUsers.add(match.user2_ID.deviceToken);
+        match.user2_ID.deviceTokens.foreach((token) => {
+          if (token) {
+            targetUsers.add(token);
+          }
+        });
       }
     });
 
