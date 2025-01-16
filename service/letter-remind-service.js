@@ -10,6 +10,7 @@ const runLetterRemind = async () => {
       behaviorType: "101",
       navigateSign: "letter",
     });
+    console.log("提醒用戶發送紙飛機", result ? "發送成功" : "發送失敗");
   } catch (e) {
     console.log("提醒用戶發送紙飛機", e);
   }
