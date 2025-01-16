@@ -5,6 +5,16 @@ const mongoose = require("mongoose");
 //提醒用戶查看今天的配對(每天 08:00 發送)
 const runGeneralMatchRemind = async () => {
   try {
+    //連結 mongoDB
+    mongoose
+      .connect(process.env.MONGODB_CONNECTION)
+      .then(() => {
+        console.log("連結到 mongoDB");
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+
     //獲取今天所有配對
     const newestMatches = await MatchNewest.find({
       matchUIType: 1,

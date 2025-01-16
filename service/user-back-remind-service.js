@@ -7,6 +7,16 @@ const mongoose = require("mongoose");
 //提醒還沒上線的用戶上線(每天 19:00 發送)
 const runUserBackRemind = async () => {
   try {
+    //連結 mongoDB
+    mongoose
+      .connect(process.env.MONGODB_CONNECTION)
+      .then(() => {
+        console.log("連結到 mongoDB");
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+
     //今天午夜的時間戳記
     const todayNight = dateUtil.getTodayNight();
 
@@ -108,7 +118,7 @@ const runUserBackRemind = async () => {
       navigateSign: "home",
     });
   } catch (e) {
-    console.log("提醒有配對到的用戶趕快上線", e);
+    console.log("提醒還沒上線的用戶上線", e);
   }
 };
 
