@@ -328,11 +328,11 @@ const deleteMsg = async (channelUrl) => {
     });
 };
 
-const removeRegisterToken = async (osType, userID, deviceToekn) => {
+const removeRegisterToken = async (osType, userID, deviceToken) => {
   const toeknType = osType == "1" ? "apns" : "gcm";
 
   // SendBird API URL
-  const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/users/${userID}/push/${toeknType}/${deviceToekn}`;
+  const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/users/${userID}/push/${toeknType}/${deviceToken}`;
 
   // API Token
   const apiToken = process.env.SENDBIRD_API_TOKEN;

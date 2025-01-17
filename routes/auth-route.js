@@ -214,26 +214,20 @@ router.post("/logout", (req, res) => {
     }
 
     try {
-      let { isLogin, osType, userID, deviceTokens } = user;
-      let { fcmToken, apnsToken } = req.body;
+      let { userID, deviceTokens } = user;
+      let { osType, fcmToken, apnsToken } = req.body;
 
-      if (isLogin) {
-        //移除這個帳號在 sendbird 綁定的裝置 token
-        const targetDeviceToken = osType == "1" ? apnsToken : fcmToken;
-        await sendbirdUtil.removeRegisterToken(
-          osType,
-          userID,
-          targetDeviceToken
-        );
+      //移除這個帳號在 sendbird 綁定的裝置 token
+      const targetDeviceToken = osType == "1" ? apnsToken : fcmToken;
+      await sendbirdUtil.removeRegisterToken(osType, userID, targetDeviceToken);
 
-        //OF 資料庫解除這個帳號的 fcmToken 綁定
-        //用戶有一個以上的 token
-        if (deviceTokens) {
-          deviceTokens = deviceTokens.filter((token) => token !== fcmToken);
-        }
-
-        await User.updateOne({ userID }, { isLogin: false, deviceTokens });
+      //OF 資料庫解除這個帳號的 fcmToken 綁定
+      //用戶有一個以上的 token
+      if (deviceTokens) {
+        deviceTokens = deviceTokens.filter((token) => token !== fcmToken);
       }
+
+      await User.updateOne({ userID }, { isLogin: false, deviceTokens });
 
       return res.status(200).send({
         status: true,
