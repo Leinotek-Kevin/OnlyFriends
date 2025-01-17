@@ -48,4 +48,4 @@ stickerSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("Stciker", stickerSchema);
+module.exports = mongoose.model("Sticker", stickerSchema);
