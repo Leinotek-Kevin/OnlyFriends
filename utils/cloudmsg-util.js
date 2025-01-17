@@ -21,7 +21,7 @@ class CloudMsgService {
             image,
             behaviorType,
             navigateSign,
-            isNotification: true,
+            isNotification: "1",
           },
         };
         admin
@@ -58,7 +58,7 @@ class CloudMsgService {
         image,
         behaviorType,
         navigateSign,
-        isNotification: true,
+        isNotification: "1",
       },
 
       topic, // 指定主題
