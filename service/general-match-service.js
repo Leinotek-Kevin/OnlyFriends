@@ -71,13 +71,16 @@ const runGeneralMatch = async () => {
     let consumeUsers = new Set();
 
     //只有存活的用戶可以配對:昨天有上線的用戶即可
-    const aliveUsers = await User.find({
+    const allowUsers = await User.find({
       lastLoginTime: { $gte: lastNightTimeStamp },
       userValidCode: "1",
       identity: 2,
     });
 
-    //執行有存活的訂閱用戶(訂閱用戶可以配對三個存活用戶/非訂閱只能一個)
+    //將存活的用戶隨機排序
+    const aliveUsers = allowUsers.sort(() => Math.random() - 0.5);
+
+    //執行有存活的用戶(訂閱用戶可以配對三個存活用戶/非訂閱只能一個)
     for (let i = 0; i < aliveUsers.length; i++) {
       const currentUser = aliveUsers[i];
 

@@ -32,6 +32,7 @@ const userRelationSchema = new Schema({
   //與對象的互動
   objectActive: {
     likeObjects: [
+      //喜歡你的用戶(好感度)
       {
         objectID: String,
         likeLevel: {

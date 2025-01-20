@@ -275,8 +275,8 @@ router.post("/today-matches", async (req, res) => {
           );
 
           if (foundObject) {
-            //輸出目前標記的好感度
-            outData.likeLevel = foundObject.likeLevel;
+            //輸出對象的好感度標記
+            outData.likeLevel = foundObject.likeLevel || 1;
           }
 
           if (isSubscription) {
