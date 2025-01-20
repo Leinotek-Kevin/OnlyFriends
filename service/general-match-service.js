@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 const sbUtil = require("../utils/sendbird-util");
+const cloudStorage = require("../utils/cloudStorage-util");
 
 //執行一般配對
 const runGeneralMatch = async () => {
@@ -244,6 +245,21 @@ const runGeneralMatch = async () => {
       "matchRecord.general.currentDate": dateUtil.getToday(),
     });
 
+    //清除雲端有關聊天的多媒體檔案
+    try {
+      // 使用 Promise.all 同時調用 deleteFolderFiles 刪除三個資料夾中的檔案
+      await Promise.all([
+        cloudStorage.deleteFolderFiles("chat/audios/"),
+        cloudStorage.deleteFolderFiles("chat/images/"),
+        cloudStorage.deleteFolderFiles("chat/videos/"),
+      ]);
+
+      console.log("成功刪除所有有關聊天的檔案");
+    } catch (e) {
+      console.log("刪除所有有關聊天的檔案出現問題:", e);
+    }
+
+    //送出配對完成的 openchannel 廣播
     try {
       await sbUtil.sendMsgOpenChannel("已完成新一輪配對嚕！", "matchFinish");
     } catch (e) {

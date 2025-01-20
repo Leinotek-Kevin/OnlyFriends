@@ -196,8 +196,25 @@ const compressImageToSize = (imageBuffer, targetSizeKB) => {
   });
 };
 
+// 刪除資料夾檔案的方法
+const deleteFolderFiles = async (folderPath) => {
+  try {
+    const bucket = admin.storage().bucket();
+
+    // 使用 deleteFiles 方法一次性刪除資料夾中的所有檔案
+    await bucket.deleteFiles({
+      prefix: folderPath, // 設置資料夾的路徑，這會保留資料夾本身
+    });
+
+    console.log(`成功刪除 ${folderPath} 資料夾中的所有檔案`);
+  } catch (e) {
+    console.log("刪除資料夾檔案時出現問題:", e);
+  }
+};
+
 module.exports = {
   deleteImages,
   uploadImages,
   getImagesByFolder,
+  deleteFolderFiles,
 };
