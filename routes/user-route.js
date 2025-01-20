@@ -778,6 +778,7 @@ router.post("/get-topics", async (req, res) => {
       data: result,
     });
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",

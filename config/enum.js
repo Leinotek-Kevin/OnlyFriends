@@ -161,6 +161,11 @@ const TopicNames = Object.freeze([
     des_ZH: "療癒貓貓 2",
     des_EN: "Heal Cat 2",
   },
+  {
+    itemID: "t-cat-03",
+    des_ZH: "療癒貓貓 3",
+    des_EN: "Heal Cat 3",
+  },
 ]);
 
 module.exports = {
