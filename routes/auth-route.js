@@ -217,6 +217,8 @@ router.post("/logout", (req, res) => {
       let { userID, deviceTokens } = user;
       let { osType, fcmToken, apnsToken } = req.body;
 
+      console.log("用戶資訊", req.body);
+
       //移除這個帳號在 sendbird 綁定的裝置 token
       const targetDeviceToken = osType == "1" ? apnsToken : fcmToken;
       await sendbirdUtil.removeRegisterToken(osType, userID, targetDeviceToken);

@@ -33,6 +33,9 @@ class CloudMsgService {
             } else {
               console.log("發送通知時出錯:", error);
             }
+          })
+          .then((response) => {
+            console.log("發送結果 ", response + "=>" + token);
           });
       });
 
