@@ -77,7 +77,7 @@ router.post("/show-all", async (req, res) => {
     }
 
     let data = await EmotionLetter.find({
-      createTime: { $lt: todayNightTimeStamp },
+      //createTime: { $lt: todayNightTimeStamp },
     })
       .sort({ createTime: -1 })
       //.skip(skip)
@@ -150,7 +150,7 @@ router.post("/send-letter", async (req, res) => {
       // 移除非數字的字符，只保留數字，並取前 12 位
       let letterID = uuid.replace(/\D/g, "").slice(0, 12);
 
-      letterData.letterContent = content;
+      letterData.letterContent = content.trimEnd().replace(/\n/g, "　");
       letterData.letterID = letterID;
 
       //隨機抽樣郵戳樣式

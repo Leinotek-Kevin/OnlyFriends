@@ -180,7 +180,7 @@ router.post("/show-gmsg", async (req, res) => {
 });
 
 //建立 SendBird 用戶
-router.post("/create-user", async (req, res) => {
+router.post("/create-users", async (req, res) => {
   try {
     const users = await User.find({});
 
