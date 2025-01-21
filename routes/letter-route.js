@@ -77,7 +77,7 @@ router.post("/show-all", async (req, res) => {
     }
 
     let data = await EmotionLetter.find({
-      //createTime: { $lt: todayNightTimeStamp },
+      createTime: { $lt: todayNightTimeStamp },
     })
       .sort({ createTime: -1 })
       //.skip(skip)
