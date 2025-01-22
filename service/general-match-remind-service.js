@@ -19,12 +19,26 @@ const runGeneralMatchRemind = async () => {
     const newestMatches = await MatchNewest.find({
       matchUIType: 1,
     })
-      .populate("user1_ID", ["userID", "deviceTokens", "userValidCode"])
-      .populate("user2_ID", ["userID", "deviceTokens", "userValidCode"]);
+      .populate("user1_ID", [
+        "userID",
+        "deviceTokens",
+        "userValidCode",
+        "notificationStatus",
+        "osType",
+      ])
+      .populate("user2_ID", [
+        "userID",
+        "deviceTokens",
+        "userValidCode",
+        "notificationStatus",
+        "osType",
+      ]);
 
-    const targetUsers = new Set();
+    //目標雙平台用戶
+    const targetAndroidDevices = new Set();
+    const targetIOSDevices = new Set();
 
-    newestMatches.map((match) => {
+    newestMatches.forEach((match) => {
       if (
         match.user1_ID &&
         match.user1_ID.userValidCode == "1" &&
@@ -32,8 +46,14 @@ const runGeneralMatchRemind = async () => {
         match.user1_ID.deviceTokens
       ) {
         match.user1_ID.deviceTokens.forEach((token) => {
+          let isAndroidUser = match.user1_ID.osType === "0";
+
           if (token) {
-            targetUsers.add(token);
+            if (isAndroidUser) {
+              targetAndroidDevices.add(token);
+            } else {
+              targetIOSDevices.add(token);
+            }
           }
         });
       }
@@ -45,23 +65,37 @@ const runGeneralMatchRemind = async () => {
         match.user2_ID.deviceTokens
       ) {
         match.user2_ID.deviceTokens.forEach((token) => {
+          let isAndroidUser = match.user2_ID.osType == "0";
+
           if (token) {
-            targetUsers.add(token);
+            if (isAndroidUser) {
+              targetAndroidDevices.add(token);
+            } else {
+              targetIOSDevices.add(token);
+            }
           }
         });
       }
     });
 
     //將 Set 轉換回陣列
-    const finalTargetUsers = Array.from(targetUsers);
+    const finalTargetAndroidUsers = Array.from(targetAndroidDevices);
+    const finalTargetIOSUsers = Array.from(targetIOSDevices);
 
-    await cloudMsgService.sendMsgToDevice(finalTargetUsers, {
+    const remindData = {
       title: "💌 新的緣分來了！",
       body: "🕊️ 新的配對已經送到，快開始你的緣分之旅吧！",
       image: "",
       behaviorType: "100",
       navigateSign: "home",
-    });
+    };
+
+    await cloudMsgService.sendMsgToAndroidDevice(
+      finalTargetAndroidUsers,
+      remindData
+    );
+
+    await cloudMsgService.sendMsgToIOSDevice(finalTargetIOSUsers, remindData);
   } catch (e) {
     console.log("提醒用戶查看今天的配對", e);
   }

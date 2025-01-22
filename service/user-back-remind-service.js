@@ -30,6 +30,7 @@ const runUserBackRemind = async () => {
         "userValidCode",
         "lastLoginTime",
         "notificationStatus",
+        "osType",
       ])
       .populate("user2_ID", [
         "userID",
@@ -37,18 +38,19 @@ const runUserBackRemind = async () => {
         "userValidCode",
         "lastLoginTime",
         "notificationStatus",
+        "osType",
       ]);
 
     //今天有配對到的用戶
     const todayMatchUsers = new Set();
 
     //提醒有配對但今天都沒有上線的用戶上線
-    const targetMatchUsers = new Set();
+    const targetIOSMatchDevices = new Set();
+    const targetAndroidMatchDevices = new Set();
 
     newestMatches.map((match) => {
       todayMatchUsers.add(match.user1ID);
       todayMatchUsers.add(match.user2ID);
-
       if (
         match.user1_ID &&
         match.user1_ID.userValidCode == "1" &&
@@ -57,8 +59,14 @@ const runUserBackRemind = async () => {
         match.user1_ID.lastLoginTime < todayNight
       ) {
         match.user1_ID.deviceTokens.forEach((token) => {
+          let isAndroidUser = match.user1_ID.osType == "0";
+
           if (token) {
-            targetMatchUsers.add(token);
+            if (isAndroidUser) {
+              targetAndroidMatchDevices.add(token);
+            } else {
+              targetIOSMatchDevices.add(token);
+            }
           }
         });
       }
@@ -71,62 +79,93 @@ const runUserBackRemind = async () => {
         match.user2_ID.lastLoginTime < todayNight
       ) {
         match.user2_ID.deviceTokens.forEach((token) => {
+          let isAndroidUser = match.user2_ID.osType == "0";
+
           if (token) {
-            targetMatchUsers.add(token);
+            if (isAndroidUser) {
+              targetAndroidMatchDevices.add(token);
+            } else {
+              targetIOSMatchDevices.add(token);
+            }
           }
         });
       }
     });
 
-    const finalTargetMatchUsers = Array.from(targetMatchUsers);
+    const finalTargetMatchAndroidUsers = Array.from(targetAndroidMatchDevices);
+    const finalTargetMatchIOSUsers = Array.from(targetIOSMatchDevices);
 
-    const result = await cloudMsgService.sendMsgToDevice(
-      finalTargetMatchUsers,
-      {
-        title: "🔥 新朋友等你互動！",
-        body: "今天你有新配對，快來聊聊吧！",
-        image: "",
-        behaviorType: "102",
-        navigateSign: "home",
-      }
+    const remindMatchData = {
+      title: "🔥 新朋友等你互動！",
+      body: "今天你有新配對，快來聊聊吧！",
+      image: "",
+      behaviorType: "102",
+      navigateSign: "home",
+    };
+
+    await cloudMsgService.sendMsgToAndroidDevice(
+      finalTargetMatchAndroidUsers,
+      remindMatchData
     );
 
-    console.log("有配對但沒上線", result ? "發送完畢" : "發送有問題");
+    await cloudMsgService.sendMsgToIOSDevice(
+      finalTargetMatchIOSUsers,
+      remindMatchData
+    );
 
     //-----------------------------------------------------------------------------//
     //提醒沒有配對到且今天都還沒有上線的用戶
+
+    //沒有配對到的所有用戶
+    const finalTodaytMatchUsers = Array.from(todayMatchUsers);
+
     const targetNonMatchUsers = await User.find({
       //排隊今天配對到的用戶,剩下就是沒有配對到的
-      userID: { $nin: finalTargetMatchUsers },
+      userID: { $nin: finalTodaytMatchUsers },
       deviceToken: { $ne: "", $ne: null },
       lastLoginTime: { $lt: todayNight }, // lastLoginTime 小於 todayNight
       userValidCode: "1",
     });
 
-    const targetNonMatchDevices = [];
+    const targetNonIOSDevices = new Set();
+    const targetNonAndroidDevices = new Set();
 
     targetNonMatchUsers.forEach((user) => {
       if (user && user.deviceTokens) {
+        let isAndroidUser = user.osType;
+
         user.deviceTokens.forEach((token) => {
           if (token) {
-            targetNonMatchDevices.push(token);
+            if (isAndroidUser) {
+              targetNonAndroidDevices.add(token);
+            } else {
+              targetNonIOSDevices.add(token);
+            }
           }
         });
       }
     });
 
-    const result2 = await cloudMsgService.sendMsgToDevice(
-      targetNonMatchDevices,
-      {
-        title: "⏰ 不要錯過明天的緣分！",
-        body: "錯過今天，明天就沒配對機會了！快回來和新朋友相遇吧！",
-        image: "",
-        behaviorType: "103",
-        navigateSign: "home",
-      }
+    const remindNonData = {
+      title: "⏰ 不要錯過明天的緣分！",
+      body: "錯過今天，明天就沒配對機會了！快回來和新朋友相遇吧！",
+      image: "",
+      behaviorType: "103",
+      navigateSign: "home",
+    };
+
+    const finalTargetNonAndroidUsers = Array.from(targetNonAndroidDevices);
+    const finalTargetNonIOSUsers = Array.from(targetNonIOSDevices);
+
+    await cloudMsgService.sendMsgToAndroidDevice(
+      finalTargetNonAndroidUsers,
+      remindNonData
     );
 
-    console.log("沒有配對但沒上線", result2 ? "發送完畢" : "發送有問題");
+    await cloudMsgService.sendMsgToIOSDevice(
+      finalTargetNonIOSUsers,
+      remindNonData
+    );
   } catch (e) {
     console.log("提醒還沒上線的用戶上線", e);
   }
