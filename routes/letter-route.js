@@ -119,15 +119,15 @@ router.post("/send-letter", async (req, res) => {
     let { content, pic } = req.body;
 
     //如果今天已經發過就不能再發
-    // const everSendToday = dateUtil.isToday(lastSendLetterTime);
+    const everSendToday = dateUtil.isToday(lastSendLetterTime);
 
-    // if (everSendToday) {
-    //   return res.status(200).send({
-    //     status: true,
-    //     message: "發送失敗！你今天已經發過信封嚕！",
-    //     validCode: "1",
-    //   });
-    // }
+    if (everSendToday) {
+      return res.status(200).send({
+        status: true,
+        message: "發送失敗！你今天已經發過信封嚕！",
+        validCode: "1",
+      });
+    }
 
     let letterData = {
       letterUser: _id,
