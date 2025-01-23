@@ -116,9 +116,9 @@ const runUserBackRemind = async () => {
     //-----------------------------------------------------------------------------//
     //提醒沒有配對到且今天都還沒有上線的用戶
 
-    //沒有配對到的所有用戶
     const finalTodaytMatchUsers = Array.from(todayMatchUsers);
 
+    //沒有配對到的所有用戶
     const targetNonMatchUsers = await User.find({
       //排隊今天配對到的用戶,剩下就是沒有配對到的
       userID: { $nin: finalTodaytMatchUsers },

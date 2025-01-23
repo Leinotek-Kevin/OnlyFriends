@@ -11,8 +11,11 @@ const runLetterRemind = async () => {
       navigateSign: "letter",
     };
 
-    await cloudMsgService.sendMsgToAndroidTopic("letter-remind", topicData);
-    await cloudMsgService.sendMsgToIOSTopic("letter-remind", topicData);
+    await cloudMsgService.sendMsgToAndroidTopic(
+      "letter-remind-android",
+      topicData
+    );
+    await cloudMsgService.sendMsgToIOSTopic("letter-remind-iOS", topicData);
   } catch (e) {
     console.log("提醒用戶發送紙飛機", e);
   }
