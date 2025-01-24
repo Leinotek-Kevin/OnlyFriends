@@ -12,6 +12,7 @@ const Topic = require("../models").topic;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
+const sbUtil = require("../utils/sendbird-util");
 
 const multer = require("multer");
 const SendBird = require("sendbird");
@@ -69,20 +70,20 @@ router.post("/match-general", async (req, res) => {
     let time = Date.now();
 
     //當今天的一般配對執行完畢，才可以執行樹洞配對
-    // let {
-    //   matchRecord: {
-    //     general: { currentDate: generalDate, status: generalStatus },
-    //   },
-    // } = await Config.findOne({});
+    let {
+      matchRecord: {
+        general: { currentDate: generalDate, status: generalStatus },
+      },
+    } = await Config.findOne({});
 
-    // if (generalDate == dateUtil.getToday()) {
-    //   if (generalStatus == "2" || generalStatus == "1") {
-    //     return res.status(200).send({
-    //       status: true,
-    //       message: "正在執行配對或今天已經執行過！",
-    //     });
-    //   }
-    // }
+    if (generalDate == dateUtil.getToday()) {
+      if (generalStatus == "2" || generalStatus == "1") {
+        return res.status(200).send({
+          status: true,
+          message: "正在執行配對或今天已經執行過！",
+        });
+      }
+    }
 
     //發正在配對的訊息到openChannel
     try {
@@ -308,28 +309,28 @@ router.post("/match-letter", async (req, res) => {
     let time = Date.now();
 
     //當今天的一般配對執行完畢，才可以執行樹洞配對
-    // let {
-    //   matchRecord: {
-    //     general: { currentDate: generalDate, status: generalStatus },
-    //     letter: { currentDate: letterDate, status: letterStatus },
-    //   },
-    // } = await Config.findOne({});
+    let {
+      matchRecord: {
+        general: { currentDate: generalDate, status: generalStatus },
+        letter: { currentDate: letterDate, status: letterStatus },
+      },
+    } = await Config.findOne({});
 
-    // if (generalDate != dateUtil.getToday() || generalStatus != "2") {
-    //   return res.status(200).send({
-    //     status: true,
-    //     message: "今天的一般配對還沒完成！不可以執行樹洞配對",
-    //   });
-    // }
+    if (generalDate != dateUtil.getToday() || generalStatus != "2") {
+      return res.status(200).send({
+        status: true,
+        message: "今天的一般配對還沒完成！不可以執行樹洞配對",
+      });
+    }
 
-    // if (letterDate == dateUtil.getToday()) {
-    //   if (letterStatus == "2" || letterStatus == "1") {
-    //     return res.status(200).send({
-    //       status: true,
-    //       message: "正在執行樹洞配對或今天已經執行過！",
-    //     });
-    //   }
-    // }
+    if (letterDate == dateUtil.getToday()) {
+      if (letterStatus == "2" || letterStatus == "1") {
+        return res.status(200).send({
+          status: true,
+          message: "正在執行樹洞配對或今天已經執行過！",
+        });
+      }
+    }
 
     //標記正在樹洞配對的狀態
     await Config.updateOne({ "matchRecord.letter.status": "1" });
