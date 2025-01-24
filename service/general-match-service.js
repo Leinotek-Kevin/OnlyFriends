@@ -20,16 +20,6 @@ const runGeneralMatch = async () => {
     console.log("開始執行配對");
     let time = Date.now();
 
-    //發正在配對的訊息到openChannel
-    try {
-      await sbUtil.sendMsgOpenChannel(
-        "開始新一輪配對嚕！敬請期待",
-        "matchStart"
-      );
-    } catch (e) {
-      console.log("開始新一輪配對訊息發送失敗", e);
-    }
-
     //連結 mongoDB
     mongoose
       .connect(process.env.MONGODB_CONNECTION)
@@ -56,6 +46,16 @@ const runGeneralMatch = async () => {
 
     //標記正在配對的狀態
     await Config.updateOne({ "matchRecord.general.status": "1" });
+
+    //發正在配對的訊息到openChannel
+    try {
+      await sbUtil.sendMsgOpenChannel(
+        "開始新一輪配對嚕！敬請期待",
+        "matchStart"
+      );
+    } catch (e) {
+      console.log("開始新一輪配對訊息發送失敗", e);
+    }
 
     //刪掉已經被標記刪除帳號的用戶
     await User.deleteMany({ userValidCode: "3" });

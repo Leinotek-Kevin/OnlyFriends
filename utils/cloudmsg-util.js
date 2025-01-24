@@ -15,6 +15,13 @@ class CloudMsgService {
             body,
             image,
           },
+          apns: {
+            payload: {
+              aps: {
+                sound: "default", // iOS 的通知聲音，使用系統預設聲音
+              },
+            },
+          },
           data: {
             title,
             body,
@@ -63,6 +70,9 @@ class CloudMsgService {
             navigateSign,
             isNotification: "1",
           },
+          android: {
+            priority: "high", // 高優先級，確保背景下也能接收
+          },
         };
         admin
           .messaging()
@@ -94,6 +104,14 @@ class CloudMsgService {
         title,
         body,
         image,
+      },
+
+      apns: {
+        payload: {
+          aps: {
+            sound: "default", // iOS 的通知聲音，使用系統預設聲音
+          },
+        },
       },
       data: {
         title,
@@ -136,6 +154,10 @@ class CloudMsgService {
         behaviorType,
         navigateSign,
         isNotification: "1",
+      },
+
+      android: {
+        priority: "high", // 高優先級，確保背景下也能接收
       },
 
       topic, // 指定主題

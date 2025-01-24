@@ -30,15 +30,20 @@ router.post("/device", async (req, res) => {
 
 //針對主題推播測試
 router.post("/topic", async (req, res) => {
-  let { topic } = req.body;
+  let { topic, osType } = req.body;
 
-  const resultIOS = await cloudmsg.sendMsgToIOSTopic(topic, req.body);
-  const resultAndroid = await cloudmsg.sendMsgToAndroidTopic(topic, req.body);
+  const isAndroidUser = osType == "0";
+  let result;
+
+  if (isAndroidUser) {
+    result = await cloudmsg.sendMsgToAndroidTopic(topic, req.body);
+  } else {
+    result = await cloudmsg.sendMsgToIOSTopic(topic, req.body);
+  }
 
   return res.status(200).send({
     status: true,
-    messageIOS: resultIOS ? "推播已經發送" : "發送失敗",
-    messageAndroid: resultAndroid ? "推播已經發送" : "發送失敗",
+    message: result ? "推播已經發送" : "發送失敗",
   });
 });
 
