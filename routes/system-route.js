@@ -71,65 +71,56 @@ router.post("/match-general", async (req, res) => {
   try {
     let time = Date.now();
 
-    // //當今天的一般配對執行完畢，才可以執行樹洞配對
-    // let {
-    //   matchRecord: {
-    //     general: { currentDate: generalDate, status: generalStatus },
-    //   },
-    // } = await Config.findOne({});
+    //當今天的一般配對執行完畢，才可以執行樹洞配對
+    let {
+      matchRecord: {
+        general: { currentDate: generalDate, status: generalStatus },
+      },
+    } = await Config.findOne({});
 
-    // if (generalDate == dateUtil.getToday()) {
-    //   if (generalStatus == "2" || generalStatus == "1") {
-    //     return res.status(200).send({
-    //       status: true,
-    //       message: "正在執行配對或今天已經執行過！",
-    //     });
-    //   }
-    // }
+    if (generalDate == dateUtil.getToday()) {
+      if (generalStatus == "2" || generalStatus == "1") {
+        return res.status(200).send({
+          status: true,
+          message: "正在執行配對或今天已經執行過！",
+        });
+      }
+    }
 
-    // //標記正在配對的狀態
-    // await Config.updateOne({ "matchRecord.general.status": "1" });
+    //標記正在配對的狀態
+    await Config.updateOne({ "matchRecord.general.status": "1" });
 
-    // //發正在配對的訊息到openChannel
-    // try {
-    //   await sbUtil.sendMsgOpenChannel(
-    //     "開始新一輪配對嚕！敬請期待20250124",
-    //     "",
-    //     "",
-    //     "matchStart"
-    //   );
-    // } catch (e) {
-    //   console.log("開始新一輪配對訊息發送失敗", e);
-    // }
+    //發正在配對的訊息到openChannel
+    try {
+      await sbUtil.sendMsgOpenChannel(
+        "開始新一輪配對嚕！敬請期待20250124",
+        "",
+        "",
+        "matchStart"
+      );
+    } catch (e) {
+      console.log("開始新一輪配對訊息發送失敗", e);
+    }
 
-    // //刪掉已經被標記刪除帳號的用戶
-    // await User.deleteMany({ userValidCode: "3" });
+    //刪掉已經被標記刪除帳號的用戶
+    await User.deleteMany({ userValidCode: "3" });
 
-    // //清空最近的配對列表
-    // await MatchNewest.deleteMany({});
+    //清空最近的配對列表
+    await MatchNewest.deleteMany({});
 
-    // //刪除大於過去兩天的歷史配對紀錄
-    // await MatchHistory.deleteMany({
-    //   matchDate: { $lt: time48HoursAgo },
-    // });
+    //刪除大於過去兩天的歷史配對紀錄
+    await MatchHistory.deleteMany({
+      matchDate: { $lt: time48HoursAgo },
+    });
 
-    // //儲存本次配對次數已用完的用戶
-    // let consumeUsers = new Set();
+    //儲存本次配對次數已用完的用戶
+    let consumeUsers = new Set();
 
     //只有存活的用戶可以配對:昨天有上線的用戶即可
     const aliveUsers = await User.find({
       lastLoginTime: { $gte: lastNightTimeStamp },
       identity: 2,
     });
-
-    let userIDs = [];
-    aliveUsers.forEach((user) => {
-      userIDs.push(user.userID);
-    });
-
-    console.log(userIDs);
-
-    return;
 
     //執行有存活的訂閱用戶(訂閱用戶可以配對三個存活用戶/非訂閱只能一個)
     for (let i = 0; i < aliveUsers.length; i++) {
