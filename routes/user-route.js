@@ -207,6 +207,8 @@ router.post("/today-matches", async (req, res) => {
     const isCloseNight =
       dateUtil.getTomorrowNight() - Date.now() <= 30 * 60 * 1000;
 
+    console.log("明天午夜", dateUtil.getTomorrowNight());
+
     //獲取今天所有配對
     const newestMatches = await MatchNewest.find({
       $or: [{ user1ID: userID }, { user2ID: userID }],
@@ -329,7 +331,6 @@ router.post("/today-matches", async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",
