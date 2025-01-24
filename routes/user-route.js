@@ -323,6 +323,7 @@ router.post("/today-matches", async (req, res) => {
         data: {
           isCloseNight,
           matchScheduleStatus,
+          openChannelUrl: "onlyfriends_announcement_channel",
           matches,
         },
       });
