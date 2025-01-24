@@ -205,7 +205,8 @@ router.post("/today-matches", async (req, res) => {
 
     //是否接近午夜
     const isCloseNight =
-      dateUtil.getTomorrowNight() - Date.now() <= 30 * 60 * 1000;
+      dateUtil.getTomorrowNight() - (Date.now() + 8 * 60 * 60 * 1000) <=
+      30 * 60 * 1000;
 
     console.log("明天午夜", dateUtil.getTomorrowNight());
     console.log("現在時間", Date.now());
