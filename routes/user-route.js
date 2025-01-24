@@ -204,9 +204,9 @@ router.post("/today-matches", async (req, res) => {
     }
 
     //是否接近午夜
-    const isCloseNight =
-      dateUtil.getTomorrowNight() - (Date.now() + 8 * 60 * 60 * 1000) <=
-      30 * 60 * 1000;
+    const diffNight =
+      dateUtil.getTomorrowNight() - (Date.now() + 8 * 60 * 60 * 1000);
+    const isCloseNight = diffNight <= 30 * 60 * 1000 && diffNight > 0;
 
     //獲取今天所有配對
     const newestMatches = await MatchNewest.find({
