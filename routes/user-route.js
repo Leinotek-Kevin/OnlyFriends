@@ -208,6 +208,8 @@ router.post("/today-matches", async (req, res) => {
       dateUtil.getTomorrowNight() - Date.now() <= 30 * 60 * 1000;
 
     console.log("明天午夜", dateUtil.getTomorrowNight());
+    console.log("現在時間", Date.now());
+    console.log("距離午夜", dateUtil.getTomorrowNight() - Date.now());
 
     //獲取今天所有配對
     const newestMatches = await MatchNewest.find({
