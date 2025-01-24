@@ -85,18 +85,20 @@ router.post("/match-general", async (req, res) => {
       }
     }
 
+    //標記正在配對的狀態
+    await Config.updateOne({ "matchRecord.general.status": "1" });
+
     //發正在配對的訊息到openChannel
     try {
       await sbUtil.sendMsgOpenChannel(
-        "開始新一輪配對嚕！敬請期待",
+        "開始新一輪配對嚕！敬請期待20250124",
+        "",
+        "",
         "matchStart"
       );
     } catch (e) {
       console.log("開始新一輪配對訊息發送失敗", e);
     }
-
-    //標記正在配對的狀態
-    await Config.updateOne({ "matchRecord.general.status": "1" });
 
     //刪掉已經被標記刪除帳號的用戶
     await User.deleteMany({ userValidCode: "3" });
@@ -283,7 +285,12 @@ router.post("/match-general", async (req, res) => {
 
     //發正在配對的訊息到openChannel
     try {
-      await sbUtil.sendMsgOpenChannel("已完成新一輪配對嚕！", "matchFinish");
+      await sbUtil.sendMsgOpenChannel(
+        "已完成新一輪配對嚕！",
+        "",
+        "",
+        "matchFinish"
+      );
     } catch (e) {
       console.log("新一輪配對完成訊息發送失敗", e);
     }

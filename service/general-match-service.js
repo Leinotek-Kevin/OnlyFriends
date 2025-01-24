@@ -51,6 +51,8 @@ const runGeneralMatch = async () => {
     try {
       await sbUtil.sendMsgOpenChannel(
         "開始新一輪配對嚕！敬請期待",
+        "",
+        "",
         "matchStart"
       );
     } catch (e) {
@@ -261,7 +263,12 @@ const runGeneralMatch = async () => {
 
     //送出配對完成的 openchannel 廣播
     try {
-      await sbUtil.sendMsgOpenChannel("已完成新一輪配對嚕！", "matchFinish");
+      await sbUtil.sendMsgOpenChannel(
+        "已完成新一輪配對嚕！",
+        "",
+        "",
+        "matchFinish"
+      );
     } catch (e) {
       console.log("新一輪配對完成訊息發送失敗", e);
     }
