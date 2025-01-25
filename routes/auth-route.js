@@ -127,10 +127,6 @@ router.post("/login", async (req, res) => {
   try {
     const findUser = await User.findOne({ userEmail });
 
-    console.log("登入時間:", Date.now());
-    console.log("取得今天:", dateUtil.getToday());
-    console.log("取得今晚午夜timestamp:", dateUtil.getTodayNight());
-
     // 準備要更新的資料
     let updateData = {
       lastLoginTime: Date.now(),
@@ -341,16 +337,13 @@ router.post("/record-login", (req, res) => {
 
     try {
       let { userID } = user;
-      let { lastLoginTime } = req.body;
 
-      if (lastLoginTime) {
-        await User.updateOne({ userID }, { lastLoginTime });
-      }
+      await User.updateOne({ userID }, { lastLoginTime: Date.now() });
 
       return res.status(200).send({
         status: true,
         message: "最近上線登入紀錄成功",
-        lastLoginTime: Number(lastLoginTime),
+        lastLoginTime: Date.now(),
         validCode: "1",
       });
     } catch (e) {
