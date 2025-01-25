@@ -127,6 +127,10 @@ router.post("/login", async (req, res) => {
   try {
     const findUser = await User.findOne({ userEmail });
 
+    console.log("登入時間:", Date.now());
+    console.log("取得今天:", dateUtil.getToday());
+    console.log("取得今晚午夜timestamp:", dateUtil.getTodayNight());
+
     // 準備要更新的資料
     let updateData = {
       lastLoginTime: Date.now(),
