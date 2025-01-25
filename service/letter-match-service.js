@@ -43,7 +43,7 @@ const runLetterMatch = async () => {
     }
 
     //標記正在樹洞配對的狀態
-    await Config.updateOne({ "matchRecord.general.status": "1" });
+    await Config.updateOne({ "matchRecord.letter.status": "1" });
 
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
     const todayNightTimeStamp = dateUtil.getTodayNight();
