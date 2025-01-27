@@ -112,16 +112,25 @@ const runGeneralMatch = async () => {
       //檢查目前這個用戶還剩下多少配對次數,沒訂閱不用檢查,因為只有一次
       let targetUserCount = 0;
 
+      //檢查訂閱用戶剩餘次數
       if (currentUser.isSubscription) {
-        //檢查訂閱用戶剩餘次數
-        const matchs = await MatchNewest.find({
-          $or: [
-            { user1ID: currentUser.userID },
-            { user2ID: currentUser.userID },
-          ],
-        });
-        //剩下配對的次數
-        targetUserCount = 3 - matchs.length;
+        //如果到期日是今天,要判斷用戶是否有繼續續訂,如果沒有繼續續訂,那視為非訂閱配對用戶
+        if (
+          currentUser.subExpiresDate == dateUtil.getToday() &&
+          !currentUser.subAutoRenew
+        ) {
+          targetUserCount = 1;
+        } else {
+          const matchs = await MatchNewest.find({
+            $or: [
+              { user1ID: currentUser.userID },
+              { user2ID: currentUser.userID },
+            ],
+          });
+
+          //剩下配對的次數
+          targetUserCount = 3 - matchs.length;
+        }
       } else {
         targetUserCount = 1;
       }

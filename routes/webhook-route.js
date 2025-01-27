@@ -360,6 +360,7 @@ async function checkAllowSubscription(userID) {
     let updateData = {
       subTranscationID: lastSubscription.transactionID,
       subExpiresDate: datelUtil.formatTimestamp(lastSubscription.expiresDate),
+      subAutoRenew: lastSubscription.autoRenewStatus,
       isSubscription: lastSubscription.isAllow,
     };
 
