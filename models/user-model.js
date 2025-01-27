@@ -159,6 +159,7 @@ const userSchema = new Schema({
   //訂閱是否繼續續訂:
   subAutoRenew: {
     type: Boolean,
+    default: false,
   },
 
   //用戶目前的訂閱交易ID
