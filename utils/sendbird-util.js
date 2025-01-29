@@ -73,7 +73,6 @@ const deleteGroupChannel = async (channelUrl) => {
   return axios
     .delete(url, { headers })
     .then((response) => {
-      console.log("deleteGroupChannel", response);
       let { status } = response;
 
       if (status == 200) {

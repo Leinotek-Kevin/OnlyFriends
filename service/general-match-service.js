@@ -4,11 +4,13 @@ const Config = require("../models").config;
 const MatchHistory = require("../models").matchHistory;
 const MatchNewest = require("../models").matchNewest;
 const dateUtil = require("../utils/date-util");
+const sbUtil = require("../utils/sendbird-util");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 const sbUtil = require("../utils/sendbird-util");
 const cloudStorage = require("../utils/cloudStorage-util");
+const pLimit = require("p-limit");
 
 //執行一般配對
 const runGeneralMatch = async () => {
@@ -61,6 +63,9 @@ const runGeneralMatch = async () => {
 
     //刪掉已經被標記刪除帳號的用戶
     await User.deleteMany({ userValidCode: "3" });
+
+    //儲存昨天的配對列表
+    const pastMatches = await MatchNewest.find({});
 
     //清空最近的配對列表
     await MatchNewest.deleteMany({});
@@ -283,6 +288,18 @@ const runGeneralMatch = async () => {
     }
 
     console.log("已完成配對！");
+
+    //執行清掉昨天配對的列表渠道
+    // 設置同時進行的最大請求數
+    const limit = pLimit(5);
+
+    const promises = pastMatches.map((match) =>
+      limit(() => sbUtil.deleteGroupChannel(match.sendbirdUrl))
+    );
+
+    await Promise.all(promises);
+
+    console.log("完成清理昨天的配對！");
   } catch (error) {
     console.log("配對出現問題" + error);
   }

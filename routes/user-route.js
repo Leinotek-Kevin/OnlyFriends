@@ -362,12 +362,11 @@ router.post("/check-channel", async (req, res) => {
 
         if (channel) {
           // console.log("渠道存在！檢查背景圖片是不是預設，不是就更改");
-          const srcCover = channel.cover_url;
-
-          if (srcCover != chatCover) {
-            // console.log("將背景改為預設");
-            await sbUtil.updateGroupChannel(channelUrl, chatCover);
-          }
+          // const srcCover = channel.cover_url;
+          // if (srcCover != chatCover) {
+          //   // console.log("將背景改為預設");
+          //   await sbUtil.updateGroupChannel(channelUrl, chatCover);
+          // }
         } else {
           // console.log("渠道不存在！直接建立");
           await sbUtil.createGroupChannel(channelUrl, chatCover);
