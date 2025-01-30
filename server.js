@@ -11,7 +11,6 @@ const admin = require("./utils/checkAdmin-util");
 const passport = require("passport");
 const path = require("path");
 require("./config/passport")();
-const sb = require("./utils/sendbird-util");
 
 //連結 mongoDB
 mongoose

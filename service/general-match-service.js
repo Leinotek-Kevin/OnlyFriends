@@ -4,13 +4,11 @@ const Config = require("../models").config;
 const MatchHistory = require("../models").matchHistory;
 const MatchNewest = require("../models").matchNewest;
 const dateUtil = require("../utils/date-util");
-const sbUtil = require("../utils/sendbird-util");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 const sbUtil = require("../utils/sendbird-util");
 const cloudStorage = require("../utils/cloudStorage-util");
-const pLimit = require("p-limit");
 
 //執行一般配對
 const runGeneralMatch = async () => {
@@ -291,6 +289,7 @@ const runGeneralMatch = async () => {
 
     //執行清掉昨天配對的列表渠道
     // 設置同時進行的最大請求數
+    const pLimit = (await import("p-limit")).default;
     const limit = pLimit(5);
 
     const promises = pastMatches.map((match) =>
