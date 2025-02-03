@@ -119,7 +119,7 @@ const matchNewestSchema = new Schema({
   },
 });
 
-matchNewestSchema.index({ user1ID: 1, user2ID: 1 });
+matchNewestSchema.index({ sendbirdUrl: 1, user1ID: 1, user2ID: 1 });
 
 //隱藏 _id,__v
 matchNewestSchema.set("toJSON", {

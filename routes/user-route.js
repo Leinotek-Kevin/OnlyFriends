@@ -1216,4 +1216,128 @@ router.post("/crud-chatopic", async (req, res) => {
   }
 });
 
+//B-4 快速查看配對對象的資訊
+router.post("/query-match-info", async (req, res) => {
+  try {
+    //指定配對對象ID
+    let { sendbirdUrl } = req.body;
+    let { userID, isSubscription } = req.user;
+
+    //是否接近午夜
+    const diffNight = dateUtil.getTomorrowNight() - Date.now();
+    const isCloseNight = diffNight <= 30 * 60 * 1000 && diffNight > 0;
+
+    //獲取指定渠道的配對資訊
+    const match = await MatchNewest.findOne({
+      sendbirdUrl,
+    })
+      .populate("user1_ID", [
+        "userName",
+        "userID",
+        "userPhotos",
+        "userQuestion",
+        "notificationStatus",
+      ])
+      .populate("user2_ID", [
+        "userName",
+        "userID",
+        "userPhotos",
+        "userQuestion",
+        "notificationStatus",
+      ]);
+
+    if (match) {
+      let objectInfo =
+        match.user1ID === userID ? match.user2_ID : match.user1_ID;
+
+      //查詢目前使用者標記好感度的對象
+      let relation = await UserRelation.findOne({ userID });
+
+      let signObjects = [];
+
+      if (relation) {
+        let { likeObjects, updateDate } = relation.objectActive;
+
+        let today = dateUtil.getToday();
+        let isNotToday = updateDate !== today;
+
+        if (isNotToday) {
+          await UserRelation.updateOne(
+            {
+              userID,
+            },
+            {
+              "objectActive.likeObjects": [],
+              "objectActive.updateDate": today,
+            }
+          );
+        } else {
+          signObjects = likeObjects;
+        }
+      }
+
+      let outData = {
+        uiType: match.matchUIType,
+        userID: objectInfo.userID,
+        userName: objectInfo.userName,
+        userQuestion: objectInfo.userQuestion,
+        userPhoto: "",
+        notificationStatus: objectInfo.notificationStatus,
+        sendbirdUrl: match.sendbirdUrl,
+        isChecked: match.isChecked,
+        likeLevel: 1,
+        letterYourContent: "",
+        letterObjectContent: "",
+        topicID: match.topicID,
+        topicBackGround: match.topicBackGround,
+        topicColors: match.topicColors,
+      };
+
+      //一般配對
+      //提取對象的照片集第一張作為對象頭貼
+      if (objectInfo.userPhotos && objectInfo.userPhotos.length > 0) {
+        outData.userPhoto = objectInfo.userPhotos[0];
+      }
+
+      //提取與對象的好感度LikeLevel
+      let foundObject = signObjects.find(
+        (obj) => obj.objectID === objectInfo.userID
+      );
+
+      if (foundObject) {
+        //輸出對象的好感度標記
+        outData.likeLevel = foundObject.likeLevel || 1;
+      }
+
+      if (isSubscription) {
+        //如果有訂閱,直接最高等級
+        outData.likeLevel = 3;
+      }
+
+      return res.status(200).send({
+        status: true,
+        message: "成功獲取指定配對資訊",
+        validCode: "1",
+        data: {
+          isCloseNight,
+          matchObject: outData,
+        },
+      });
+    } else {
+      return res.status(200).send({
+        status: true,
+        message: "查無指定配對資訊",
+        validCode: "1",
+        data: null,
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      validCode: "-1",
+      e,
+    });
+  }
+});
 module.exports = router;
