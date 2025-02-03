@@ -1216,8 +1216,8 @@ router.post("/crud-chatopic", async (req, res) => {
   }
 });
 
-//B-4 快速查看配對對象的資訊
-router.post("/query-match-info", async (req, res) => {
+//B-14 快速查看配對對象的資訊
+router.post("/query-match-object", async (req, res) => {
   try {
     //指定配對對象ID
     let { sendbirdUrl } = req.body;
