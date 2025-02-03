@@ -1320,7 +1320,7 @@ router.post("/query-match-object", async (req, res) => {
         validCode: "1",
         data: {
           isCloseNight,
-          matchObject: outData,
+          matches: [outData],
         },
       });
     } else {
@@ -1328,7 +1328,10 @@ router.post("/query-match-object", async (req, res) => {
         status: true,
         message: "查無指定配對資訊",
         validCode: "1",
-        data: null,
+        data: {
+          isCloseNight,
+          matches: [],
+        },
       });
     }
   } catch (e) {
