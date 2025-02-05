@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const User = require("../models").user;
-const Purchase = require("../models").purchase;
 const datelUtil = require("../utils/date-util");
 const Transcation = require("../models").transcation;
 const passport = require("passport");
