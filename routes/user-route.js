@@ -1320,6 +1320,7 @@ router.post("/query-match-object", async (req, res) => {
         validCode: "1",
         data: {
           isCloseNight,
+          openChannelUrl: "onlyfriends_announcement_channel",
           matches: [outData],
         },
       });
@@ -1330,6 +1331,7 @@ router.post("/query-match-object", async (req, res) => {
         validCode: "1",
         data: {
           isCloseNight,
+          openChannelUrl: "onlyfriends_announcement_channel",
           matches: [],
         },
       });
