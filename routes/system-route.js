@@ -978,7 +978,7 @@ router.post("/stickers-series", async (req, res) => {
       );
       return res.status(200).send({
         status: true,
-        message: "已建立貼圖系列->但還沒有上傳檔案",
+        message: "已建立貼圖系列",
       });
     } else if (action == "2") {
       //刪除貼圖系列

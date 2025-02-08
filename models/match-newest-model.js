@@ -84,37 +84,37 @@ const matchNewestSchema = new Schema({
     //狀態欄色碼
     statusColor: {
       type: String,
-      default: "FFFFFF",
+      default: "#FFFFFF",
     },
 
     //多功能欄色碼
     functionColor: {
       type: String,
-      default: "EBEBEB",
+      default: "#EBEBEB",
     },
 
     //自己訊息色碼
     selfMsgColor: {
       type: String,
-      default: "A4B9EB",
+      default: "#A4B9EB",
     },
 
     //已讀標記色碼
     readTagColor: {
       type: String,
-      default: "A4B9EB",
+      default: "#A4B9EB",
     },
 
     //系統時間色碼
     systemTimeColor: {
       type: String,
-      default: "D1D1D1",
+      default: "#D1D1D1",
     },
 
     //傳送按鈕色碼
     sendBtnColor: {
       type: String,
-      default: "A4B9EB",
+      default: "#A4B9EB",
     },
   },
 });
