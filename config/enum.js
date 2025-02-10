@@ -151,20 +151,35 @@ const TopicNames = Object.freeze([
     des_ZH: "預設",
     des_EN: "Default",
   },
+  //貓貓
   {
     itemID: "t-cat-01",
-    des_ZH: "療癒貓貓 1",
-    des_EN: "Heal Cat 1",
+    des_ZH: "紙飛心事",
+    des_EN: "Paper Mood",
   },
+  //天竺鼠
   {
-    itemID: "t-cat-02",
-    des_ZH: "療癒貓貓 2",
-    des_EN: "Heal Cat 2",
+    itemID: "t-guinea-03",
+    des_ZH: "奶茶時光",
+    des_EN: "Milk-Tea Time",
   },
+  //水獺
   {
-    itemID: "t-cat-03",
-    des_ZH: "療癒貓貓 3",
-    des_EN: "Heal Cat 3",
+    itemID: "t-otter-05",
+    des_ZH: "搖滾小奶獺",
+    des_EN: "Rock Otter",
+  },
+  //小企鵝
+  {
+    itemID: "t-penguin-02",
+    des_ZH: "出企玩",
+    des_EN: "Penguin Outing",
+  },
+  //小熊貓
+  {
+    itemID: "t-red-panda-04",
+    des_ZH: "能躺就不坐",
+    des_EN: "Just Lay Down",
   },
 ]);
 
