@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import "../styles/login.css";
+import "../styles/delete.css";
 import AuthService from "../services/auth-service";
 
-const LoginComponent = ({ userToken, setUserToken }) => {
-  let navigate = useNavigate();
+const DeleteComponent = () => {
   let [email, setEmail] = useState("");
   let [message, setMessage] = useState("");
 
@@ -13,17 +11,28 @@ const LoginComponent = ({ userToken, setUserToken }) => {
     setEmail(e.target.value);
   };
 
-  const handleLogin = async () => {
+  const handleDelete = async () => {
     try {
+      setMessage("");
       if (email) {
-        let response = await AuthService.officialLogin(email);
+        let response = await AuthService.loginAccount(email);
         let validCode = response.data.validCode;
 
         if (validCode == 1) {
-          //將使用者的登入訊息存在本地
-          localStorage.setItem("userToken", response.data.token);
-          setUserToken(AuthService.getUserToken());
-          navigate("/dashboard");
+          //用戶的 JWT
+          let userToken = response.data.token;
+
+          try {
+            let result = await AuthService.deleteAccount(userToken, email);
+            setEmail("");
+            setMessage("");
+            let isDeleteSuccess = result.status == 200;
+            alert(isDeleteSuccess ? "已刪除您的帳號！" : "帳號刪除失敗！");
+          } catch (e) {
+            setEmail("");
+            setMessage("");
+            alert("帳號刪除失敗！");
+          }
         } else {
           setMessage(response.data.message);
         }
@@ -31,7 +40,6 @@ const LoginComponent = ({ userToken, setUserToken }) => {
         setMessage("尚未輸入您的信箱！");
       }
     } catch (e) {
-      console.log(e);
       setMessage(e.response.data.message);
     }
   };
@@ -42,7 +50,7 @@ const LoginComponent = ({ userToken, setUserToken }) => {
         <div className="title">
           <img src="/images/ic-logo.png" alt="Logo" />
         </div>
-        <div className="login-box">
+        <div className="delete-box">
           <div>
             <label for="exampleFormControlInput1" className="form-label">
               請輸入您的信箱(Please Input Your Email)
@@ -51,17 +59,17 @@ const LoginComponent = ({ userToken, setUserToken }) => {
               type="email"
               className="form-control"
               placeholder="name@example.com"
+              value={email}
               onChange={handleChangeEmail}
             ></input>
             {message && <div className="alert alert-danger">{message}</div>}
           </div>
 
-          <div className="login">
-            <button type="button" className="login-btn" onClick={handleLogin}>
-              登入
+          <div className="delete">
+            <button type="button" className="delete-btn" onClick={handleDelete}>
+              刪除
             </button>
           </div>
-          <p>*本系統僅限官方人員使用</p>
         </div>
       </main>
       <footer>
@@ -72,4 +80,4 @@ const LoginComponent = ({ userToken, setUserToken }) => {
   );
 };
 
-export default LoginComponent;
+export default DeleteComponent;

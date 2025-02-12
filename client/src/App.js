@@ -5,6 +5,7 @@ import LoginComponent from "./components/login-component";
 import LandingComponent from "./components/landing-component";
 import UsersComponent from "./components/users-component";
 import ReportsComponent from "./components/reports-component";
+import DeleteComponent from "./components/delete-component";
 import Layout from "./components/layout";
 
 function App() {
@@ -24,6 +25,11 @@ function App() {
                 setUserToken={setUserToken}
               />
             }
+          ></Route>
+          {/*刪除帳號頁*/}
+          <Route
+            path="delete"
+            element={<DeleteComponent></DeleteComponent>}
           ></Route>
           {/*系統數據儀表板*/}
           <Route
