@@ -53,7 +53,7 @@ const DeleteComponent = () => {
         <div className="delete-box">
           <div>
             <label for="exampleFormControlInput1" className="form-label">
-              請輸入您的信箱(Please Input Your Email)
+              請輸入您要刪除的帳號信箱(Please Input Your Email To Delete)
             </label>
             <input
               type="email"
