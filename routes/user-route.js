@@ -80,6 +80,7 @@ router.post("/info", async (req, res) => {
       isTodayRegister,
       isTodayEverSend,
       officialLink: process.env.ONLY_FRIENDS_OFFICIAL_LINK,
+      sharedLink: process.env.ONLY_FRIENDS_SHARED_LINK,
     };
 
     //刪掉不要的字段
