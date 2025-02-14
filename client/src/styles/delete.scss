@@ -1,77 +1,99 @@
-div.container {
+div.delete-container {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  min-width: 100vh;
-}
-div.container main {
-  display: flex;
-  flex-wrap: wrap;
-  width: 60%;
-  flex-direction: column;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 4rem;
-}
-div.container main div.title {
-  width: 10rem;
-  margin-bottom: 1rem;
-}
-div.container main div.title img {
   width: 100%;
-  height: 100%;
-}
-div.container main div.delete-box {
-  display: flex;
-  width: 80%;
-  flex-wrap: wrap;
+  height: 100vh;
   flex-direction: column;
-  background-color: #a4b9eb;
-  border: 0.2rem solid #9fb5e9;
-  border-radius: 0.4rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 1rem;
-}
-div.container main div.delete-box div.alert {
-  margin-top: 0.5rem;
-  text-align: start;
-  padding-top: 0.3rem;
-  padding-bottom: 0.3rem;
-  padding-left: 0.4rem;
-  padding-right: 0.4rem;
-  font-size: 0.8rem;
-}
-div.container main div.delete-box div.delete {
-  display: flex;
-  flex-direction: row;
-  justify-content: end;
-  margin-top: 2rem;
-  margin-bottom: 1.3rem;
-}
-div.container main div.delete-box div.delete button {
-  font-style: bold;
-  padding-left: 1rem;
-  padding-bottom: 0.2rem;
-  padding-top: 0.2rem;
-  padding-right: 1rem;
-  border-radius: 3rem;
-  border: 0.1rem solid #8dacd4;
-  background-color: #84a0c5;
-  color: aliceblue;
-}
+  align-items: center;
 
-div.container footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  justify-content: center;
-  background: transparent;
+  img.background {
+    width: 100%;
+    height: 100vh;
+    z-index: -5;
+    position: fixed;
+    object-fit: cover;
+  }
+
+  main {
+    display: flex;
+    flex-wrap: wrap;
+    width: 60%;
+    height: 100%;
+    flex-direction: column;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4rem;
+
+    div.title {
+      width: 10rem;
+      margin-bottom: 1rem;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    div.delete-box {
+      display: flex;
+      width: 80%;
+      flex-wrap: wrap;
+      flex-direction: column;
+      background-color: #a4b9eb;
+      border: 0.2rem solid #9fb5e9;
+      border-radius: 0.4rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      padding-top: 1rem;
+
+      div.alert {
+        margin-top: 0.5rem;
+        text-align: start;
+        padding-top: 0.3rem;
+        padding-bottom: 0.3rem;
+        padding-left: 0.4rem;
+        padding-right: 0.4rem;
+        font-size: 0.8rem;
+      }
+
+      div.delete {
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        margin-top: 2rem;
+
+        button {
+          font-style: bold;
+          padding-left: 1rem;
+          padding-bottom: 0.2rem;
+          padding-top: 0.2rem;
+          padding-right: 1rem;
+          border-radius: 3rem;
+          border: 0.1rem solid #8dacd4;
+          background-color: #84a0c5;
+          margin-bottom: 1rem;
+          color: aliceblue;
+        }
+      }
+
+      p {
+        margin-top: 1rem;
+        font-size: 0.65rem;
+        color: rgba(238, 3, 3, 0.898);
+        background-color: #a4b9eb;
+      }
+    }
+  }
+
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: center;
+    background: transparent;
+    p {
+      background: transparent;
+      font-size: 0.6rem;
+    }
+  }
 }
-div.container footer p {
-  background: transparent;
-  font-size: 0.6rem;
-} /*# sourceMappingURL=login.css.map */

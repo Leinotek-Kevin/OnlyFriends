@@ -1,34 +1,39 @@
-div.container {
+div.delete-container {
+  position: relative;
   display: flex;
+  width: 100%;
+  height: 100vh;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  min-width: 100vh;
 }
-
-div.container main {
+div.delete-container img.background {
+  width: 100%;
+  height: 100vh;
+  z-index: -5;
+  position: fixed;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+div.delete-container main {
   display: flex;
   flex-wrap: wrap;
   width: 60%;
+  height: 100%;
   flex-direction: column;
   flex: 1;
   align-items: center;
   justify-content: center;
   margin-bottom: 4rem;
 }
-
-div.container main div.title {
+div.delete-container main div.title {
   width: 10rem;
   margin-bottom: 1rem;
 }
-
-div.container main div.title img {
+div.delete-container main div.title img {
   width: 100%;
   height: 100%;
 }
-
-div.container main div.delete-box {
+div.delete-container main div.delete-box {
   display: flex;
   width: 80%;
   flex-wrap: wrap;
@@ -40,8 +45,7 @@ div.container main div.delete-box {
   padding-right: 1rem;
   padding-top: 1rem;
 }
-
-div.container main div.delete-box div.alert {
+div.delete-container main div.delete-box div.alert {
   margin-top: 0.5rem;
   text-align: start;
   padding-top: 0.3rem;
@@ -50,16 +54,13 @@ div.container main div.delete-box div.alert {
   padding-right: 0.4rem;
   font-size: 0.8rem;
 }
-
-div.container main div.delete-box div.delete {
+div.delete-container main div.delete-box div.delete {
   display: flex;
   flex-direction: row;
   justify-content: end;
   margin-top: 2rem;
-  margin-bottom: 1.3rem;
 }
-
-div.container main div.delete-box div.delete button {
+div.delete-container main div.delete-box div.delete button {
   font-style: bold;
   padding-left: 1rem;
   padding-bottom: 0.2rem;
@@ -68,18 +69,23 @@ div.container main div.delete-box div.delete button {
   border-radius: 3rem;
   border: 0.1rem solid #8dacd4;
   background-color: #84a0c5;
+  margin-bottom: 1rem;
   color: aliceblue;
 }
-
-div.container footer {
+div.delete-container main div.delete-box p {
+  margin-top: 1rem;
+  font-size: 0.65rem;
+  color: rgba(238, 3, 3, 0.898);
+  background-color: #a4b9eb;
+}
+div.delete-container footer {
   display: flex;
   flex-wrap: wrap;
   align-items: end;
   justify-content: center;
   background: transparent;
 }
-
-div.container footer p {
+div.delete-container footer p {
   background: transparent;
   font-size: 0.6rem;
-} /*# sourceMappingURL=delete.css.map */
+}/*# sourceMappingURL=delete.css.map */

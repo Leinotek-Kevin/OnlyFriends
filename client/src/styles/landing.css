@@ -1,0 +1,244 @@
+@charset "UTF-8";
+div.landing {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+div.landing img.background {
+  width: 100%;
+  height: 100vh;
+  z-index: -5;
+  position: fixed;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+div.landing header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 50%;
+}
+div.landing header div.app-logo {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+div.landing header div.app-logo img {
+  width: 11%;
+}
+div.landing header div.title {
+  display: flex;
+  flex-direction: column;
+  width: 37%;
+}
+div.landing header div.title p.white-line {
+  padding: 0;
+  height: 0.15rem; /* 調整線條的粗細 */
+  background-color: white; /* 設定線條的顏色 */
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+div.landing header div.title p.main-slogan {
+  text-align: center;
+  color: white;
+  margin: 0;
+  font-weight: 500;
+  font-size: 1.7rem;
+  letter-spacing: 0.3rem;
+}
+div.landing header div.title p.sub-slogan {
+  text-align: center;
+  color: white;
+  margin-top: 0.2rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.1rem;
+}
+div.landing main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+div.landing main div.display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30%;
+}
+div.landing main div.display img {
+  width: 100%;
+}
+div.landing main p.download-hint {
+  margin-top: 1rem;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+div.landing main div.store-btn {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+div.landing main div.store-btn a {
+  flex: 0 1 180px;
+  padding: 0.3rem;
+  transition: all 0.5s ease;
+}
+div.landing main div.store-btn a img {
+  width: 100%;
+}
+div.landing main div.store-btn a:hover {
+  transform: scale(1.05);
+}
+div.landing main p.keep-look {
+  margin: 0;
+  color: white;
+  font-size: large;
+}
+div.landing main p.rule-title {
+  margin-top: 2rem;
+  color: white;
+  font-size: 2rem;
+  font-weight: 500;
+}
+div.landing main.sub-main {
+  margin-top: 5rem;
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  align-items: center;
+}
+div.landing main.sub-main div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+div.landing main.sub-main div p.intro-title {
+  color: white;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin-top: 2rem;
+}
+div.landing main.sub-main div p.intro-sub-title {
+  color: white;
+  text-align: center;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+div.landing main.sub-main p.space {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+div.landing div.footer-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+div.landing div.footer-logo img {
+  width: 10%;
+}
+div.landing footer {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: white;
+}
+div.landing footer div.privacy {
+  text-align: center;
+  width: 100%;
+}
+div.landing footer div.privacy a {
+  text-decoration: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: 450;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+div.landing footer div.privacy p.copyright {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 1rem;
+}
+
+@media screen and (max-width: 450px) {
+  #root header {
+    width: 100vw;
+  }
+  #root header div.app-logo {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+  #root header div.app-logo img {
+    width: 20%;
+  }
+  #root header div.title {
+    width: 70%;
+  }
+  #root header div.title p.white-line {
+    height: 0.1rem; /* 調整線條的粗細 */
+  }
+  #root header div.title p.main-slogan {
+    font-size: 1.5rem;
+  }
+  #root header div.title p.sub-slogan {
+    font-size: 1rem;
+  }
+  #root main div.display {
+    width: 85%;
+  }
+  #root main p.download-hint {
+    font-size: 1.3rem;
+  }
+  #root main div.store-btn {
+    margin-bottom: 1.5rem;
+  }
+  #root main div.store-btn a {
+    flex: 0 1 120px;
+  }
+  #root main p.keep-look {
+    font-size: medium;
+  }
+  #root main p.rule-title {
+    margin-top: 1.5rem;
+    color: white;
+    font-size: 1.8rem;
+  }
+  #root main.sub-main {
+    margin-top: 3rem;
+  }
+  #root main.sub-main div p.intro-title {
+    font-size: 1.3rem;
+    margin-top: 2rem;
+  }
+  #root main.sub-main div p.intro-sub-title {
+    font-size: 0.8rem;
+    margin-bottom: 2rem;
+  }
+  #root main.sub-main p.space {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+  #root div.footer-logo img {
+    width: 15%;
+  }
+  #root footer {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  #root footer div.privacy a {
+    font-size: 0.8rem;
+  }
+  #root footer div.privacy p.copyright {
+    text-align: center;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+  }
+}/*# sourceMappingURL=landing.css.map */

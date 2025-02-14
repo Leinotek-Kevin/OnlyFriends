@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "../styles/login.css";
 import AuthService from "../services/auth-service";
+import background from "../images/bg-onlyfriends.png";
 
 const LoginComponent = ({ userToken, setUserToken }) => {
   let navigate = useNavigate();
@@ -37,7 +38,8 @@ const LoginComponent = ({ userToken, setUserToken }) => {
   };
 
   return (
-    <div className="container">
+    <div className="login-container">
+      <img src={background} alt="背景" className="background" />
       <main>
         <div className="title">
           <img src="/images/ic-logo.png" alt="Logo" />

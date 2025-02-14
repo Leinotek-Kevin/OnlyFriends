@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ToastContainer } from "react-toastify";
+import background from "../images/bg-onlyfriends.png";
 import "../styles/delete.css";
 import AuthService from "../services/auth-service";
 
@@ -45,7 +46,8 @@ const DeleteComponent = () => {
   };
 
   return (
-    <div className="container">
+    <div className="delete-container">
+      <img src={background} alt="背景" className="background" />
       <main>
         <div className="title">
           <img src="/images/ic-logo.png" alt="Logo" />
