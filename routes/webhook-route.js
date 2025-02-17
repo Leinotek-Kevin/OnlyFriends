@@ -251,6 +251,7 @@ router.post("/iOS-purchase", async (req, res) => {
         subscription.expiresDate = expiresDate;
         subscription.autoRenewStatus = autoRenewStatus;
         subscription.transcationMemo = transcationMemo;
+        subscription.statusUpdateTime = Date.now();
 
         //處理通知可能的事件
         switch (notificationType) {
