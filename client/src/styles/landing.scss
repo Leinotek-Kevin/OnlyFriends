@@ -32,7 +32,7 @@ div.landing {
     div.title {
       display: flex;
       flex-direction: column;
-      width: 37%;
+      width: 35%;
 
       p.white-line {
         padding: 0;
@@ -47,7 +47,7 @@ div.landing {
         color: white;
         margin: 0;
         font-weight: 500;
-        font-size: 1.7rem;
+        font-size: 1.8rem;
         letter-spacing: 0.3rem;
       }
 
@@ -55,7 +55,7 @@ div.landing {
         text-align: center;
         color: white;
         margin-top: 0.2rem;
-        font-size: 1.1rem;
+        font-size: 1.3rem;
         letter-spacing: 0.1rem;
       }
     }
@@ -133,12 +133,13 @@ div.landing {
         font-size: 1.8rem;
         font-weight: 500;
         margin-top: 2rem;
+        margin-bottom: 0.5rem;
       }
 
       p.intro-sub-title {
         color: white;
         text-align: center;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         margin-bottom: 2rem;
       }
     }
@@ -188,16 +189,17 @@ div.landing {
   }
 }
 
-@media screen and (max-width: 450px) {
+//RWD 平板
+@media screen and (max-width: 1400px) {
   #root {
     header {
-      width: 100vw;
+      width: 50vw;
 
       div.app-logo {
         margin-top: 2rem;
         margin-bottom: 1rem;
         img {
-          width: 20%;
+          width: 15%;
         }
       }
 
@@ -214,6 +216,54 @@ div.landing {
 
         p.sub-slogan {
           font-size: 1rem;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 550px) {
+  #root {
+    header {
+      div.app-logo {
+        img {
+          width: 20%;
+        }
+      }
+
+      div.title {
+        width: 93%;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 450px) {
+  #root {
+    header {
+      width: 100vw;
+
+      div.app-logo {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        img {
+          width: 20%;
+        }
+      }
+
+      div.title {
+        width: 63%;
+
+        p.white-line {
+          height: 0.1rem; /* 調整線條的粗細 */
+        }
+
+        p.main-slogan {
+          font-size: 1.5rem;
+        }
+
+        p.sub-slogan {
+          font-size: 0.95rem;
         }
       }
     }
@@ -250,12 +300,13 @@ div.landing {
 
       div {
         p.intro-title {
-          font-size: 1.3rem;
+          font-size: 1.4rem;
           margin-top: 2rem;
+          margin-bottom: 0.2rem;
         }
 
         p.intro-sub-title {
-          font-size: 0.8rem;
+          font-size: 0.9rem;
           margin-bottom: 2rem;
         }
       }
@@ -285,6 +336,16 @@ div.landing {
           font-size: 0.8rem;
           margin-top: 0.3rem;
         }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 350px) {
+  #root {
+    header {
+      div.title {
+        width: 70%;
       }
     }
   }

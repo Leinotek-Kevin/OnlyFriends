@@ -32,7 +32,7 @@ div.landing header div.app-logo img {
 div.landing header div.title {
   display: flex;
   flex-direction: column;
-  width: 37%;
+  width: 35%;
 }
 div.landing header div.title p.white-line {
   padding: 0;
@@ -46,14 +46,14 @@ div.landing header div.title p.main-slogan {
   color: white;
   margin: 0;
   font-weight: 500;
-  font-size: 1.7rem;
+  font-size: 1.8rem;
   letter-spacing: 0.3rem;
 }
 div.landing header div.title p.sub-slogan {
   text-align: center;
   color: white;
   margin-top: 0.2rem;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   letter-spacing: 0.1rem;
 }
 div.landing main {
@@ -122,11 +122,12 @@ div.landing main.sub-main div p.intro-title {
   font-size: 1.8rem;
   font-weight: 500;
   margin-top: 2rem;
+  margin-bottom: 0.5rem;
 }
 div.landing main.sub-main div p.intro-sub-title {
   color: white;
   text-align: center;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   margin-bottom: 2rem;
 }
 div.landing main.sub-main p.space {
@@ -168,16 +169,16 @@ div.landing footer div.privacy p.copyright {
   font-size: 1rem;
 }
 
-@media screen and (max-width: 450px) {
+@media screen and (max-width: 1400px) {
   #root header {
-    width: 100vw;
+    width: 50vw;
   }
   #root header div.app-logo {
     margin-top: 2rem;
     margin-bottom: 1rem;
   }
   #root header div.app-logo img {
-    width: 20%;
+    width: 15%;
   }
   #root header div.title {
     width: 70%;
@@ -190,6 +191,38 @@ div.landing footer div.privacy p.copyright {
   }
   #root header div.title p.sub-slogan {
     font-size: 1rem;
+  }
+}
+@media screen and (max-width: 550px) {
+  #root header div.app-logo img {
+    width: 20%;
+  }
+  #root header div.title {
+    width: 93%;
+  }
+}
+@media screen and (max-width: 450px) {
+  #root header {
+    width: 100vw;
+  }
+  #root header div.app-logo {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+  #root header div.app-logo img {
+    width: 20%;
+  }
+  #root header div.title {
+    width: 63%;
+  }
+  #root header div.title p.white-line {
+    height: 0.1rem; /* 調整線條的粗細 */
+  }
+  #root header div.title p.main-slogan {
+    font-size: 1.5rem;
+  }
+  #root header div.title p.sub-slogan {
+    font-size: 0.95rem;
   }
   #root main div.display {
     width: 85%;
@@ -215,11 +248,12 @@ div.landing footer div.privacy p.copyright {
     margin-top: 3rem;
   }
   #root main.sub-main div p.intro-title {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     margin-top: 2rem;
+    margin-bottom: 0.2rem;
   }
   #root main.sub-main div p.intro-sub-title {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     margin-bottom: 2rem;
   }
   #root main.sub-main p.space {
@@ -240,5 +274,10 @@ div.landing footer div.privacy p.copyright {
     text-align: center;
     font-size: 0.8rem;
     margin-top: 0.3rem;
+  }
+}
+@media screen and (max-width: 350px) {
+  #root header div.title {
+    width: 70%;
   }
 }/*# sourceMappingURL=landing.css.map */
