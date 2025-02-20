@@ -1075,18 +1075,21 @@ router.post("/simple-info", async (req, res) => {
         output.likeLevel = 3;
       } else {
         const relation = await UserRelation.findOne({ userID });
-        const {
-          objectActive: { likeObjects },
-        } = relation;
 
-        if (likeObjects && likeObjects.length != 0) {
-          let foundObject = likeObjects.find(
-            (obj) => obj.objectID === targetUserID
-          );
+        if (relation) {
+          const {
+            objectActive: { likeObjects },
+          } = relation;
 
-          if (foundObject) {
-            //我累積該用戶的好感度
-            output.likeLevel = foundObject.likeLevel;
+          if (likeObjects && likeObjects.length != 0) {
+            let foundObject = likeObjects.find(
+              (obj) => obj.objectID === targetUserID
+            );
+
+            if (foundObject) {
+              //我累積該用戶的好感度
+              output.likeLevel = foundObject.likeLevel;
+            }
           }
         }
       }
