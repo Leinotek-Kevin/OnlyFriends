@@ -1152,7 +1152,6 @@ router.post("/simple-info", async (req, res) => {
       data: output,
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
