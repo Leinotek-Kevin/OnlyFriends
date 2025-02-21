@@ -30,6 +30,7 @@ router.post("/register", async (req, res) => {
     deviceToken,
     identity,
     osType,
+    userMBTI,
   } = req.body;
 
   let message = "";
@@ -90,6 +91,10 @@ router.post("/register", async (req, res) => {
       // 如果有提供 osType，才將其加入更新資料中
       if (generalUtil.isNotNUllEmpty(osType)) {
         createData.osType = osType;
+      }
+
+      if (generalUtil.isNotNUllEmpty(userMBTI)) {
+        createData.userMBTI = userMBTI;
       }
 
       await User.create(createData);
