@@ -11,6 +11,7 @@ const zodiacUtil = require("../utils/caluZodiac-util");
 const generalUtil = require("../utils/general-util");
 const dateUtil = require("../utils/date-util");
 const sendbirdUtil = require("../utils/sendbird-util");
+const cloudStorage = require("../utils/cloudStorage-util");
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 auth 有關的請求");
@@ -273,7 +274,7 @@ router.post("/delete", (req, res) => {
     }
 
     try {
-      let { userID, userEmail } = user;
+      let { userID, userEmail, userPhotos } = user;
 
       //刪除該帳號今天發過的信封
       const todayNightTimeStamp = dateUtil.getTodayNight();
@@ -284,6 +285,11 @@ router.post("/delete", (req, res) => {
 
       //刪掉 Sendbird User
       await sendbirdUtil.deleteUser(userID);
+
+      //刪除用戶所有大頭貼
+      if (userPhotos && userPhotos.length > 0) {
+        await cloudStorage.deleteImages(userPhotos);
+      }
 
       //複製人email
       const copyMail =
