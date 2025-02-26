@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 const sharp = require("sharp");
 const router = require("express").Router();
 const admin = require("../utils/checkAdmin-util");
+const cloudStore = require("../utils/cloudStore-util");
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 test 有關的請求");
@@ -225,5 +226,66 @@ const compressImageToSize = (imageBuffer, targetSizeKB) => {
     tryCompress(); // 開始壓縮過程
   });
 };
+
+router.post("/add-store-msg", async (req, res) => {
+  try {
+    const { customType, msg, link, image } = req.body;
+
+    const result = await cloudStore.addMessage({
+      customType,
+      msg,
+      link,
+      image,
+    });
+
+    return res.status(200).send({
+      status: true,
+      message: result == 1 ? "資料新增成功" : "資料新增失敗",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+router.post("/remove-store-msg", async (req, res) => {
+  try {
+    const { customType } = req.body;
+
+    const result = await cloudStore.removeMessagesByType(customType);
+
+    return res.status(200).send({
+      status: true,
+      message: result == 1 ? "資料刪除成功" : "資料刪除失敗",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+router.post("/read-store-msg", async (req, res) => {
+  try {
+    const result = await cloudStore.getAnnouncement();
+
+    return res.status(200).send({
+      status: true,
+      message: result ? "資料讀取成功" : "資料讀取失敗",
+      data: result,
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
 
 module.exports = router;
