@@ -2,6 +2,7 @@ const MatchNewest = require("../models").matchNewest;
 const EmotionLetter = require("../models").letter;
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
+const cloudStore = require("../utils/cloudStore-util");
 const mongoose = require("mongoose");
 const Config = require("../models").config;
 const dotenv = require("dotenv");
@@ -186,6 +187,9 @@ const runLetterMatch = async () => {
     });
 
     console.log("心情樹洞配對完成");
+
+    //刪除公告裡的 match 訊息
+    await cloudStore.removeMessagesByType("match");
   } catch (e) {
     console.log("心情樹洞配對有問題", e);
   }

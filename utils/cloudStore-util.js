@@ -68,16 +68,12 @@ async function removeMessagesByType(strType) {
     if (doc.exists) {
       const data = doc.data();
       const messages = data.messages;
-      console.log(strType);
-      console.log(messages);
 
       // 過濾出 customType 開頭是 "match" 的消息
       const matchMessages = messages.filter(
         (message) =>
           message.customType && message.customType.startsWith(strType)
       );
-
-      console.log(matchMessages);
 
       // 使用 arrayRemove 刪除這些消息
       matchMessages.forEach(async (message) => {

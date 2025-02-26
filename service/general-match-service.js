@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 const sbUtil = require("../utils/sendbird-util");
+const cloudStore = require("../utils/cloudStore-util");
 const cloudStorage = require("../utils/cloudStorage-util");
 
 //執行一般配對
@@ -49,12 +50,12 @@ const runGeneralMatch = async () => {
 
     //發正在配對的訊息到openChannel
     try {
-      await sbUtil.sendMsgOpenChannel(
-        "開始新一輪配對嚕！敬請期待",
-        "",
-        "",
-        "matchStart"
-      );
+      await cloudStore.addMessage({
+        customType: "matchStart",
+        msg: "開始新一輪配對嚕！敬請期待",
+        link: "",
+        image: "",
+      });
     } catch (e) {
       console.log("開始新一輪配對訊息發送失敗", e);
     }
@@ -275,12 +276,12 @@ const runGeneralMatch = async () => {
 
     //送出配對完成的 openchannel 廣播
     try {
-      await sbUtil.sendMsgOpenChannel(
-        "已完成新一輪配對嚕！",
-        "",
-        "",
-        "matchFinish"
-      );
+      await cloudStore.addMessage({
+        customType: "matchFinish",
+        msg: "已完成新一輪配對嚕！",
+        link: "",
+        image: "",
+      });
     } catch (e) {
       console.log("新一輪配對完成訊息發送失敗", e);
     }
