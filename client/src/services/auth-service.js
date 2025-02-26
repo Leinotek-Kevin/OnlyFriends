@@ -3,9 +3,9 @@ import axios from "axios";
 //Web 本地
 //const BASE_URL = "http://localhost:8080/api/auth";
 //開發環境
-const BASE_URL = "https://dev.ofs.leinotek.com/api/auth";
+//const BASE_URL = "https://dev.ofs.leinotek.com/api/auth";
 //正式環境
-//const BASE_URL = "https://ofs.leinotek.com/api/auth";
+const BASE_URL = "https://ofs.leinotek.com/api/auth";
 
 class AuthService {
   officialLogin(userEmail) {
