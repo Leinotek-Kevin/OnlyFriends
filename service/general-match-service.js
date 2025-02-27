@@ -299,9 +299,11 @@ const runGeneralMatch = async () => {
     const pLimit = (await import("p-limit")).default;
     const limit = pLimit(5);
 
-    const promises = pastMatches.map((match) =>
-      limit(() => sbUtil.deleteGroupChannel(match.sendbirdUrl))
-    );
+    const promises = pastMatches
+      .filter((match) => match.isChecked) // 只過濾出 isChecked 為 true 的配對
+      .map((match) =>
+        limit(() => sbUtil.deleteGroupChannel(match.sendbirdUrl))
+      );
 
     await Promise.all(promises);
 
