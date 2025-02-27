@@ -1,13 +1,19 @@
 const admin = require("../utils/checkAdmin-util");
 const { v4: uuidv4 } = require("uuid");
 
+// 是否為測試環境
+const isDevelop = process.env.PORT == 8080 || process.env.HEROKU_ENV == "DEBUG";
+const collectionName = isDevelop
+  ? "sb_openchannel_dev"
+  : "sb_openchannel_release";
+
 //獲取 Firestore 實例
 const db = admin.firestore();
 
 //添加資料
 async function addMessage(message) {
   // announcement 文件的引用
-  const announcementRef = db.collection("sb_openchannel").doc("announcement");
+  const announcementRef = db.collection(collectionName).doc("announcement");
 
   const uuid = uuidv4(); // 生成 UUID v4
 
@@ -37,7 +43,7 @@ async function addMessage(message) {
 //取得資料
 async function getAnnouncement() {
   // 獲取 sb_openchannel 集合中的 announcement 文件
-  const announcementRef = db.collection("sb_openchannel").doc("announcement");
+  const announcementRef = db.collection(collectionName).doc("announcement");
 
   try {
     // 使用 get() 方法來取得文件資料
@@ -59,7 +65,7 @@ async function getAnnouncement() {
 //刪除指定類型資料
 async function removeMessagesByType(strType) {
   // 獲取 sb_openchannel 集合中的 announcement 文件
-  const announcementRef = db.collection("sb_openchannel").doc("announcement");
+  const announcementRef = db.collection(collectionName).doc("announcement");
 
   try {
     // 先獲取文件資料
