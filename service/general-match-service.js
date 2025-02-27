@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 const sbUtil = require("../utils/sendbird-util");
-const cloudStore = require("../utils/cloudStore-util");
+const cloudAnnou = require("../utils/cloudAnnou-util");
 const cloudStorage = require("../utils/cloudStorage-util");
 
 //執行一般配對
@@ -50,7 +50,7 @@ const runGeneralMatch = async () => {
 
     //發正在配對的訊息到openChannel
     try {
-      await cloudStore.addMessage({
+      await cloudAnnou.addAnnouMessage({
         customType: "matchStart",
         msg: "開始新一輪配對嚕！敬請期待",
         link: "",
@@ -262,11 +262,17 @@ const runGeneralMatch = async () => {
 
     //清除雲端有關聊天的多媒體檔案
     try {
+      // 是否為測試環境
+      const isDevelop =
+        process.env.PORT == 8080 || process.env.HEROKU_ENV == "DEBUG";
+
+      const envDir = isDevelop ? "develop" : "release";
+
       // 使用 Promise.all 同時調用 deleteFolderFiles 刪除三個資料夾中的檔案
       await Promise.all([
-        cloudStorage.deleteFolderFiles("chat/audios/"),
-        cloudStorage.deleteFolderFiles("chat/images/"),
-        cloudStorage.deleteFolderFiles("chat/videos/"),
+        cloudStorage.deleteFolderFiles(envDir + "/chat/audios/"),
+        cloudStorage.deleteFolderFiles(envDir + "/chat/images/"),
+        cloudStorage.deleteFolderFiles(envDir + "/chat/videos/"),
       ]);
 
       console.log("成功刪除所有有關聊天的檔案");
@@ -276,7 +282,7 @@ const runGeneralMatch = async () => {
 
     //送出配對完成的 openchannel 廣播
     try {
-      await cloudStore.addMessage({
+      await cloudAnnou.addAnnouMessage({
         customType: "matchFinish",
         msg: "已完成新一輪配對嚕！",
         link: "",

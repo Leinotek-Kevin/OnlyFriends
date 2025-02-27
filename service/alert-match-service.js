@@ -1,9 +1,9 @@
-const cloudStore = require("../utils/cloudStore-util");
+const cloudAnnou = require("../utils/cloudAnnou-util");
 
 //提醒午夜新配對要開始了 23:30
 const runAlertMatch = async () => {
   try {
-    const result = await cloudStore.addMessage({
+    const result = await cloudAnnou.addAnnouMessage({
       customType: "matchAlert",
       msg: "午夜新配對快要到嚕！",
       link: "",

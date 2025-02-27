@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 const sharp = require("sharp");
 const router = require("express").Router();
 const admin = require("../utils/checkAdmin-util");
-const cloudStore = require("../utils/cloudStore-util");
+const cloudAnnou = require("../utils/cloudAnnou-util");
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 test 有關的請求");
@@ -231,7 +231,7 @@ router.post("/add-store-msg", async (req, res) => {
   try {
     const { customType, msg, link, image } = req.body;
 
-    const result = await cloudStore.addMessage({
+    const result = await cloudAnnou.addAnnouMessage({
       customType,
       msg,
       link,
@@ -255,7 +255,7 @@ router.post("/remove-store-msg", async (req, res) => {
   try {
     const { customType } = req.body;
 
-    const result = await cloudStore.removeMessagesByType(customType);
+    const result = await cloudAnnou.removeAnnouMsgByType(customType);
 
     return res.status(200).send({
       status: true,
@@ -272,7 +272,7 @@ router.post("/remove-store-msg", async (req, res) => {
 
 router.post("/read-store-msg", async (req, res) => {
   try {
-    const result = await cloudStore.getAnnouncement();
+    const result = await cloudAnnou.getAnnouncement();
 
     return res.status(200).send({
       status: true,

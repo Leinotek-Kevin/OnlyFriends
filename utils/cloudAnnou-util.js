@@ -1,4 +1,4 @@
-const admin = require("../utils/checkAdmin-util");
+const admin = require("./checkAdmin-util");
 const { v4: uuidv4 } = require("uuid");
 
 // 是否為測試環境
@@ -11,7 +11,7 @@ const collectionName = isDevelop
 const db = admin.firestore();
 
 //添加資料
-async function addMessage(message) {
+async function addAnnouMessage(message) {
   // announcement 文件的引用
   const announcementRef = db.collection(collectionName).doc("announcement");
 
@@ -62,8 +62,8 @@ async function getAnnouncement() {
   }
 }
 
-//刪除指定類型資料
-async function removeMessagesByType(strType) {
+//刪除指定類型公告資料
+async function removeAnnouMsgByType(strType) {
   // 獲取 sb_openchannel 集合中的 announcement 文件
   const announcementRef = db.collection(collectionName).doc("announcement");
 
@@ -98,7 +98,7 @@ async function removeMessagesByType(strType) {
 }
 
 module.exports = {
-  addMessage,
-  removeMessagesByType,
+  addAnnouMessage,
+  removeAnnouMsgByType,
   getAnnouncement,
 };
