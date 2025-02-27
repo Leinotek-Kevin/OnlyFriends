@@ -66,6 +66,30 @@ const configSchema = new Schema({
     type: String,
     default: "",
   },
+
+  //iOS 系統版本
+  iosVersion: {
+    name: {
+      type: String,
+      default: "1.0.0",
+    },
+    code: {
+      type: String,
+      default: "1",
+    },
+  },
+
+  //Android 系統版本
+  androidVersion: {
+    name: {
+      type: String,
+      default: "1.0.0",
+    },
+    code: {
+      type: String,
+      default: "1",
+    },
+  },
 });
 
 //隱藏 _id,__v
