@@ -921,6 +921,7 @@ router.post("/edit-info", async (req, res) => {
         userRegion,
         userMBTI,
         userQuestion,
+        realVerifyStatus,
         userAttribute: { interested, traits, friendMotive, values },
       } = req.user;
 
@@ -930,6 +931,7 @@ router.post("/edit-info", async (req, res) => {
         userRegion,
         userMBTI,
         userQuestion,
+        realVerifyStatus,
         interested: [],
         traits: [],
         friendMotive: [],
