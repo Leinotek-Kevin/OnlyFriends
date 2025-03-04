@@ -807,6 +807,7 @@ router.post("/edit-info", async (req, res) => {
         traits,
         friendMotive,
         values,
+        realVerifyStatus,
       } = req.body;
 
       let updateData = {
@@ -820,6 +821,11 @@ router.post("/edit-info", async (req, res) => {
 
       if (generalUtil.isNotNUllEmpty(region)) {
         updateData.userRegion = region;
+      }
+
+      //真人驗證狀態
+      if (realVerifyStatus != null) {
+        updateData.realVerifyStatus = realVerifyStatus;
       }
 
       if (mbti != null) {

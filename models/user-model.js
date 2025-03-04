@@ -151,6 +151,12 @@ const userSchema = new Schema({
     default: false,
   },
 
+  //是否通過真人驗證
+  realVerifyStatus: {
+    type: Boolean,
+    default: false,
+  },
+
   //訂閱截止時間
   subExpiresDate: {
     type: String,
