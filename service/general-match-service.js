@@ -154,6 +154,7 @@ const runGeneralMatch = async () => {
           objectAge: { maxAge, minAge },
           objectRegion,
         },
+        //該用戶真人驗證狀態
       } = currentUser;
 
       maxAge = maxAge == 50 ? 200 : maxAge;
@@ -190,18 +191,38 @@ const runGeneralMatch = async () => {
             regionScore: {
               $cond: [{ $eq: ["$userRegion", objectRegion] }, 1, 0],
             },
+            realVerifyScore: {
+              // 如果當前用户的 realVerifyStatus 是 true, 則目標用户以 true 為優先
+              $cond: [
+                { $eq: [currentUser.realVerifyStatus, true] },
+                {
+                  $cond: [
+                    {
+                      $eq: ["$realVerifyStatus", currentUser.realVerifyStatus],
+                    },
+                    1,
+                    0,
+                  ],
+                }, //
+                1, // 當前用戶是 false 則不影響
+              ],
+            },
           },
         },
         {
           $sort: {
             identity: -1, //依照用戶識別->降序 2:真人 ,1：官方, 0：假人
+            realVerifyScore: -1, // 依照實名驗證匹配分數，降序
             genderScore: -1, //性別匹配的加權分數，降序
             ageScore: -1, // 年齡匹配的加權分數，降序
             regionScore: -1, // 地區匹配的加權分數，降序
+            realVerifyScore: -1, // 依照實名驗證匹配分數，降序
           },
         },
         { $limit: targetUserCount },
       ]);
+
+      console.log(targetUsers);
 
       consumeUsers.add(currentUser.userID);
 

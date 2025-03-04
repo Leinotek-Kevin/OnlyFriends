@@ -66,8 +66,6 @@ router.post("/match-general", async (req, res) => {
   const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
   const lastNightTimeStamp = dateUtil.getYesterdayNight();
 
-  console.log(lastNightTimeStamp);
-
   try {
     let time = Date.now();
 
@@ -215,11 +213,28 @@ router.post("/match-general", async (req, res) => {
             regionScore: {
               $cond: [{ $eq: ["$userRegion", objectRegion] }, 1, 0],
             },
+            realVerifyScore: {
+              // 如果当前用户的 realVerifyStatus 是 true, 则目标用户以 true 为优先
+              $cond: [
+                { $eq: [currentUser.realVerifyStatus, true] },
+                {
+                  $cond: [
+                    {
+                      $eq: ["$realVerifyStatus", currentUser.realVerifyStatus],
+                    },
+                    1,
+                    0,
+                  ],
+                }, // 目标用户为 true 得 1 分
+                1, // 当前用户为 false 时，不影响
+              ],
+            },
           },
         },
         {
           $sort: {
             identity: -1, //依照用戶識別->降序 2:真人 ,1：官方, 0：假人
+            realVerifyScore: -1, // 依照實名驗證匹配分數，降序
             genderScore: -1, //性別匹配的加權分數，降序
             ageScore: -1, // 年齡匹配的加權分數，降序
             regionScore: -1, // 地區匹配的加權分數，降序
