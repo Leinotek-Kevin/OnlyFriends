@@ -2,6 +2,7 @@ const router = require("express").Router();
 
 const User = require("../models").user;
 const EmotionLetter = require("../models").letter;
+const Error = require("../models").error;
 
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
@@ -188,6 +189,14 @@ router.post("/login", async (req, res) => {
       lastLoginTime: updateData.lastLoginTime,
     });
   } catch (e) {
+    const errorRequest = userEmail + "-" + deviceToken + "-" + osType;
+    const errorMessage = e.message;
+
+    await Error.create({
+      errorRequest: errorRequest,
+      errorMessage: e.message,
+    });
+
     return res.status(500).send({
       status: false,
       message: "Server Error",

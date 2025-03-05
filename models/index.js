@@ -9,4 +9,5 @@ module.exports = {
   topic: require("./topic-model"),
   report: require("./report-model"),
   config: require("./config-model"),
+  error: require("./error-model"),
 };
