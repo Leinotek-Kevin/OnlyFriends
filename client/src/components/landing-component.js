@@ -23,7 +23,7 @@ const LandingComponent = () => {
         <div className="title">
           <p className="white-line" />
           <p className="main-slogan">恰好今天遇見你</p>
-          <p className="sub-slogan">擺脫交友疲乏 專注於眼前的他</p>
+          <p className="sub-slogan">放慢腳步 專注於眼前的他</p>
           <p className="white-line" />
         </div>
       </header>
@@ -55,7 +55,7 @@ const LandingComponent = () => {
         <p className="keep-look">▼</p>
         <p className="keep-look">▼</p>
 
-        <p className="rule-title">讓交友回歸純粹</p>
+        <p className="rule-title">享受全新體驗</p>
 
         <div className="display">
           <img src={displayRule} alt="OnlyFirends Rule" />
@@ -66,14 +66,14 @@ const LandingComponent = () => {
       <main className="sub-main">
         <div>
           <p className="intro-title">限定時間內認識彼此</p>
-          <p className="intro-sub-title">-尋找一聊就合拍的朋友-</p>
+          <p className="intro-sub-title">-尋找合拍的遊戲夥伴-</p>
 
           <div className="display">
             <img src={display1} alt="OnlyFirends Rule 1" />
           </div>
         </div>
         <p className="space"></p>
-        <div>
+        {/* <div>
           <p className="intro-title">告別看臉交友時代</p>
           <p className="intro-sub-title">-聊天解鎖照片 好感度機制-</p>
 
@@ -81,9 +81,9 @@ const LandingComponent = () => {
             <img src={display2} alt="OnlyFirends Rule 2" />
           </div>
         </div>
-        <p className="space"></p>
+        <p className="space"></p> */}
         <div>
-          <p className="intro-title">不只交友 擁抱你的心情</p>
+          <p className="intro-title">還能擁抱你的心情</p>
           <p className="intro-sub-title">-分享心情的匿名配對機會-</p>
 
           <div className="display">
