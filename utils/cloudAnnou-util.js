@@ -32,7 +32,7 @@ async function addAnnouMessage(message) {
 
   try {
     // 使用 arrayUnion 將新的消息加入到 messages 陣列中
-    await announcementRef.update({
+    await announcementRef.set({
       messages: admin.firestore.FieldValue.arrayUnion(newItem),
     });
     console.log("Message added successfully!");
