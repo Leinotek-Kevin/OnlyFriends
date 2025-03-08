@@ -169,6 +169,7 @@ const runGeneralMatch = async () => {
             },
             lastLoginTime: { $gte: lastNightTimeStamp },
             userValidCode: "1",
+            identity: { $ne: 3 }, // 排除 apple / google 官方人員
           },
         },
         {
@@ -221,8 +222,6 @@ const runGeneralMatch = async () => {
         },
         { $limit: targetUserCount },
       ]);
-
-      console.log(targetUsers);
 
       consumeUsers.add(currentUser.userID);
 

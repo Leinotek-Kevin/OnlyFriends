@@ -142,7 +142,7 @@ const userSchema = new Schema({
   identity: {
     type: Number,
     required: true,
-    enum: [0, 1, 2], //0:假人 1:官方指定 2:真人
+    enum: [0, 1, 2, 3], //0:假人 1:官方指定 2:真人 3:Apple/Google 官方
   },
 
   //該用戶是否有訂閱
