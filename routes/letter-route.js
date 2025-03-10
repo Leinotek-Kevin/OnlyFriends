@@ -296,18 +296,21 @@ router.post("/report-letter", async (req, res) => {
       return res.status(200).send({
         status: true,
         message: "檢舉成功！",
+        validCode: "1",
       });
     }
 
     return res.status(200).send({
       status: true,
       message: "檢舉失敗！查無該信封",
+      validCode: "1",
     });
   } catch (e) {
     return res.status(500).send({
       status: false,
       message: "Server Error!",
       e,
+      validCode: "-1",
     });
   }
 });
