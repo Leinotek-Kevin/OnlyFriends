@@ -11,7 +11,6 @@ const admin = require("./utils/checkAdmin-util");
 const passport = require("passport");
 const path = require("path");
 require("./config/passport")();
-require("./service");
 
 //連結 mongoDB
 mongoose
@@ -57,6 +56,8 @@ if (
 app.listen(port, () => {
   console.log("後端伺服器聆聽中....");
 });
+
+require("./service");
 
 //檢查目前系統環境
 const systemCheck = async () => {
