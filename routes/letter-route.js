@@ -279,4 +279,37 @@ router.post("/like-letter", async (req, res) => {
   }
 });
 
+//D-4 檢舉信封
+router.post("/report-letter", async (req, res) => {
+  try {
+    const { letterID } = req.body;
+
+    const foundLetter = await EmotionLetter.findOne({ letterID });
+
+    if (foundLetter) {
+      const currentCounts = foundLetter.reportCounts;
+      const result = await EmotionLetter.updateOne(
+        { letterID },
+        { reportCounts: currentCounts + 1 }
+      );
+
+      return res.status(200).send({
+        status: true,
+        message: "檢舉成功！",
+      });
+    }
+
+    return res.status(200).send({
+      status: true,
+      message: "檢舉失敗！查無該信封",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
+    });
+  }
+});
+
 module.exports = router;

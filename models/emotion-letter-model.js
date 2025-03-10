@@ -57,6 +57,12 @@ const emotionLetterSchema = new Schema({
     type: Boolean,
     default: false,
   },
+
+  //檢舉數量
+  reportCounts: {
+    type: Number,
+    default: 0,
+  },
 });
 
 emotionLetterSchema.index({ createTime: -1, letterUserID: 1 });

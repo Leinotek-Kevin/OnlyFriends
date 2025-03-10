@@ -12,9 +12,6 @@ const db = admin.firestore();
 
 //添加資料
 async function addAnnouMessage(message) {
-  console.log("目前環境", process.env.HEROKU_ENV);
-  console.log("目前環境", isDevelop);
-  console.log("目前環境", collectionName);
   // announcement 文件的引用
   const announcementRef = db.collection(collectionName).doc("announcement");
 
