@@ -44,7 +44,7 @@ const LandingComponent = () => {
             <img src={iOSButton} alt="apple download" />
           </a>
           <a
-            href="https://play.google.com/store/apps/details?id=com.anonymous.ipush"
+            href="https://play.google.com/store/apps/details?id=com.anonymous.onlyfriends"
             target="_blank"
           >
             <img src={googleButton} alt="google download" />
