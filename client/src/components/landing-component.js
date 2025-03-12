@@ -38,7 +38,7 @@ const LandingComponent = () => {
 
         <div class="store-btn">
           <a
-            href="https://apps.apple.com/tw/app/%E6%9B%96%E6%98%A7%E5%91%8A%E8%A7%A3%E5%AE%A4-%E4%BD%A0%E7%9A%84%E9%9A%A8%E8%BA%AB%E6%88%80%E6%84%9B%E5%B0%8E%E5%B8%AB-%E9%96%8B%E5%95%9F%E6%88%80%E6%84%9B%E5%8A%A0%E9%80%9F%E6%A8%A1%E5%BC%8F/id6578435303"
+            href="https://apps.apple.com/tw/app/only-friends-%E6%81%B0%E5%A5%BD%E4%BB%8A%E5%A4%A9%E9%81%87%E8%A6%8B%E4%BD%A0/id6738079426"
             target="_blank"
           >
             <img src={iOSButton} alt="apple download" />
