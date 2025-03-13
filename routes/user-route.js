@@ -253,6 +253,7 @@ router.post("/today-matches", async (req, res) => {
           userID: objectInfo.userID,
           userName: objectInfo.userName,
           userQuestion: objectInfo.userQuestion,
+          realVerifyStatus: objectInfo.realVerifyStatus,
           userPhoto: "",
           notificationStatus: objectInfo.notificationStatus,
           sendbirdUrl: match.sendbirdUrl,
