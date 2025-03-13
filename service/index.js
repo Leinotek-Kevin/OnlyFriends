@@ -5,6 +5,8 @@ dotenv.config();
 const generalMatch = require("./general-match-service");
 //樹洞配對 03:00
 const letterMatch = require("./letter-match-service");
+//檢查設備Token是否存活 05:00
+const checkDevice = require("./check-deivce-service");
 //強制登入排程 06:00
 const forceLogin = require("./force-users-login-service");
 //提醒用戶查看今天的配對 08:00
@@ -20,6 +22,7 @@ const alertMatch = require("./alert-match-service");
 const startFetching = () => {
   generalMatch();
   letterMatch();
+  checkDevice();
   alertMatch();
   forceLogin();
   matchRemind();
