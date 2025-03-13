@@ -1050,6 +1050,7 @@ router.post("/simple-info", async (req, res) => {
       userMBTI,
       userAttribute: { interested, traits, friendMotive, values },
       userQuestion,
+      realVerifyStatus,
       isSubscription,
     } = targetInfo;
 
@@ -1064,6 +1065,7 @@ router.post("/simple-info", async (req, res) => {
       userMBTI,
       userQuestion,
       userPhoto: "",
+      realVerifyStatus,
       isSubscription,
       likeLevel: 1,
       interested: [],
