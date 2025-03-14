@@ -77,6 +77,10 @@ const configSchema = new Schema({
       type: String,
       default: "1",
     },
+    forceUpdate: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   //Android 系統版本
@@ -88,6 +92,10 @@ const configSchema = new Schema({
     code: {
       type: String,
       default: "1",
+    },
+    forceUpdate: {
+      type: Boolean,
+      default: false,
     },
   },
 });

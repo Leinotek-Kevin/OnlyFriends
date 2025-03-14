@@ -34,7 +34,8 @@ router.post("/query-user", async (req, res) => {
 
 //讀取版本號碼
 router.post("/curd-version", async (req, res) => {
-  const { action, screct, versionName, versionCode, osType } = req.body;
+  const { action, screct, versionName, versionCode, forceUpdate, osType } =
+    req.body;
 
   try {
     if (screct == "OnlyFriends5278") {
@@ -59,16 +60,24 @@ router.post("/curd-version", async (req, res) => {
             "androidVersion.code": generalUtil.isNotNUllEmpty(versionCode)
               ? versionCode
               : config.androidVersion.code,
+            "androidVersion.forceUpdate": generalUtil.isNotNUllEmpty(
+              forceUpdate
+            )
+              ? forceUpdate
+              : config.androidVersion.forceUpdate,
           });
         } else {
           //iOS 更改
           await Config.updateOne({
             "iosVersion.name": generalUtil.isNotNUllEmpty(versionName)
               ? versionName
-              : config.androidVersion.name,
+              : config.iosVersion.name,
             "iosVersion.code": generalUtil.isNotNUllEmpty(versionCode)
               ? versionCode
-              : config.androidVersion.code,
+              : config.iosVersion.code,
+            "iosVersion.forceUpdate": generalUtil.isNotNUllEmpty(forceUpdate)
+              ? forceUpdate
+              : config.iosVersion.forceUpdate,
           });
         }
 
