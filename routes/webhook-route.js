@@ -40,8 +40,6 @@ router.post("/google-purchase", async (req, res) => {
         purchaseToken
       );
 
-      console.log("訂單 ID", subscriptionId);
-
       //訂單備註追蹤
       let transcationMemo;
       let orderStatus;
@@ -176,6 +174,9 @@ router.post("/google-purchase", async (req, res) => {
           new: true,
         }
       );
+
+      console.log("訂單 ID", realOrderID);
+      console.log("用戶 ID", data.userID);
 
       //檢查用戶訂閱狀態
       checkAllowSubscription(data.userID);
