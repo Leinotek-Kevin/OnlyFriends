@@ -195,9 +195,11 @@ router.post("/match-general", async (req, res) => {
         },
         {
           $addFields: {
+            //篩選對象性別條件
             genderScore: {
               $cond: [{ $eq: ["$userGender", objectGender] }, 1, 0],
             },
+            //篩選對象年齡條件
             ageScore: {
               $cond: [
                 {
@@ -210,11 +212,8 @@ router.post("/match-general", async (req, res) => {
                 0,
               ],
             },
-            regionScore: {
-              $cond: [{ $eq: ["$userRegion", objectRegion] }, 1, 0],
-            },
+            //篩選對象是否已通過真人辨識(需要用戶已經通過辨識才開放)
             realVerifyScore: {
-              // 如果当前用户的 realVerifyStatus 是 true, 则目标用户以 true 为优先
               $cond: [
                 { $eq: [currentUser.realVerifyStatus, true] },
                 {
@@ -225,8 +224,58 @@ router.post("/match-general", async (req, res) => {
                     1,
                     0,
                   ],
-                }, // 目标用户为 true 得 1 分
-                1, // 当前用户为 false 时，不影响
+                },
+                0,
+              ],
+            },
+            //篩選對象所在區域條件(需要用戶訂閱才開放)
+            regionScore: {
+              $cond: [
+                { $eq: [currentUser.isSubscription, true] }, // 只有訂閱用戶才有地區篩選
+                {
+                  $cond: [{ $eq: ["$userRegion", objectRegion] }, 1, 6],
+                },
+                0, // 如果當前用戶沒有訂閱，則區域對象 0
+              ],
+            },
+            //篩選對象的興趣匹配(需要用戶訂閱才開放)
+            interestedScore: {
+              $cond: [
+                { $eq: [currentUser.isSubscription, true] }, // 只有訂閱用戶才有興趣加權
+                {
+                  $cond: [
+                    {
+                      $gt: [
+                        {
+                          $size: {
+                            $setIntersection: [
+                              { $ifNull: ["$userAttribute.interested", []] }, // 確保是陣列
+                              {
+                                $ifNull: [
+                                  currentUser.userAttribute.interested,
+                                  [],
+                                ],
+                              }, // 確保是陣列
+                            ],
+                          },
+                        },
+                        0,
+                      ],
+                    },
+                    {
+                      $size: {
+                        $setIntersection: [
+                          { $ifNull: ["$userAttribute.interested", []] }, // 確保是陣列
+                          {
+                            $ifNull: [currentUser.userAttribute.interested, []],
+                          }, // 確保是陣列
+                        ],
+                      },
+                    },
+                    0,
+                  ],
+                },
+                0, // 如果當前用戶沒有訂閱，興趣加權為 0
               ],
             },
           },
@@ -234,13 +283,14 @@ router.post("/match-general", async (req, res) => {
         {
           $sort: {
             identity: -1, //依照用戶識別->降序 2:真人 ,1：官方, 0：假人
+            interestedScore: -1, // 依照興趣匹配分數,降序
             realVerifyScore: -1, // 依照實名驗證匹配分數，降序
             genderScore: -1, //性別匹配的加權分數，降序
             ageScore: -1, // 年齡匹配的加權分數，降序
             regionScore: -1, // 地區匹配的加權分數，降序
           },
         },
-        { $limit: targetUserCount },
+        { $limit: targetUserCount }, // 可根據需求加上此條來限制配對數量
       ]);
 
       consumeUsers.add(currentUser.userID);
