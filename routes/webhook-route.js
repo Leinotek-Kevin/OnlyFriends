@@ -132,6 +132,8 @@ router.post("/google-purchase", async (req, res) => {
           break;
       }
 
+      console.log("收到 RTNS 購買變化通知 ：" + transcationMemo);
+
       //是否允許存取訂閱項目
       let isAllow = isSubscriptionActive(orderStatus);
 
@@ -185,6 +187,8 @@ router.post("/google-purchase", async (req, res) => {
         refundType == "2"
           ? "REFUND_TYPE_FULL_REFUND (2) 交易已完全作廢"
           : "REFUND_TYPE_QUANTITY_BASED_PARTIAL_REFUND 購買的商品遭到部分商品退款";
+
+      console.log("收到 RTNS 購買變化通知 ：" + transcationMemo);
 
       //更新訂單狀態
       const data = await Transcation.findOneAndUpdate(
