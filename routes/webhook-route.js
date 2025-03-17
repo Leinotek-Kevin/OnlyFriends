@@ -16,8 +16,6 @@ router.post("/google-purchase", async (req, res) => {
 
     let notification = JSON.parse(decodeMsg);
 
-    //const memo = analyticsPurchaseMemo(notification);
-
     //確認是否是現在用戶的訂閱訂單
     const { subscriptionNotification, voidedPurchaseNotification } =
       notification;
@@ -132,8 +130,6 @@ router.post("/google-purchase", async (req, res) => {
           break;
       }
 
-      console.log("收到 RTNS 購買變化通知 ：" + transcationMemo);
-
       //是否允許存取訂閱項目
       let isAllow = isSubscriptionActive(orderStatus);
 
@@ -175,9 +171,6 @@ router.post("/google-purchase", async (req, res) => {
         }
       );
 
-      console.log("訂單 ID", realOrderID);
-      console.log("用戶 ID", data.userID);
-
       //檢查用戶訂閱狀態
       checkAllowSubscription(data.userID);
     } else if (voidedPurchaseNotification) {
@@ -190,8 +183,6 @@ router.post("/google-purchase", async (req, res) => {
         refundType == "2"
           ? "REFUND_TYPE_FULL_REFUND (2) 交易已完全作廢"
           : "REFUND_TYPE_QUANTITY_BASED_PARTIAL_REFUND 購買的商品遭到部分商品退款";
-
-      console.log("收到 RTNS 購買變化通知 ：" + transcationMemo);
 
       //更新訂單狀態
       const data = await Transcation.findOneAndUpdate(
@@ -235,10 +226,10 @@ router.post("/iOS-purchase", async (req, res) => {
       const { notificationType, subtype, data } = notificationInfo;
       const { transactionInfo, renewalInfo } = data;
 
-      console.log(
-        "通知類型:",
-        `notificationType : ${notificationType} , subtype : ${subtype} transactionId : ${transactionInfo.transactionId}`
-      );
+      // console.log(
+      //   "通知類型:",
+      //   `notificationType : ${notificationType} , subtype : ${subtype} transactionId : ${transactionInfo.transactionId}`
+      // );
 
       const transactionID = transactionInfo.transactionId;
       const originalTransactionID = transactionInfo.originalTransactionId;
@@ -464,7 +455,7 @@ function analyticsPurchaseMemo(notification) {
 
 //這個訂閱訂單是否可以訂閱
 function isSubscriptionActive(currentStatus) {
-  console.log("該筆訂單的檢查狀態", currentStatus);
+  // console.log("該筆訂單的檢查狀態", currentStatus);
 
   const allowedStatuses = [
     "active",

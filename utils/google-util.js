@@ -56,56 +56,8 @@ async function validSubscriptionOrder(
   }
 }
 
-//確認訂閱訂單成立
-// async function acknowledgeSubscription(
-//   packageName,
-//   subscriptionId,
-//   purchaseToken
-// ) {
-//   try {
-//     const isLocal = port == 8080;
-//     let keyFilePath;
-
-//     if (isLocal) {
-//       keyFilePath = path.join(__dirname, "../lovepush-google-account.json"); // 本地開發使用本地憑證文件
-//     } else {
-//       const serviceAccount = JSON.parse(process.env.LOVEPUSH_SERVICE_ACCOUNT);
-//       keyFilePath = path.join(__dirname, "temp-google-service-account.json");
-
-//       // 寫入臨時檔案
-//       fs.writeFileSync(keyFilePath, JSON.stringify(serviceAccount));
-//     }
-
-//     const auth = new JWT({
-//       keyFile: keyFilePath, // 本地開發使用本地憑證文件
-//       scopes: ["https://www.googleapis.com/auth/androidpublisher"], // 需要的授權範圍
-//     });
-
-//     // 建立 androidpublisher 服務
-//     const androidpublisher = google.androidpublisher({
-//       version: "v3",
-//       auth: auth,
-//     });
-
-//     // 呼叫 Google Play API 驗證訂單
-//     const response = await androidpublisher.purchases.subscriptions.acknowledge(
-//       {
-//         packageName,
-//         subscriptionId,
-//         token: purchaseToken,
-//       }
-//     );
-
-//     return response.data;
-//   } catch (error) {
-//     console.log("acknowledgeSubscription", error);
-//     return null;
-//   }
-// }
-
 module.exports = {
   validSubscriptionOrder,
-  //acknowledgeSubscription,
 };
 
 //訂閱狀態變化通知
