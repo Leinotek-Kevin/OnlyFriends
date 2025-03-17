@@ -16,7 +16,7 @@ router.post("/google-purchase", async (req, res) => {
 
     let notification = JSON.parse(decodeMsg);
 
-    const memo = analyticsPurchaseMemo(notification);
+    //const memo = analyticsPurchaseMemo(notification);
 
     //確認是否是現在用戶的訂閱訂單
     const { subscriptionNotification, voidedPurchaseNotification } =
@@ -39,6 +39,8 @@ router.post("/google-purchase", async (req, res) => {
         subscriptionId,
         purchaseToken
       );
+
+      console.log("訂單 ID", subscriptionId);
 
       //訂單備註追蹤
       let transcationMemo;
@@ -461,7 +463,7 @@ function analyticsPurchaseMemo(notification) {
 
 //這個訂閱訂單是否可以訂閱
 function isSubscriptionActive(currentStatus) {
-  console.log("iOS 該筆訂單的檢查狀態", currentStatus);
+  console.log("該筆訂單的檢查狀態", currentStatus);
 
   const allowedStatuses = [
     "active",
