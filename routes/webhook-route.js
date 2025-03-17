@@ -278,6 +278,7 @@ router.post("/iOS-purchase", async (req, res) => {
             } else {
               subscription.autoRenewStatus = false;
             }
+            subscription.status = "active";
             break;
 
           //DID_FAIL_TO_RENEW 事件 (續訂失敗)
@@ -460,6 +461,8 @@ function analyticsPurchaseMemo(notification) {
 
 //這個訂閱訂單是否可以訂閱
 function isSubscriptionActive(currentStatus) {
+  console.log("iOS 該筆訂單的檢查狀態", currentStatus);
+
   const allowedStatuses = [
     "active",
     "grace_period",
