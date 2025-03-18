@@ -125,10 +125,17 @@ const userSchema = new Schema({
         default: 18,
       },
     },
+
     //希望地區
     objectRegion: {
       type: String,
       default: "",
+    },
+
+    //希望共同興趣
+    needSameInterested: {
+      type: Boolean,
+      default: false,
     },
   },
 

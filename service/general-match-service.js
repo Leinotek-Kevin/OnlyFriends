@@ -229,8 +229,13 @@ const generalMatch = async () => {
               //篩選對象的興趣匹配(需要用戶訂閱才開放)
               interestedScore: {
                 // $cond: [
-                //   { $eq: [currentUser.isSubscription, true] }, // 只有訂閱用戶才有興趣加權
-                // {
+                //   {
+                //     $and: [
+                //       { $eq: [currentUser.isSubscription, true] }, // 用戶必須是訂閱用戶
+                //       { $eq: [currentUser.needSameInterested, true] }, // 是否啟用共同興趣開關 true
+                //     ],
+                //   }, // 只有訂閱用戶才有興趣加權
+                //   {
                 $cond: [
                   {
                     $gt: [
@@ -262,7 +267,7 @@ const generalMatch = async () => {
                   },
                   0,
                 ],
-                // },
+                //   },
                 //   0, // 如果當前用戶沒有訂閱，興趣加權為 0
                 // ],
               },

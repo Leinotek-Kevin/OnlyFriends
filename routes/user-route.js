@@ -415,7 +415,7 @@ router.post("/check-channel", async (req, res) => {
 router.post("/update-condition", async (req, res) => {
   try {
     let { userID, userEmail, isSubscription } = req.user;
-    let { gender, minAge, maxAge, region } = req.body;
+    let { gender, minAge, maxAge, region, needSameInterested } = req.body;
 
     let updateData = {
       objectCondition: {
@@ -429,6 +429,10 @@ router.post("/update-condition", async (req, res) => {
 
     if (isSubscription && generalUtil.isNotNUllEmpty(region)) {
       updateData.objectCondition.objectRegion = region;
+    }
+
+    if (isSubscription && generalUtil.isNotNUllEmpty(needSameInterested)) {
+      updateData.objectCondition.needSameInterested = needSameInterested;
     }
 
     await User.updateOne(

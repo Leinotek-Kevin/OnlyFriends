@@ -367,6 +367,8 @@ async function checkAllowSubscription(userID) {
     if (!lastSubscription.isAllow) {
       // 如果用戶沒有訂閱，將期望對象地區改為預設
       updateData["objectCondition.objectRegion"] = "";
+      // 如果用戶沒有訂閱，將期望共同興趣改為 false
+      updateData["objectCondition.needSameInterested"] = false;
     }
 
     //更改用戶訂閱狀態
