@@ -228,28 +228,12 @@ const generalMatch = async () => {
               },
               //篩選對象的興趣匹配(需要用戶訂閱才開放)
               interestedScore: {
+                // $cond: [
+                //   { $eq: [currentUser.isSubscription, true] }, // 只有訂閱用戶才有興趣加權
+                // {
                 $cond: [
-                  // { $eq: [currentUser.isSubscription, true] }, // 只有訂閱用戶才有興趣加權
                   {
-                    $cond: [
-                      {
-                        $gt: [
-                          {
-                            $size: {
-                              $setIntersection: [
-                                { $ifNull: ["$userAttribute.interested", []] }, // 確保是陣列
-                                {
-                                  $ifNull: [
-                                    currentUser.userAttribute.interested,
-                                    [],
-                                  ],
-                                }, // 確保是陣列
-                              ],
-                            },
-                          },
-                          0,
-                        ],
-                      },
+                    $gt: [
                       {
                         $size: {
                           $setIntersection: [
@@ -266,8 +250,21 @@ const generalMatch = async () => {
                       0,
                     ],
                   },
-                  0, // 如果當前用戶沒有訂閱，興趣加權為 0
+                  {
+                    $size: {
+                      $setIntersection: [
+                        { $ifNull: ["$userAttribute.interested", []] }, // 確保是陣列
+                        {
+                          $ifNull: [currentUser.userAttribute.interested, []],
+                        }, // 確保是陣列
+                      ],
+                    },
+                  },
+                  0,
                 ],
+                // },
+                //   0, // 如果當前用戶沒有訂閱，興趣加權為 0
+                // ],
               },
             },
           },
