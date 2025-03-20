@@ -718,10 +718,7 @@ router.post("/report", async (req, res) => {
 //B-9 取得 OF 貼圖系列集
 router.post("/get-stickers", async (req, res) => {
   try {
-    const {
-      isSubscription,
-      objectCondition: { needSameInterested },
-    } = req.user;
+    const { isSubscription, realVerifyStatus } = req.user;
 
     const data = await Sticker.find({ stickersAvailable: true }).sort({
       priority: -1,
@@ -732,14 +729,13 @@ router.post("/get-stickers", async (req, res) => {
     data.forEach((series) => {
       const handleSeries = {
         ...series._doc,
-        //isFreeToYou: isSubscription ? true : series.stickersPlan == "F",
         isFreeToYou:
           series.stickersPlan == "F"
             ? //免費方案
               true
             : //真人驗證方案
             series.stickersPlan == "R"
-            ? needSameInterested
+            ? realVerifyStatus
             : //訂閱解鎖方案
               isSubscription,
       };
@@ -770,10 +766,7 @@ router.post("/get-stickers", async (req, res) => {
 //B-10 取得 OF 主題系列集
 router.post("/get-topics", async (req, res) => {
   try {
-    let {
-      isSubscription,
-      objectCondition: { needSameInterested },
-    } = req.user;
+    let { isSubscription, realVerifyStatus } = req.user;
 
     let { language } = req.body;
 
@@ -789,12 +782,12 @@ router.post("/get-topics", async (req, res) => {
         ...topic._doc,
         topicName,
         isFreeToYou:
-          topic.stickersPlan == "F"
+          topic.topicPlan == "F"
             ? //免費方案
               true
             : //真人驗證方案
-            topic.stickersPlan == "R"
-            ? needSameInterested
+            topic.topicPlan == "R"
+            ? realVerifyStatus
             : //訂閱解鎖方案
               isSubscription,
       };
