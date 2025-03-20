@@ -151,6 +151,12 @@ const TopicNames = Object.freeze([
     des_ZH: "預設",
     des_EN: "Default",
   },
+  //真人驗證貓貓
+  {
+    itemID: "t-cat-02",
+    des_ZH: "真喵驗證",
+    des_EN: "True Cat",
+  },
   //貓貓
   {
     itemID: "t-cat-01",

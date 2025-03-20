@@ -789,11 +789,11 @@ router.post("/get-topics", async (req, res) => {
         ...topic._doc,
         topicName,
         isFreeToYou:
-          series.stickersPlan == "F"
+          topic.stickersPlan == "F"
             ? //免費方案
               true
             : //真人驗證方案
-            series.stickersPlan == "R"
+            topic.stickersPlan == "R"
             ? needSameInterested
             : //訂閱解鎖方案
               isSubscription,
