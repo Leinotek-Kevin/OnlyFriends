@@ -718,7 +718,11 @@ router.post("/report", async (req, res) => {
 //B-9 取得 OF 貼圖系列集
 router.post("/get-stickers", async (req, res) => {
   try {
-    const { isSubscription } = req.user;
+    const {
+      isSubscription,
+      objectCondition: { needSameInterested },
+    } = req.user;
+
     const data = await Sticker.find({ stickersAvailable: true }).sort({
       priority: -1,
     });
@@ -728,7 +732,16 @@ router.post("/get-stickers", async (req, res) => {
     data.forEach((series) => {
       const handleSeries = {
         ...series._doc,
-        isFreeToYou: isSubscription ? true : series.stickersPlan == "F",
+        //isFreeToYou: isSubscription ? true : series.stickersPlan == "F",
+        isFreeToYou:
+          series.stickersPlan == "F"
+            ? //免費方案
+              true
+            : //真人驗證方案
+            series.stickersPlan == "R"
+            ? needSameInterested
+            : //訂閱解鎖方案
+              isSubscription,
       };
 
       delete handleSeries._id;
@@ -757,8 +770,13 @@ router.post("/get-stickers", async (req, res) => {
 //B-10 取得 OF 主題系列集
 router.post("/get-topics", async (req, res) => {
   try {
-    let { isSubscription } = req.user;
+    let {
+      isSubscription,
+      objectCondition: { needSameInterested },
+    } = req.user;
+
     let { language } = req.body;
+
     let topics = await Topic.find({}).sort({ priority: -1 });
 
     let result = [];
@@ -769,8 +787,16 @@ router.post("/get-topics", async (req, res) => {
 
       let temp = {
         ...topic._doc,
-        isFreeToYou: isSubscription ? true : topic.topicPlan == "F",
         topicName,
+        isFreeToYou:
+          series.stickersPlan == "F"
+            ? //免費方案
+              true
+            : //真人驗證方案
+            series.stickersPlan == "R"
+            ? needSameInterested
+            : //訂閱解鎖方案
+              isSubscription,
       };
 
       delete temp._id;

@@ -8,10 +8,10 @@ const stickerSchema = new Schema({
     type: Number,
   },
 
-  //貼圖系列集方案 F:免費 P:付費
+  //貼圖系列集方案 F:免費 P:付費 R:真人驗證
   stickersPlan: {
     type: String,
-    enum: ["P", "F"],
+    enum: ["P", "F", "R"],
   },
 
   //貼圖系列集ID名稱

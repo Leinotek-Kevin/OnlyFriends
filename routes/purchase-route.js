@@ -250,7 +250,7 @@ router.post("/iOS-verify", async (req, res) => {
 //C-3 驗證交易訂單擁有者
 router.post("/verify-owner", async (req, res) => {
   try {
-    let { userEmail } = req.user;
+    let { userEmail, isSubscription } = req.user;
     let { verifyTransactionID, osType } = req.body;
 
     let oriData;
@@ -277,6 +277,7 @@ router.post("/verify-owner", async (req, res) => {
         data: {
           isYourTranscation,
           transcationOwner: oriData.userEmail,
+          isSubscription,
         },
       });
     } else {
