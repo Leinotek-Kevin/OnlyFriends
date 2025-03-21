@@ -58,6 +58,7 @@ const isGroupChannelExist = async (channelUrl) => {
 };
 
 const deleteGroupChannel = async (channelUrl) => {
+  console.log("目標 sendbird url ", channelUrl);
   // SendBird API URL
   const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels/${channelUrl}`;
 
@@ -76,14 +77,17 @@ const deleteGroupChannel = async (channelUrl) => {
       let { status } = response;
 
       if (status == 200) {
+        console.log("目標 sendbird url ", "刪除成功");
         return true;
       }
 
       return false;
     })
     .catch((e) => {
+      console.log(e);
       let { status } = e;
       if (status == 400) {
+        console.log("目標 sendbird url ", "刪除失敗");
         console.log("deleteGroupChannel", e);
         return false;
       }
