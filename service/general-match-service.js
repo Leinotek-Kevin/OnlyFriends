@@ -15,7 +15,7 @@ const cloudStorage = require("../utils/cloudStorage-util");
 const generalMatch = async () => {
   const now = new Date();
 
-  if (now.getHours() == 15 && now.getMinutes() == 45) {
+  if (now.getHours() == 15 && now.getMinutes() == 54) {
     const RE_MATCH_DELAY = 48 * 60 * 60 * 1000;
     const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
@@ -144,6 +144,8 @@ const generalMatch = async () => {
         } else {
           targetUserCount = 1;
         }
+
+        console.log("可配對的對象數量", targetUserCount);
 
         //合併排除的對象
         const consumeSetArray = Array.from(consumeUsers);
