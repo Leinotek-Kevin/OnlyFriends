@@ -145,8 +145,6 @@ const generalMatch = async () => {
           targetUserCount = 1;
         }
 
-        console.log("可配對的對象數量", targetUserCount);
-
         //合併排除的對象
         const consumeSetArray = Array.from(consumeUsers);
         const combinedArray = [
