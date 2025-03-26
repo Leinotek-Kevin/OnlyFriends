@@ -66,6 +66,12 @@ const topicSchema = new Schema({
   priority: {
     type: Number,
   },
+
+  //是否可以使用
+  topicAvailable: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 topicSchema.index({ priority: -1 });

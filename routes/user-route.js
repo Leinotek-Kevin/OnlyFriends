@@ -770,7 +770,9 @@ router.post("/get-topics", async (req, res) => {
 
     let { language } = req.body;
 
-    let topics = await Topic.find({}).sort({ priority: -1 });
+    let topics = await Topic.find({ topicAvailable: true }).sort({
+      priority: -1,
+    });
 
     let result = [];
 
