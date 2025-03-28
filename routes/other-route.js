@@ -134,7 +134,7 @@ router.post("/check-photo", async (req, res) => {
     //在檢查是否是個人
     const faceResult = await visionUtil.checkImageForHumanFace(photo);
 
-    if (!faceResult.isSafe) {
+    if (!faceResult.isFace) {
       //不是一個人臉
       return res.status(200).send({
         status: true,
