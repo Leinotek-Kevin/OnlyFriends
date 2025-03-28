@@ -3,6 +3,7 @@ const User = require("../models").user;
 const Config = require("../models").config;
 const generalUtil = require("../utils/general-util");
 const visionUtil = require("../utils/google-vision-util");
+const storageUtil = require("../utils/cloudStorage-util");
 
 //查詢指定用戶
 router.post("/query-user", async (req, res) => {
@@ -116,43 +117,36 @@ router.post("/check-photo", async (req, res) => {
       });
     }
 
-    //先檢查是否合規
-    const imageResult = await visionUtil.checkImageForIllegal(photo);
+    // 使用 Promise.all() 同時進行兩個檢查
+    const [imageResult, faceResult] = await Promise.all([
+      visionUtil.checkImageForIllegal(photo),
+      visionUtil.checkImageForHumanFace(photo),
+    ]);
 
-    if (!imageResult.isSafe) {
-      //違規照片
-      return res.status(200).send({
-        status: true,
-        message: "您的照片已違反 Only Friends 使用者規範！",
-        data: {
-          checkCode: 101,
-          checkMessage: imageResult.reason,
-        },
-      });
+    let result = {
+      resultCode: 100,
+      resultReport: "This photo has been approved!",
+    };
+
+    //如果照片違規且不是正常人臉
+    if (!imageResult.isSafe && !faceResult.isFace) {
+      result.resultCode = 103;
+      result.resultReport = "This photo is Illegal";
+    } else if (!imageResult.isSafe) {
+      //如果照片違反規範
+      result.resultCode = 101;
+      result.resultReport = imageResult.reason;
+    } else if (!faceResult.isFace) {
+      //如果不是正常人臉
+      result.resultCode = 102;
+      result.resultReport = faceResult.reason;
     }
 
-    //在檢查是否是個人
-    // const faceResult = await visionUtil.checkImageForHumanFace(photo);
-
-    // if (!faceResult.isFace) {
-    //   //不是一個人臉
-    //   return res.status(200).send({
-    //     status: true,
-    //     message: "您上傳的照片不符合真實人臉特徵",
-    //     data: {
-    //       checkCode: 102,
-    //       checkMessage: faceResult.reason,
-    //     },
-    //   });
-    // }
-
+    // 處理檢查結果
     return res.status(200).send({
       status: true,
-      message: "您的照片已通過審核！",
-      data: {
-        checkCode: 100,
-        checkMessage: "This photo has been approved!",
-      },
+      message: "照片已審核完成！",
+      data: result,
     });
   } catch (e) {
     return res.status(500).send({
