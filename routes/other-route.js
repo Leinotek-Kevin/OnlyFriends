@@ -2,7 +2,9 @@ const router = require("express").Router();
 const User = require("../models").user;
 const Config = require("../models").config;
 const generalUtil = require("../utils/general-util");
+const visionUtil = require("../utils/google-vision-util");
 
+//查詢指定用戶
 router.post("/query-user", async (req, res) => {
   try {
     let { userID } = req.body;
@@ -93,7 +95,66 @@ router.post("/curd-version", async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
+    });
+  }
+});
+
+//檢查註冊照片是否符合規範
+router.post("/check-photo", async (req, res) => {
+  try {
+    const { photo } = req.body;
+
+    if (!generalUtil.isNotNUllEmpty(photo)) {
+      return res.status(200).send({
+        status: true,
+        message: "請提供要檢查的圖片網址",
+        data: null,
+      });
+    }
+
+    //先檢查是否合規
+    const imageResult = await visionUtil.checkImageForIllegal(photo);
+
+    if (!imageResult.isSafe) {
+      //違規照片
+      return res.status(200).send({
+        status: true,
+        message: "您的照片已違反 Only Friends 使用者規範！",
+        data: {
+          checkCode: 101,
+          checkMessage: imageResult.reason,
+        },
+      });
+    }
+
+    //在檢查是否是個人
+    const faceResult = await visionUtil.checkImageForHumanFace(photo);
+
+    if (!faceResult.isSafe) {
+      //不是一個人臉
+      return res.status(200).send({
+        status: true,
+        message: "您上傳的照片不符合真實人臉特徵",
+        data: {
+          checkCode: 102,
+          checkMessage: faceResult.reason,
+        },
+      });
+    }
+
+    return res.status(200).send({
+      status: true,
+      message: "您的照片已通過審核！",
+      data: {
+        checkCode: 100,
+        checkMessage: "This photo has been approved!",
+      },
+    });
+  } catch (e) {
     return res.status(500).send({
       status: false,
       message: "Server Error!",
