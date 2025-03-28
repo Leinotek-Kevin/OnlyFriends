@@ -869,8 +869,6 @@ router.post("/edit-info", async (req, res) => {
           const photoArray = JSON.parse(photos);
           updateData.userPhotos = photoArray;
 
-          console.log(photoArray);
-
           //交叉比對原本照片和準備要更新的照片差異
           let { userPhotos } = req.user;
 
@@ -895,7 +893,7 @@ router.post("/edit-info", async (req, res) => {
                   status: true,
                   message: "照片審核不通過！",
                   validCode: "1",
-                  data: { photosCheckResult, userPhotos },
+                  data: { photosCheckResult, oriPhotos: userPhotos },
                 });
               }
             }
@@ -929,7 +927,7 @@ router.post("/edit-info", async (req, res) => {
                   status: true,
                   message: "照片審核不通過！",
                   validCode: "1",
-                  data: { photosCheckResult, userPhotos },
+                  data: { photosCheckResult, oriPhotos: userPhotos },
                 });
               }
             }
@@ -948,13 +946,11 @@ router.post("/edit-info", async (req, res) => {
                   status: true,
                   message: "照片審核不通過！",
                   validCode: "1",
-                  data: { photosCheckResult, userPhotos },
+                  data: { photosCheckResult, oriPhotos: userPhotos },
                 });
               }
             }
           }
-
-          console.log(photosCheckResult);
         } catch (e) {
           console.log("JSON 解析失敗:", e);
         }
