@@ -15,6 +15,7 @@ const storageUtil = require("../utils/cloudStorage-util");
 const sendbirdUtil = require("../utils/sendbird-util");
 const sbUtil = require("../utils/sendbird-util");
 const generalUtil = require("../utils/general-util");
+const visionUtil = require("../utils/google-vision-util");
 const passport = require("passport");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -807,7 +808,6 @@ router.post("/get-topics", async (req, res) => {
       data: result,
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
@@ -837,8 +837,6 @@ router.post("/edit-info", async (req, res) => {
         values,
         realVerifyStatus,
       } = req.body;
-
-      console.log(req.body);
 
       let updateData = {
         userAttribute: req.user.userAttribute,
@@ -871,14 +869,92 @@ router.post("/edit-info", async (req, res) => {
           const photoArray = JSON.parse(photos);
           updateData.userPhotos = photoArray;
 
+          console.log(photoArray);
+
           //交叉比對原本照片和準備要更新的照片差異
           let { userPhotos } = req.user;
 
-          const diffImages = userPhotos.filter(
-            (item) => !photoArray.includes(item)
-          );
+          let photosCheckResult = {
+            resultCode: 100,
+            resultReport: "This photo has been approved!",
+          };
 
-          storageUtil.deleteImages(diffImages);
+          //刪除照片操作(新的照片集比原本照片集少)
+          if (photoArray.length < userPhotos.length) {
+            //如果照片刪到只剩下一張,就會默認第一張是大頭照,此時就要檢查第一張是否是個人
+            if (photoArray && photoArray.length == 1) {
+              //檢查第一張照片是不是人
+              const faceResult = await visionUtil.checkImageForHumanFace(
+                photoArray[0]
+              );
+              if (!faceResult.isFace) {
+                photosCheckResult.resultCode = 102;
+                photosCheckResult.resultReport = faceResult.reason;
+
+                return res.status(200).send({
+                  status: true,
+                  message: "照片審核不通過！",
+                  validCode: "1",
+                  data: { photosCheckResult, userPhotos },
+                });
+              }
+            }
+
+            const deleteImages = userPhotos.filter(
+              (item) => !photoArray.includes(item)
+            );
+
+            if (deleteImages && deleteImages.length > 0) {
+              storageUtil.deleteImages(deleteImages);
+            }
+          } else if (photoArray.length > userPhotos.length) {
+            //新增照片操作(新的照片集比原本照片集多) => 檢查多出來的那一張是不是合規
+            const addImages = photoArray.filter(
+              (item) => !userPhotos.includes(item)
+            );
+
+            if (addImages && addImages.length > 0) {
+              //檢查照片是否合乎規範
+              const imageResult = await visionUtil.checkImageForIllegal(
+                addImages[0]
+              );
+
+              if (!imageResult.isSafe) {
+                photosCheckResult.resultCode = 101;
+                photosCheckResult.resultReport = imageResult.reason;
+
+                storageUtil.deleteImages([addImages[0]]);
+
+                return res.status(200).send({
+                  status: true,
+                  message: "照片審核不通過！",
+                  validCode: "1",
+                  data: { photosCheckResult, userPhotos },
+                });
+              }
+            }
+          } else if (photoArray.length == userPhotos.length) {
+            //變更照片順序操作(新的照片集跟原本照片集一樣)=> 檢查第一張大頭貼是不是人
+            if (photoArray && photoArray.length > 0) {
+              //檢查第一張照片是不是人
+              const faceResult = await visionUtil.checkImageForHumanFace(
+                photoArray[0]
+              );
+              if (!faceResult.isFace) {
+                photosCheckResult.resultCode = 102;
+                photosCheckResult.resultReport = faceResult.reason;
+
+                return res.status(200).send({
+                  status: true,
+                  message: "照片審核不通過！",
+                  validCode: "1",
+                  data: { photosCheckResult, userPhotos },
+                });
+              }
+            }
+          }
+
+          console.log(photosCheckResult);
         } catch (e) {
           console.log("JSON 解析失敗:", e);
         }

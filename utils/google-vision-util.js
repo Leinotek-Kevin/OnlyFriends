@@ -51,6 +51,7 @@ async function checkImageForIllegal(imageUrl) {
     // 如果沒有不當內容，返回安全標示
     return { isSafe: true, reason: "This content is Safe" };
   } catch (error) {
+    console.log(error);
     return { isSafe: false, reason: "Error during content check" };
   }
 }
