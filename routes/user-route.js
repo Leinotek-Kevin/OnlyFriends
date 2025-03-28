@@ -838,6 +838,8 @@ router.post("/edit-info", async (req, res) => {
         realVerifyStatus,
       } = req.body;
 
+      console.log(req.body);
+
       let updateData = {
         userAttribute: req.user.userAttribute,
       };
