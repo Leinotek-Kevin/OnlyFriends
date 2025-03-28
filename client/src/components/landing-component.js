@@ -1,6 +1,6 @@
 import React from "react";
 import "../styles/landing.css";
-import background from "../images/bg-onlyfriends.png";
+import background from "../images/bg-only-friends.png";
 import displayTitle from "../images/bg-display-title.png";
 import displayRule from "../images/bg-display-rule.png";
 import display1 from "../images/bg-display-1.png";
