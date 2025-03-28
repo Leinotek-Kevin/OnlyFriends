@@ -132,19 +132,19 @@ router.post("/check-photo", async (req, res) => {
     }
 
     //在檢查是否是個人
-    const faceResult = await visionUtil.checkImageForHumanFace(photo);
+    // const faceResult = await visionUtil.checkImageForHumanFace(photo);
 
-    if (!faceResult.isFace) {
-      //不是一個人臉
-      return res.status(200).send({
-        status: true,
-        message: "您上傳的照片不符合真實人臉特徵",
-        data: {
-          checkCode: 102,
-          checkMessage: faceResult.reason,
-        },
-      });
-    }
+    // if (!faceResult.isFace) {
+    //   //不是一個人臉
+    //   return res.status(200).send({
+    //     status: true,
+    //     message: "您上傳的照片不符合真實人臉特徵",
+    //     data: {
+    //       checkCode: 102,
+    //       checkMessage: faceResult.reason,
+    //     },
+    //   });
+    // }
 
     return res.status(200).send({
       status: true,
