@@ -210,6 +210,7 @@ router.post("/today-matches", async (req, res) => {
     const isCloseNight = diffNight <= 30 * 60 * 1000 && diffNight > 0;
 
     //獲取今天所有配對
+    //找出共同興趣
     const newestMatches = await MatchNewest.find({
       $or: [{ user1ID: userID }, { user2ID: userID }],
     })
@@ -220,6 +221,7 @@ router.post("/today-matches", async (req, res) => {
         "userQuestion",
         "realVerifyStatus",
         "notificationStatus",
+        "userAttribute.interested",
       ])
       .populate("user2_ID", [
         "userName",
@@ -228,6 +230,7 @@ router.post("/today-matches", async (req, res) => {
         "userQuestion",
         "realVerifyStatus",
         "notificationStatus",
+        "userAttribute.interested",
       ])
       .sort({
         uiType: 1,
@@ -265,6 +268,7 @@ router.post("/today-matches", async (req, res) => {
           topicID: match.topicID,
           topicBackGround: match.topicBackGround,
           topicColors: match.topicColors,
+          commonInteresteds: [],
         };
 
         //一般配對
@@ -305,6 +309,11 @@ router.post("/today-matches", async (req, res) => {
           //隨機郵戳
           outData.userPhoto = match.letterMark;
         }
+
+        //尋找共同興趣
+        outData.commonInteresteds = objectInfo.userAttribute.interested.filter(
+          (interest) => req.user.userAttribute.interested.includes(interest)
+        );
 
         matches.push(outData);
       });
