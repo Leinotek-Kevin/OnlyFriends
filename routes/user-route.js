@@ -172,11 +172,11 @@ router.post("/info", async (req, res) => {
 router.post("/today-matches", async (req, res) => {
   try {
     let { userID, isSubscription } = req.user;
+    let { language } = req.body;
     let {
       matchRecord: {
         general: { status: matchScheduleStatus },
       },
-      annuChannel,
     } = await Config.findOne({});
 
     //查詢目前使用者標記好感度的對象
@@ -247,6 +247,11 @@ router.post("/today-matches", async (req, res) => {
 
       matches.push(serviceData);
 
+      const mapItem = (item) => ({
+        itemID: item.itemID,
+        description: language == "en" ? item.des_EN : item.des_ZH,
+      });
+
       //整理要輸出給前端的配對資料
       newestMatches.forEach(async (match) => {
         let objectInfo =
@@ -311,9 +316,17 @@ router.post("/today-matches", async (req, res) => {
         }
 
         //尋找共同興趣
-        outData.commonInteresteds = objectInfo.userAttribute.interested.filter(
+        const commonInterests = objectInfo.userAttribute.interested.filter(
           (interest) => req.user.userAttribute.interested.includes(interest)
         );
+
+        if (commonInterests != null && commonInterests.length > 0) {
+          //提取用戶的興趣
+          outData.commonInteresteds = Interesteds.filter((item) =>
+            commonInterests.includes(item.itemID)
+          ) // 過濾出與興趣陣列相符的項目
+            .map(mapItem);
+        }
 
         matches.push(outData);
       });
