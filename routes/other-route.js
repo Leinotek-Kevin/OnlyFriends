@@ -124,21 +124,21 @@ router.post("/check-photo", async (req, res) => {
     ]);
 
     let result = {
-      resultCode: 100,
+      resultCode: "100",
       resultReport: "This photo has been approved!",
     };
 
     //如果照片違規且不是正常人臉
     if (!imageResult.isSafe && !faceResult.isFace) {
-      result.resultCode = 103;
+      result.resultCode = "103";
       result.resultReport = "This photo is Illegal";
     } else if (!imageResult.isSafe) {
       //如果照片違反規範
-      result.resultCode = 101;
+      result.resultCode = "101";
       result.resultReport = imageResult.reason;
     } else if (!faceResult.isFace) {
       //如果不是正常人臉
-      result.resultCode = 102;
+      result.resultCode = "102";
       result.resultReport = faceResult.reason;
     }
 
