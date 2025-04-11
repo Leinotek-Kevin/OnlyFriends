@@ -895,7 +895,7 @@ router.post("/edit-info", async (req, res) => {
           let { userPhotos } = req.user;
 
           let photosCheckResult = {
-            resultCode: 100,
+            resultCode: "100",
             resultReport: "This photo has been approved!",
           };
 
@@ -908,7 +908,7 @@ router.post("/edit-info", async (req, res) => {
                 photoArray[0]
               );
               if (!faceResult.isFace) {
-                photosCheckResult.resultCode = 102;
+                photosCheckResult.resultCode = "102";
                 photosCheckResult.resultReport = faceResult.reason;
 
                 return res.status(200).send({
@@ -940,7 +940,7 @@ router.post("/edit-info", async (req, res) => {
               );
 
               if (!imageResult.isSafe) {
-                photosCheckResult.resultCode = 101;
+                photosCheckResult.resultCode = "101";
                 photosCheckResult.resultReport = imageResult.reason;
 
                 storageUtil.deleteImages([addImages[0]]);
@@ -961,7 +961,7 @@ router.post("/edit-info", async (req, res) => {
                 photoArray[0]
               );
               if (!faceResult.isFace) {
-                photosCheckResult.resultCode = 102;
+                photosCheckResult.resultCode = "102";
                 photosCheckResult.resultReport = faceResult.reason;
 
                 return res.status(200).send({
