@@ -16,6 +16,11 @@ const deleteImages = async (imageUrls) => {
     // 使用 Promise.all 處理多個非同步請求
     await Promise.all(
       imageUrls.map(async (imageUrl) => {
+        // 跳過包含 user-photo-warning.png 的圖片
+        if (imageUrl.includes("user-photo-warning.png")) {
+          return; // 如果包含預警圖片，直接跳過，不刪除
+        }
+
         // 使用更可靠的方式提取檔案路徑
         const match = imageUrl.match(/\/o\/(.*?)\?/);
 
