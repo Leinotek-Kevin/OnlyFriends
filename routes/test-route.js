@@ -296,7 +296,7 @@ router.post("/check-user-real", async (req, res) => {
     const pLimit = (await import("p-limit")).default;
     const limit = pLimit(5); // 限制同時處理 5 個
 
-    const aliveUser = await User.find({ identity: 2 });
+    const aliveUser = await User.find({ identity: 2, userValidCode: "1" });
 
     const checkPromises = aliveUser.map((user) =>
       limit(async () => {
@@ -327,14 +327,14 @@ router.post("/check-user-real", async (req, res) => {
       .filter((result) => result?.hasFace === false)
       .map((result) => result.userId);
 
-    // const warningImageUrl =
-    //   "https://firebasestorage.googleapis.com/v0/b/onlyfriends-20295.appspot.com/o/system%2Frobot-photo%2Fother%2Fuser-photo-warning.png?alt=media&token=adccf915-3f13-410d-ba7e-27760240a5b7";
+    const warningImageUrl =
+      "https://firebasestorage.googleapis.com/v0/b/onlyfriends-20295.appspot.com/o/system%2Frobot-photo%2Fother%2Fuser-photo-warning.png?alt=media&token=adccf915-3f13-410d-ba7e-27760240a5b7";
 
-    // //user-photo-warning 警告要換大頭貼
-    // await User.updateMany(
-    //   { userID: { $in: notRealUserIds } },
-    //   { $set: { "userPhotos.0": warningImageUrl } }
-    // );
+    //user-photo-warning 警告要換大頭貼
+    await User.updateMany(
+      { userID: { $in: notRealUserIds } },
+      { $set: { "userPhotos.0": warningImageUrl } }
+    );
 
     return res.status(200).send({
       status: true,
