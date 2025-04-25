@@ -9,4 +9,5 @@ module.exports = {
   other: require("./other-route"),
   webhook: require("./webhook-route"),
   cloudmsg: require("./cloudmsg-route"),
+  circle: require("./circle-routes"),
 };

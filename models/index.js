@@ -10,4 +10,6 @@ module.exports = {
   report: require("./report-model"),
   config: require("./config-model"),
   error: require("./error-model"),
+  readyCircle: require("./ready-circle-model"),
+  circleTicket: require("./circle-ticket-model"),
 };
