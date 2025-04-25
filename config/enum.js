@@ -189,6 +189,54 @@ const TopicNames = Object.freeze([
   },
 ]);
 
+const CircleTopicIDS = Object.freeze([
+  {
+    itemID: "random",
+    des_ZH: "隨機加入小圈圈",
+    des_EN: "Randomly Join",
+  },
+  {
+    itemID: "movie-1",
+    des_ZH: "電影研究社",
+    des_EN: "Movie Research",
+  },
+  {
+    itemID: "cartoon-1",
+    des_ZH: "動漫迷",
+    des_EN: "Cartoon Fans",
+  },
+  {
+    itemID: "game-1",
+    des_ZH: "遊戲同樂會",
+    des_EN: "Game Party",
+  },
+  {
+    itemID: "food-1",
+    des_ZH: "甜點吃貨",
+    des_EN: "Dessert Foodie",
+  },
+  {
+    itemID: "food-2",
+    des_ZH: "美食發掘家",
+    des_EN: "Food Explorer",
+  },
+  {
+    itemID: "liquor-1",
+    des_ZH: "微醺酒吧",
+    des_EN: "Tipsy Bar",
+  },
+  {
+    itemID: "travel-1",
+    des_ZH: "小小旅行團",
+    des_EN: "Tour Group",
+  },
+  {
+    itemID: "fashion-1",
+    des_ZH: "時尚美妝",
+    des_EN: "Fashion Beauty",
+  },
+]);
+
 module.exports = {
   TopicNames,
   ReportReasons,
@@ -196,4 +244,5 @@ module.exports = {
   Traits,
   FriendMotives,
   Values,
+  CircleTopicIDS,
 };

@@ -10,6 +10,8 @@ const { v4: uuidv4 } = require("uuid");
 const { user } = require("../models");
 const uuid = uuidv4(); // 生成 UUID v4
 
+const { CircleTopicIDS } = require("../config/enum");
+
 router.use((req, res, next) => {
   console.log("正在接收一個跟 circle 有關的請求");
   passport.authenticate("jwt", { session: false }, (err, user, info) => {
@@ -101,25 +103,67 @@ router.post("/join-circle", async (req, res) => {
 router.post("/show-circles", async (req, res) => {
   try {
     const { userID } = req.user;
+    const { language } = req.body;
+
     const ticket = await CircleTicket.findOne({ ticketOwnerID: userID });
 
-    const officialCircle = await ReadyCircle.find(
-      {},
-      { circleTopicID: 1, circleIntro: 1 }
-    );
+    const mapItem = (item) => ({
+      circleTopicID: item.itemID,
+      description: language == "en" ? item.des_EN : item.des_ZH,
+      isChoose: ticket ? item.itemID == ticket.circleTopicID : false,
+    });
 
-    const circles = officialCircle.map((circle) => ({
-      circleTopicID: circle.circleTopicID,
-      circleIntro: circle.circleIntro,
-      isJoin: ticket?.circleTopicID === circle.circleTopicID,
-    }));
+    //目前圈圈報名系統狀態碼
+    //0:尚未開放報名 1:開放報名 2:報名已截止 3:圈圈群聊中
+    const statusMap = [
+      //星期日
+      { statusCode: 0, text: "尚未開放報名" },
+      //星期一
+      { statusCode: 1, text: "開放報名" },
+      { statusCode: 1, text: "開放報名" },
+      { statusCode: 1, text: "開放報名" },
+      { statusCode: 2, text: "階段鎖定" },
+      { statusCode: 3, text: "活動中" },
+      { statusCode: 0, text: "尚未開放報名" },
+    ];
+
+    //今天星期幾
+    const day = new Date(Date.now()).getDay();
+
+    //目前系統圈圈活動的狀態
+    const circleStatusCode = statusMap[day];
+
+    let content = "尚未開放報名";
+    let contentID = "0";
+
+    if (circleStatusCode.statusCode == 0) {
+      //系統尚未開放報名(六,日)
+      content = ticket == null ? "尚未開放報名" : "請把握保留的圈圈聊天喔！";
+      contentID = ticket == null ? "0" : "3";
+    } else if (circleStatusCode.statusCode == 1) {
+      //開放報名(一,二,三)
+      contentID = "1";
+      content = "開放報名";
+    } else if (circleStatusCode.statusCode == 2) {
+      //階段鎖定(四)
+      contentID = "2";
+      content = "階段已鎖定";
+    } else if (circleStatusCode.statusCode == 3) {
+      //活動中(五)
+      content =
+        ticket == null ? "尚未開放報名" : "圈圈聊天已開始！請好好把握喔！";
+      contentID = ticket == null ? "0" : "3";
+    }
 
     return res.status(200).send({
       status: true,
       message: "顯示所有主題圈圈列表",
       validCode: "1",
       data: {
-        circles,
+        day,
+        content,
+        contentID,
+        circleTopics: CircleTopicIDS.map(mapItem),
       },
     });
   } catch (e) {
@@ -171,7 +215,7 @@ router.post("/quit-circle", async (req, res) => {
   }
 });
 
-//E-4 圈圈服務台
+//E-1 圈圈服務台
 router.post("/circle-npc", async (req, res) => {
   try {
     const { userID } = req.user;
@@ -215,56 +259,37 @@ router.post("/circle-npc", async (req, res) => {
 
     if (circleStatusCode.statusCode == 0) {
       //系統尚未開放報名(六,日)
-      if (ticket == null) {
-        result.content = "尚未開放報名";
-        result.contentID = "0";
-      } else {
-        const reserve = new Date(ticket.expiredTime).getDay() == 0;
-        result.canJoin = reserve;
-        result.content = reserve ? "請把握保留的圈圈聊天喔！" : "尚未開放報名";
-        result.contentID = reserve ? "3" : "0";
-      }
+      result.content =
+        ticket == null ? "尚未開放報名" : "請把握保留的圈圈聊天喔！";
+      result.contentID = ticket == null ? "0" : "3";
+      result.canJoin = ticket != null;
     } else if (circleStatusCode.statusCode == 1) {
       //開放報名(一,二,三)
       result.contentID = "1";
-      if (ticket == null) {
-        result.content = "開放報名";
-      } else {
-        //防呆清掉用戶過去的票券
-        await CircleTicket.findOneAndDelete({ ticketOwnerID: userID });
-        result.content = "開放報名";
-      }
+      result.content = "開放報名";
     } else if (circleStatusCode.statusCode == 2) {
       //階段鎖定(四)
       result.contentID = "2";
-      if (ticket == null) {
-        result.content = "階段已鎖定";
-      } else {
-        //防呆清掉用戶過去的票券
-        await CircleTicket.findOneAndDelete({ ticketOwnerID: userID });
-        result.content = "階段已鎖定";
-      }
+      result.content = "階段已鎖定";
     } else if (circleStatusCode.statusCode == 3) {
       //活動中(五)
-      if (ticket == null) {
-        result.content = "尚未開放報名";
-        result.contentID = "0";
-      } else {
-        result.content = "圈圈聊天已開始！請好好把握喔！";
-        result.contentID = "3";
-        result.canJoin = true;
-      }
+      result.content =
+        ticket == null ? "尚未開放報名" : "圈圈聊天已開始！請好好把握喔！";
+      result.contentID = ticket == null ? "0" : "3";
+      result.canJoin = ticket != null;
     }
 
     return res.status(200).send({
       status: true,
       message: "以下是您的查詢結果",
+      validCode: "1",
       data: result,
     });
   } catch (e) {
     return res.status(500).send({
       status: false,
       message: "Server Error",
+      validCode: "-1",
       e,
     });
   }
