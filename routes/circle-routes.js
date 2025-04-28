@@ -40,11 +40,21 @@ router.use((req, res, next) => {
   })(req, res); // 注意這裡要馬上調用 authenticate 函數
 });
 
-//E-1 參加指定主題圈圈
+//E-3 參加指定主題圈圈
 router.post("/join-circle", async (req, res) => {
   try {
-    const { userID } = req.user;
+    const { userID, isSubscription } = req.user;
     const { circleTopicID } = req.body;
+
+    if (isSubscription) {
+      return res.status(200).send({
+        status: true,
+        message: "主題小圈圈僅開放訂閱會員！",
+        data: {
+          joinStatusCode: "-1",
+        },
+      });
+    }
 
     //查詢用戶是否已經參加主題圈圈(是否擁有圈圈門票)
     const ticket = await CircleTicket.findOne({ ticketOwnerID: userID });
@@ -163,6 +173,7 @@ router.post("/show-circles", async (req, res) => {
         day,
         content,
         contentID,
+        everChoose: ticket != null,
         circleTopics: CircleTopicIDS.map(mapItem),
       },
     });
@@ -180,7 +191,6 @@ router.post("/show-circles", async (req, res) => {
 router.post("/quit-circle", async (req, res) => {
   try {
     const { userID } = req.user;
-    ``;
 
     //查詢用戶是否已經參加主題圈圈(是否擁有圈圈門票)
     const deletedTicket = await CircleTicket.findOneAndDelete({
