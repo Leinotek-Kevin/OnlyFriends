@@ -180,6 +180,7 @@ router.post("/show-circles", async (req, res) => {
 router.post("/quit-circle", async (req, res) => {
   try {
     const { userID } = req.user;
+    ``;
 
     //查詢用戶是否已經參加主題圈圈(是否擁有圈圈門票)
     const deletedTicket = await CircleTicket.findOneAndDelete({
@@ -236,7 +237,7 @@ router.post("/circle-npc", async (req, res) => {
 
     //今天星期幾
     const now = Date.now();
-    const isNowDuration = now > 1745769600000 && now < 1748534400000;
+    const isNewDuration = now > 1745769600000 && now < 1748534400000;
     const day = new Date(Date.now()).getDay();
 
     //目前系統圈圈活動的狀態
@@ -247,7 +248,7 @@ router.post("/circle-npc", async (req, res) => {
     //詢問結果
     const result = {
       day,
-      isNowDuration,
+      isNewDuration,
       content: "尚未開放報名",
       contentID: "0",
       canJoin: false,
