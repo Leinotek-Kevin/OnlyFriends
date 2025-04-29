@@ -4,9 +4,10 @@ dotenv.config();
 
 const SendBird = require("sendbird");
 const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
+const generalUtil = require("../utils/general-util");
 
 //建立＆更新用戶
-const createAndUpdateUser = async (userID, userName) => {
+const createAndUpdateUser = async (userID, userName, userPhoto) => {
   return new Promise((resolve, reject) => {
     // 先連接 SendBird，用戶不存在則創建
     sb.connect(userID, function (user, error) {
@@ -14,8 +15,11 @@ const createAndUpdateUser = async (userID, userName) => {
         return reject(error);
       }
 
+      userName = userName || "";
+      userPhoto = userPhoto || "";
+
       // 連接成功後，立即更新暱稱
-      sb.updateCurrentUserInfo(userName, null, function (response, error) {
+      sb.updateCurrentUserInfo(userName, userPhoto, function (response, error) {
         if (error) {
           return reject(error);
         }
@@ -424,6 +428,38 @@ const sendMsgOpenChannel = async (msg, link, image, customType) => {
     });
 };
 
+//更新已存在的用戶
+const updateExistUser = async (userId, nickname, profileUrl) => {
+  const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/users/${userId}`;
+
+  const headers = {
+    "Content-Type": "application/json",
+    "Api-Token": process.env.SENDBIRD_API_TOKEN,
+  };
+
+  const body = {};
+
+  if (generalUtil.isNotNUllEmpty(nickname)) {
+    body.nickname = nickname;
+  }
+
+  if (generalUtil.isNotNUllEmpty(profileUrl)) {
+    body.profile_url = profileUrl;
+  }
+
+  // const body = {
+  //   nickname: nickname,
+  //   profile_url: profileUrl,
+  // };
+
+  try {
+    const res = await axios.put(url, body, { headers });
+    // console.log("更新成功:", res.data);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 module.exports = {
   isGroupChannelExist,
   deleteGroupChannel,
@@ -437,4 +473,5 @@ module.exports = {
   sendMsgOpenChannel,
   createAndUpdateUser,
   removeRegisterToken,
+  updateExistUser,
 };

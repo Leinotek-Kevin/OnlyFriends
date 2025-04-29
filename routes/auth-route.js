@@ -54,9 +54,6 @@ router.post("/register", async (req, res) => {
       const userAge = ageUtil(userBirthday);
       const userZodiac = zodiacUtil(userBirthday);
 
-      // 連接並設置 Sendbird 用戶暱稱
-      await sendbirdUtil.createAndUpdateUser(userID, userName);
-
       // 準備要更新的資料
       let createData = {
         userEmail,
@@ -98,6 +95,13 @@ router.post("/register", async (req, res) => {
       if (generalUtil.isNotNUllEmpty(userMBTI)) {
         createData.userMBTI = userMBTI;
       }
+
+      // 連接並設置 Sendbird 用戶ID,暱稱,大頭貼
+      const tmpPhotos = createData.userPhotos;
+      const userPhoto =
+        Array.isArray(tmpPhotos) && tmpPhotos.length > 0 ? tmpPhotos[0] : "";
+
+      await sendbirdUtil.createAndUpdateUser(userID, userName, userPhoto);
 
       await User.create(createData);
 

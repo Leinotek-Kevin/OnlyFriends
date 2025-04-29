@@ -867,6 +867,8 @@ router.post("/edit-info", async (req, res) => {
       //用戶基本資料
       if (generalUtil.isNotNUllEmpty(name)) {
         updateData.userName = name;
+        //通知 sb 改名字
+        await sbUtil.updateExistUser(userID, name, "");
       }
 
       if (generalUtil.isNotNUllEmpty(region)) {
@@ -886,6 +888,7 @@ router.post("/edit-info", async (req, res) => {
         updateData.userQuestion = question;
       }
 
+      //照片集變更
       if (generalUtil.isNotNUllEmpty(photos)) {
         try {
           const photoArray = JSON.parse(photos);
@@ -917,6 +920,9 @@ router.post("/edit-info", async (req, res) => {
                   validCode: "1",
                   data: { photosCheckResult, oriPhotos: userPhotos },
                 });
+              } else {
+                //告知 SB 大頭貼要更新
+                await sbUtil.updateExistUser(userID, "", photoArray[0]);
               }
             }
 
@@ -970,6 +976,9 @@ router.post("/edit-info", async (req, res) => {
                   validCode: "1",
                   data: { photosCheckResult, oriPhotos: userPhotos },
                 });
+              } else {
+                //告知 SB 大頭貼要更新
+                await sbUtil.updateExistUser(userID, "", photoArray[0]);
               }
             }
           }

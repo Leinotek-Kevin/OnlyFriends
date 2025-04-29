@@ -276,4 +276,66 @@ router.post("/remove-token", async (req, res) => {
   }
 });
 
+//測試更新已存在的使用者
+router.post("/update-user", async (req, res) => {
+  try {
+    const { targetUserID } = req.body;
+
+    const { userID, userName, userPhotos } = await User.findOne({
+      userID: targetUserID,
+    });
+
+    const userPhoto = userPhotos && userPhotos.length > 0 ? userPhotos[0] : "";
+
+    const result = await sbUtil.updateExistUser(userID, userName, userPhoto);
+
+    return res.status(200).send({
+      status: true,
+      message: "更新完畢！",
+      result,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
+    });
+  }
+});
+
+router.post("/update-users", async (req, res) => {
+  try {
+    const users = await User.find({});
+
+    const pLimit = (await import("p-limit")).default;
+    const limit = pLimit(5); // 同時最多 10 個
+
+    const promises = users.map((user) => {
+      return limit(async () => {
+        const userPhoto =
+          user.userPhotos && user.userPhotos.length > 0
+            ? user.userPhotos[0]
+            : "";
+        return sbUtil.updateExistUser(user.userID, user.userName, userPhoto);
+      });
+    });
+
+    const result = await Promise.all(promises);
+
+    return res.status(200).send({
+      status: true,
+      message: "更新完畢！",
+      result,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
+    });
+  }
+});
+
 module.exports = router;
