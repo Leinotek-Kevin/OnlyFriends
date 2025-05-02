@@ -18,8 +18,12 @@ const userBackRemind = require("./user-back-remind-service");
 //提醒午夜配對 23:30
 const alertMatch = require("./alert-match-service");
 
+//測試分群
+const circleGrouping = require("./circle-grouping-service");
+
 //設定每天執行
 const startFetching = () => {
+  //circleGrouping();
   generalMatch();
   letterMatch();
   checkDevice();

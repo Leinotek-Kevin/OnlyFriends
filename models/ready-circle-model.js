@@ -17,7 +17,13 @@ const readyCircleSchema = new Schema({
 
   //預備圈圈參加用戶:
   circleReadyUsers: {
-    type: Array,
+    type: [
+      {
+        userID: { type: String, required: true },
+        userRegion: { type: String, required: true },
+        _id: false, // 加這行就不會出現 _id
+      },
+    ],
     default: [],
   },
 });

@@ -21,6 +21,12 @@ const circleTicketSchema = new Schema({
     default: "",
   },
 
+  //圈圈渠道ID(對應 SendBird Group Channel)
+  circleChannelID: {
+    type: String,
+    default: "",
+  },
+
   //建立生效時間
   createTime: {
     type: Number,

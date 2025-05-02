@@ -460,6 +460,56 @@ const updateExistUser = async (userId, nickname, profileUrl) => {
   }
 };
 
+//建立圈圈群組渠道
+const createCircleChannel = async (
+  userIDS,
+  circleTopicID,
+  circleGroupID,
+  cover
+) => {
+  //圈圈用戶們
+  const users = Array.isArray(userIDS) && userIDS.length > 0 ? userIDS : [];
+
+  // SendBird API URL
+  const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels`;
+
+  // API Token
+  const apiToken = process.env.SENDBIRD_API_TOKEN;
+
+  // Request Headers
+  const headers = {
+    "Content-Type": "application/json, charset=utf8",
+    "Api-Token": apiToken,
+  };
+
+  // Request Body (JSON data)
+  const data = {
+    name: "Circle Room:" + circleGroupID,
+    channel_url: circleTopicID + "_" + circleGroupID,
+    cover_url: cover,
+    custom_type: "chat",
+    is_distinct: true,
+    user_ids: users,
+    operator_ids: [process.env.SENDBIRD_OPERATOR_ID],
+  };
+
+  return axios
+    .post(url, data, { headers })
+    .then((response) => {
+      let { status } = response;
+
+      if (status == 200) {
+        return true;
+      }
+    })
+    .catch((e) => {
+      let { status } = e;
+      if (status == 400) {
+        return false;
+      }
+    });
+};
+
 module.exports = {
   isGroupChannelExist,
   deleteGroupChannel,
@@ -468,6 +518,7 @@ module.exports = {
   updateGroupChannel,
   sendMsgGroupChannel,
   lastMsgGroupChannel,
+  createCircleChannel,
   deleteUser,
   deleteMsg,
   sendMsgOpenChannel,
