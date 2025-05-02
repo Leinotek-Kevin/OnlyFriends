@@ -75,7 +75,7 @@ router.post("/circle-npc", async (req, res) => {
       content: "尚未開放報名",
       contentID: "0",
       canJoin: false,
-      circleChannelID: "liquor-1_1234567890",
+      circleChannelID: "liquor-1_0123456789",
       everChoose: false,
       chooseCircleTopicID: "",
     };
@@ -320,7 +320,8 @@ router.post("/quit-circle", async (req, res) => {
 //E-5 查詢主題小圈圈資訊
 router.post("/query-circle-info", async (req, res) => {
   try {
-    const { language } = req.body;
+    //圈圈標題,聊天室色系,背景,用戶列表
+    const { language, circleChannelID } = req.body;
   } catch (e) {
     return res.status(500).send({
       status: false,
