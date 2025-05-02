@@ -12,4 +12,5 @@ module.exports = {
   error: require("./error-model"),
   readyCircle: require("./ready-circle-model"),
   circleTicket: require("./circle-ticket-model"),
+  activityCircle: require("./activity-circle-model"),
 };

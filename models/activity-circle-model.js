@@ -66,6 +66,12 @@ const activityCircleSchema = new Schema({
     default: "",
   },
 
+  //圈圈主題 Logo
+  circleTopicLogo: {
+    type: String,
+    default: "",
+  },
+
   //活躍圈圈參加用戶:
   circleActivityUsers: {
     type: [

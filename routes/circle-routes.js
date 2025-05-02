@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const CircleTicket = require("../models").circleTicket;
+const ActivityCircle = require("../models").activityCircle;
 const ReadyCircle = require("../models").readyCircle;
 const User = require("../models").user;
 const { v4: uuidv4 } = require("uuid");
@@ -317,11 +318,35 @@ router.post("/quit-circle", async (req, res) => {
   }
 });
 
-//E-5 查詢主題小圈圈資訊
+//E-5 查詢指定主題小圈圈資訊
 router.post("/query-circle-info", async (req, res) => {
   try {
     //圈圈標題,聊天室色系,背景,用戶列表
     const { language, circleChannelID } = req.body;
+
+    const circleInfo = await ActivityCircle.findOne({
+      circleChannelID,
+    });
+
+    if (circleInfo == null) {
+      return res.status(200).send({
+        status: true,
+        message: "查無指定活耀圈圈",
+        data: null,
+      });
+    }
+    const matchedItem = CircleTopicIDS.find(
+      (item) => item.itemID === circleInfo.circleTopicID
+    );
+
+    circleInfo.circleTopicName =
+      language == "en" ? matchedItem.des_EN : matchedItem.des_ZH;
+
+    return res.status(200).send({
+      status: true,
+      message: "成功顯示指定主題小圈圈資訊",
+      data: circleInfo,
+    });
   } catch (e) {
     return res.status(500).send({
       status: false,
