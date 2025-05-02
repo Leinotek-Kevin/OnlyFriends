@@ -334,19 +334,45 @@ router.post("/query-circle-info", async (req, res) => {
         message: "查無指定活耀圈圈",
         data: null,
       });
+    } else {
+      let data = {
+        ...circleInfo._doc,
+        circleTopicName: "",
+        circleActivityUsers: [],
+      };
+
+      const circleUsers = await User.find(
+        { userID: { $in: circleInfo.circleUserIDS } },
+        "userID userPhotos userName"
+      );
+
+      const activityUserInfos = circleUsers.map((user) => ({
+        userID: user.userID,
+        userName: user.userName,
+        userPhoto: user.userPhotos?.[0] || "", // 取 userPhotos[0]，若沒有則為 ""
+      }));
+
+      data.circleActivityUsers = activityUserInfos;
+
+      const matchedItem = CircleTopicIDS.find(
+        (item) => item.itemID === circleInfo.circleTopicID
+      );
+
+      data.circleTopicName =
+        language == "en" ? matchedItem.des_EN : matchedItem.des_ZH;
+
+      //刪掉不要的字段
+      delete data._id;
+      delete data.__v;
+      delete data.circleUserIDS;
+
+      return res.status(200).send({
+        status: true,
+        message: "成功顯示指定主題小圈圈資訊",
+        validCode: "1",
+        data,
+      });
     }
-    const matchedItem = CircleTopicIDS.find(
-      (item) => item.itemID === circleInfo.circleTopicID
-    );
-
-    circleInfo.circleTopicName =
-      language == "en" ? matchedItem.des_EN : matchedItem.des_ZH;
-
-    return res.status(200).send({
-      status: true,
-      message: "成功顯示指定主題小圈圈資訊",
-      data: circleInfo,
-    });
   } catch (e) {
     return res.status(500).send({
       status: false,

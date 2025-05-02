@@ -73,15 +73,8 @@ const activityCircleSchema = new Schema({
   },
 
   //活躍圈圈參加用戶:
-  circleActivityUsers: {
-    type: [
-      {
-        userID: { type: String, required: true },
-        userName: { type: String, required: true },
-        userPhoto: { type: String, required: false },
-        _id: false, // 加這行就不會出現 _id
-      },
-    ],
+  circleUserIDS: {
+    type: [{ type: String }],
     default: [],
   },
 });
