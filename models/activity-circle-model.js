@@ -15,7 +15,7 @@ const activityCircleSchema = new Schema({
     default: "",
   },
 
-  //活躍圈圈的 SendBird ChannelID
+  //活躍圈圈的 SendBird ChannelID 唯一值
   circleChannelID: {
     type: String,
     default: "",
@@ -74,6 +74,12 @@ const activityCircleSchema = new Schema({
 
   //活躍圈圈參加用戶:
   circleUserIDS: {
+    type: [{ type: String }],
+    default: [],
+  },
+
+  //已投票要延長時效的用戶
+  circleVoteUserIDS: {
     type: [{ type: String }],
     default: [],
   },

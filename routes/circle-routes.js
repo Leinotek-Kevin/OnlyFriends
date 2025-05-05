@@ -383,6 +383,125 @@ router.post("/query-circle-info", async (req, res) => {
   }
 });
 
+//E-6 投票是否延長小圈圈群組
+router.post("/vote-extend-circle", async (req, res) => {
+  try {
+    const { userID } = req.user;
+    const { circleChannelID } = req.body;
+
+    const targetCircle = await ActivityCircle.findOne({
+      circleChannelID,
+    });
+
+    if (targetCircle) {
+      const voteUsers = targetCircle.circleVoteUserIDS;
+      const hasVote = voteUsers.includes(userID);
+
+      if (hasVote) {
+        return res.status(200).send({
+          status: true,
+          message: "您已經投票過了",
+          validCode: "1",
+        });
+      } else {
+        voteUsers.push(userID);
+
+        await ActivityCircle.updateOne(
+          {
+            circleChannelID,
+          },
+          {
+            circleVoteUserIDS: voteUsers,
+          }
+        );
+
+        //顯示群組投票結果(贊成＆不贊成人數＆用戶是否已經投票)
+        const circleUserCount = targetCircle.circleUserIDS.length;
+        const nonVoteCount = circleUserCount - voteUsers.length;
+
+        const data = {
+          hasVoteCount: voteUsers.length,
+          nonVoteCount,
+          hasVote: true,
+        };
+
+        return res.status(200).send({
+          status: true,
+          message: "已成功投票",
+          validCode: "1",
+          data,
+        });
+      }
+    } else {
+      return res.status(200).send({
+        status: true,
+        message: "找不到指定的主題小圈圈",
+        validCode: "1",
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      validCode: "-1",
+      e,
+    });
+  }
+});
+
+//E-7 取消小圈圈群組投票
+router.post("/cancel-vote-circle", async (req, res) => {
+  try {
+    const { userID } = req.user;
+    const { circleChannelID } = req.body;
+
+    const targetCircle = await ActivityCircle.findOne({
+      circleChannelID,
+    });
+
+    if (targetCircle) {
+      const voteUsers = targetCircle.circleVoteUserIDS;
+      const hasVote = voteUsers.includes(userID);
+
+      if (hasVote) {
+        const updatedArray = voteUsers.filter((id) => id !== userID);
+        await ActivityCircle.updateOne(
+          {
+            circleChannelID,
+          },
+          {
+            circleVoteUserIDS: updatedArray,
+          }
+        );
+        return res.status(200).send({
+          status: true,
+          message: "已成功取消投票",
+          validCode: "1",
+        });
+      } else {
+        return res.status(200).send({
+          status: true,
+          message: "你根本沒有投過票",
+          validCode: "1",
+        });
+      }
+    } else {
+      return res.status(200).send({
+        status: true,
+        message: "找不到指定的主題小圈圈",
+        validCode: "1",
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      validCode: "-1",
+      e,
+    });
+  }
+});
+
 //建立主題圈圈
 router.post("/create-circles", async (req, res) => {
   try {
