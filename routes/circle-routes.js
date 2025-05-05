@@ -321,6 +321,7 @@ router.post("/quit-circle", async (req, res) => {
 //E-5 查詢指定主題小圈圈資訊
 router.post("/query-circle-info", async (req, res) => {
   try {
+    const { userID } = req.user;
     //圈圈標題,聊天室色系,背景,用戶列表
     const { language, circleChannelID } = req.body;
 
@@ -331,48 +332,64 @@ router.post("/query-circle-info", async (req, res) => {
     if (circleInfo == null) {
       return res.status(200).send({
         status: true,
-        message: "查無指定活耀圈圈",
+        message: "查無指定的主題小圈圈",
         data: null,
       });
-    } else {
-      let data = {
-        ...circleInfo._doc,
-        circleTopicName: "",
-        circleActivityUsers: [],
-      };
-
-      const circleUsers = await User.find(
-        { userID: { $in: circleInfo.circleUserIDS } },
-        "userID userPhotos userName"
-      );
-
-      const activityUserInfos = circleUsers.map((user) => ({
-        userID: user.userID,
-        userName: user.userName,
-        userPhoto: user.userPhotos?.[0] || "", // 取 userPhotos[0]，若沒有則為 ""
-      }));
-
-      data.circleActivityUsers = activityUserInfos;
-
-      const matchedItem = CircleTopicIDS.find(
-        (item) => item.itemID === circleInfo.circleTopicID
-      );
-
-      data.circleTopicName =
-        language == "en" ? matchedItem.des_EN : matchedItem.des_ZH;
-
-      //刪掉不要的字段
-      delete data._id;
-      delete data.__v;
-      delete data.circleUserIDS;
-
-      return res.status(200).send({
-        status: true,
-        message: "成功顯示指定主題小圈圈資訊",
-        validCode: "1",
-        data,
-      });
     }
+
+    let data = {
+      ...circleInfo._doc,
+      circleTopicName: "",
+      circleActivityUsers: [],
+      agreeExtendCount: 0,
+      rejectExtendCount: 0,
+      voteExtendState: "",
+    };
+
+    const circleUsers = await User.find(
+      { userID: { $in: circleInfo.circleUserIDS } },
+      "userID userPhotos userName"
+    );
+
+    const activityUserInfos = circleUsers.map((user) => ({
+      userID: user.userID,
+      userName: user.userName,
+      userPhoto: user.userPhotos?.[0] || "", // 取 userPhotos[0]，若沒有則為 ""
+    }));
+
+    data.circleActivityUsers = activityUserInfos;
+
+    const matchedItem = CircleTopicIDS.find(
+      (item) => item.itemID === circleInfo.circleTopicID
+    );
+
+    data.circleTopicName =
+      language == "en" ? matchedItem.des_EN : matchedItem.des_ZH;
+
+    //計算贊成與不贊成延長
+    const agreeUsers = circleInfo.circleVoteBox.circleAgreeUserIDS;
+    const rejectUsers = circleInfo.circleVoteBox.circleRejectUserIDS;
+
+    data.voteExtendState = agreeUsers.includes(userID)
+      ? "1"
+      : rejectUsers.includes(userID)
+      ? "0"
+      : "2";
+
+    data.agreeExtendCount = agreeUsers.length;
+    data.rejectExtendCount = rejectUsers.length;
+
+    //刪掉不要的字段
+    delete data._id;
+    delete data.__v;
+    delete data.circleUserIDS;
+
+    return res.status(200).send({
+      status: true,
+      message: "成功顯示指定主題小圈圈資訊",
+      validCode: "1",
+      data,
+    });
   } catch (e) {
     return res.status(500).send({
       status: false,
@@ -387,58 +404,77 @@ router.post("/query-circle-info", async (req, res) => {
 router.post("/vote-extend-circle", async (req, res) => {
   try {
     const { userID } = req.user;
-    const { circleChannelID } = req.body;
+    const { circleChannelID, voteActionType } = req.body;
 
     const targetCircle = await ActivityCircle.findOne({
       circleChannelID,
     });
 
-    if (targetCircle) {
-      const voteUsers = targetCircle.circleVoteUserIDS;
-      const hasVote = voteUsers.includes(userID);
-
-      if (hasVote) {
-        return res.status(200).send({
-          status: true,
-          message: "您已經投票過了",
-          validCode: "1",
-        });
-      } else {
-        voteUsers.push(userID);
-
-        await ActivityCircle.updateOne(
-          {
-            circleChannelID,
-          },
-          {
-            circleVoteUserIDS: voteUsers,
-          }
-        );
-
-        //顯示群組投票結果(贊成＆不贊成人數＆用戶是否已經投票)
-        const circleUserCount = targetCircle.circleUserIDS.length;
-        const nonVoteCount = circleUserCount - voteUsers.length;
-
-        const data = {
-          hasVoteCount: voteUsers.length,
-          nonVoteCount,
-          hasVote: true,
-        };
-
-        return res.status(200).send({
-          status: true,
-          message: "已成功投票",
-          validCode: "1",
-          data,
-        });
-      }
-    } else {
+    if (targetCircle == null) {
       return res.status(200).send({
         status: true,
-        message: "找不到指定的主題小圈圈",
+        message: "查無指定的主題小圈圈",
         validCode: "1",
       });
     }
+
+    const agreeUsers = targetCircle.circleVoteBox.circleAgreeUserIDS;
+    const rejectUsers = targetCircle.circleVoteBox.circleRejectUserIDS;
+
+    const currentVoteState = agreeUsers.includes(userID)
+      ? "1"
+      : rejectUsers.includes(userID)
+      ? "0"
+      : "2";
+
+    //已經投過票了
+    if (currentVoteState == "1" || currentVoteState == "0") {
+      return res.status(200).send({
+        status: true,
+        message: "你已經投下" + (currentVoteState == "1" ? "贊成票" : "反對票"),
+        validCode: "1",
+      });
+    }
+    //目前尚未投票,
+    if (currentVoteState == "2") {
+      if (voteActionType == "1") {
+        //投贊成票
+        agreeUsers.push(userID);
+      } else if (voteActionType == "0") {
+        //投拒絕票
+        rejectUsers.push(userID);
+      }
+    }
+
+    //計算目前贊成票率
+    const agreeRate = Math.round(
+      (agreeUsers.length / targetCircle.circleUserIDS.length) * 100
+    );
+
+    await ActivityCircle.updateOne(
+      {
+        circleChannelID,
+      },
+      {
+        "circleVoteBox.circleAgreeUserIDS": agreeUsers,
+        "circleVoteBox.circleRejectUserIDS": rejectUsers,
+        "circleVoteBox.agreeVoteRate": agreeRate,
+      }
+    );
+
+    const data = {
+      agreeExtendCount: agreeUsers.length,
+      rejectExtendCount: rejectUsers.length,
+      voteExtendState: voteActionType,
+      //1:贊成 0: 不贊成 2:沒投過
+    };
+
+    return res.status(200).send({
+      status: true,
+      message: "已成功投下" + (voteActionType == "1" ? "贊成票" : "反對票"),
+      validCode: "1",
+      data,
+    });
   } catch (e) {
     return res.status(500).send({
       status: false,
@@ -459,40 +495,64 @@ router.post("/cancel-vote-circle", async (req, res) => {
       circleChannelID,
     });
 
-    if (targetCircle) {
-      const voteUsers = targetCircle.circleVoteUserIDS;
-      const hasVote = voteUsers.includes(userID);
-
-      if (hasVote) {
-        const updatedArray = voteUsers.filter((id) => id !== userID);
-        await ActivityCircle.updateOne(
-          {
-            circleChannelID,
-          },
-          {
-            circleVoteUserIDS: updatedArray,
-          }
-        );
-        return res.status(200).send({
-          status: true,
-          message: "已成功取消投票",
-          validCode: "1",
-        });
-      } else {
-        return res.status(200).send({
-          status: true,
-          message: "你根本沒有投過票",
-          validCode: "1",
-        });
-      }
-    } else {
+    if (targetCircle == null) {
       return res.status(200).send({
         status: true,
-        message: "找不到指定的主題小圈圈",
+        message: "查無指定的主題小圈圈",
         validCode: "1",
       });
     }
+
+    let agreeUsers = targetCircle.circleVoteBox.circleAgreeUserIDS;
+    let rejectUsers = targetCircle.circleVoteBox.circleRejectUserIDS;
+
+    const currentVoteState = agreeUsers.includes(userID)
+      ? "1"
+      : rejectUsers.includes(userID)
+      ? "0"
+      : "2";
+
+    if (currentVoteState == "2") {
+      return res.status(200).send({
+        status: true,
+        message: "來亂的？！你根本還沒有投票！",
+        validCode: "1",
+      });
+    }
+
+    if (currentVoteState == "1") {
+      //目前是投贊成票 => 要撤銷
+      agreeUsers = agreeUsers.filter((id) => id !== userID);
+    }
+
+    if (currentVoteState == "0") {
+      //目前是投反對票 => 要撤銷
+      rejectUsers = rejectUsers.filter((id) => id !== userID);
+    }
+
+    //計算目前贊成票率
+    const agreeRate = Math.round(
+      (agreeUsers.length / targetCircle.circleUserIDS.length) * 100
+    );
+
+    await ActivityCircle.updateOne(
+      {
+        circleChannelID,
+      },
+      {
+        "circleVoteBox.circleAgreeUserIDS": agreeUsers,
+        "circleVoteBox.circleRejectUserIDS": rejectUsers,
+        "circleVoteBox.agreeVoteRate": agreeRate,
+      }
+    );
+
+    return res.status(200).send({
+      status: true,
+      message: "已成功撤銷" + (currentVoteState == "1" ? "贊成票" : "反對票"),
+      validCode: "1",
+    });
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",

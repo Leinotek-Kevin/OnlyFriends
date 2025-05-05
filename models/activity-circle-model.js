@@ -78,10 +78,25 @@ const activityCircleSchema = new Schema({
     default: [],
   },
 
-  //已投票要延長時效的用戶
-  circleVoteUserIDS: {
-    type: [{ type: String }],
-    default: [],
+  //圈圈投票箱
+  circleVoteBox: {
+    //贊成用戶
+    circleAgreeUserIDS: {
+      type: [{ type: String }],
+      default: [],
+    },
+
+    //拒絕用戶
+    circleRejectUserIDS: {
+      type: [{ type: String }],
+      default: [],
+    },
+
+    //目前贊成票率
+    agreeVoteRate: {
+      type: Number,
+      default: 0,
+    },
   },
 });
 
