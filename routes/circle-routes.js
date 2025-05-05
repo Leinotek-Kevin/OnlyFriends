@@ -439,7 +439,7 @@ router.post("/random-circle-user", async (req, res) => {
     shuffled.forEach((user) => {
       const randomTopic =
         circleTopicIDS[Math.floor(Math.random() * circleTopicIDS.length)];
-      circleGroups[randomTopic].push(user);
+      circleGroups[randomTopic].push(user.userID);
     });
 
     // 更新 DB
