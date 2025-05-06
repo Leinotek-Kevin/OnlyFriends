@@ -461,12 +461,7 @@ const updateExistUser = async (userId, nickname, profileUrl) => {
 };
 
 //建立圈圈群組渠道
-const createCircleChannel = async (
-  userIDS,
-  circleTopicID,
-  circleGroupID,
-  cover
-) => {
+const createCircleChannel = async (userIDS, circleID, circleChannelID) => {
   //圈圈用戶們
   const users = Array.isArray(userIDS) && userIDS.length > 0 ? userIDS : [];
 
@@ -484,9 +479,9 @@ const createCircleChannel = async (
 
   // Request Body (JSON data)
   const data = {
-    name: "Circle Room:" + circleGroupID,
-    channel_url: circleTopicID + "_" + circleGroupID,
-    cover_url: cover,
+    name: "Circle Room:" + circleID,
+    channel_url: circleChannelID,
+    cover_url: "",
     custom_type: "chat",
     is_distinct: true,
     user_ids: users,

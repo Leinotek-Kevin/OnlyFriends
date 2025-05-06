@@ -1,27 +1,39 @@
 const User = require("../models").user;
 const ReadyCircle = require("../models").readyCircle;
+const ActivityCircle = require("../models").activityCircle;
 const dotenv = require("dotenv");
 dotenv.config();
 const sbUtil = require("../utils/sendbird-util");
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 const { CircleTopicIDS } = require("../config/enum");
 
-//主題圈圈演算法
-//1. 先將隨機池中的用戶平均分配到有人數的圈圈裡
-//2. 再計算所有參加人數,如果總人數<2人,則不開團;若1<x<5,
-//則將這些人全部塞入一個活躍的主題(報名人數>0的主題)
+//主題圈圈分群演算法
+// 1.查找資料庫中有報名人數的主題圈圈
+// 2.拆分隨機主題 和 其他有報名人數的主題
+// 3.將隨機主題的用戶平均分配到其他有報名的主題,若全部人都在隨機主題,則隨機開一個主題,讓這些人都進去
+// 4.計算所有參加人數,如果總人數 <2 人,則不成團 ;若介於 2-4 人，則將這些人都放入一個有報名人數的主題
+// 5.若總人數 >= 5人,則先區分大圈圈和小圈圈,大圈圈是滿五人以上
+// 6.先處理主題人數較少的圈圈,如果較少人的圈圈總人數 <５人,則將這些人再平均分配給人數多的大圈圈
+// 7.若較少人的圈圈總人數 >= 5人,則將這些人塞進隨機一個少數人選過的主題,並開始分群
+// 8.將大圈圈分群
+
+// 分群原則
+// 1.優先以5個人為主,若有餘數,如:1 or 2,則併入最後一團,形成6 or 7人一組
+// 2.若餘數是 3 ,先併入最後一組 ,並拆成 4 和 4 兩組
+// 3.若餘數是 4 ,則直接將這4人作為一組
 
 const startSchedule = async () => {
   try {
     //連結 mongoDB
-    mongoose
-      .connect(process.env.MONGODB_CONNECTION)
-      .then(() => {
-        console.log("連結到 mongoDB");
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    // mongoose
+    //   .connect(process.env.MONGODB_CONNECTION)
+    //   .then(() => {
+    //     console.log("連結到 mongoDB");
+    //   })
+    //   .catch((e) => {
+    //     console.log(e);
+    //   });
 
     //過濾掉 random 的列舉主題
     const nonRandomTopics = CircleTopicIDS.filter(
@@ -36,7 +48,7 @@ const startSchedule = async () => {
       { _id: 0, circleTopicID: 1, circleReadyUsers: 1 }
     );
 
-    console.log("資料庫查找資料:", readyCircles);
+    //console.log("資料庫查找資料:", readyCircles);
 
     // 拆分 random 跟其他主題圈圈
     const randomCircle = readyCircles.find((c) => c.circleTopicID === "random");
@@ -150,7 +162,18 @@ const startSchedule = async () => {
             Math.floor(Math.random() * lessActivityTopicIDS.length)
           ];
 
-        const lessSliceGroups = sliceGroupUsers(lessUsers);
+        const users = await User.find(
+          {
+            userID: { $in: lessUsers },
+          },
+          { _id: 0, userID: 1, userRegion: 1 }
+        );
+
+        const sortedUserIDS = users
+          .sort((a, b) => regionOrder[a.userRegion] - regionOrder[b.userRegion])
+          .map((user) => user.userID);
+
+        const lessSliceGroups = sliceGroupUsers(sortedUserIDS);
 
         lessSliceGroups.forEach((group) => {
           finalCircleGroup.push({
@@ -161,9 +184,21 @@ const startSchedule = async () => {
       }
 
       // 2. 處理較多人數的主題圈圈
-      largeActivityCircles.forEach((largeCircle) => {
+      for (const largeCircle of largeActivityCircles) {
         const topicID = largeCircle.circleTopicID;
-        const largeSliceGroups = sliceGroupUsers(largeCircle.circleReadyUsers);
+
+        const users = await User.find(
+          {
+            userID: { $in: largeCircle.circleReadyUsers },
+          },
+          { _id: 0, userID: 1, userRegion: 1 }
+        );
+
+        const sortedUserIDS = users
+          .sort((a, b) => regionOrder[a.userRegion] - regionOrder[b.userRegion])
+          .map((user) => user.userID);
+
+        const largeSliceGroups = sliceGroupUsers(sortedUserIDS);
 
         largeSliceGroups.forEach((group) => {
           finalCircleGroup.push({
@@ -171,12 +206,49 @@ const startSchedule = async () => {
             circleReadyGroup: group,
           });
         });
-      });
-
-      console.log("最終的結果", finalCircleGroup);
+      }
     }
+
+    console.log("最終的結果", finalCircleGroup);
+
+    //----------------- 以分群完畢, 開始創建 ActivityCircle 和 SendBird Channel
+    // 設定每次最多允許 5 個並行請求
+    const pLimit = (await import("p-limit")).default;
+    const limit = pLimit(5);
+
+    const createPromises = finalCircleGroup.map((circleGroup) => {
+      return limit(async () => {
+        const { circleTopicID, circleReadyGroup } = circleGroup;
+
+        const matchedItem = CircleTopicIDS.find(
+          (item) => item.itemID === circleTopicID
+        );
+
+        const uuid = uuidv4(); // 生成 UUID v4
+        const circleID = uuid.replace(/\D/g, "").slice(0, 10);
+
+        const status = await sbUtil.createCircleChannel(
+          circleReadyGroup,
+          circleID,
+          circleTopicID + "_" + circleID
+        );
+
+        if (status) {
+          return ActivityCircle.create({
+            circleID,
+            circleTopicID,
+            circleTopicName: matchedItem.des_ZH,
+            circleUserIDS: circleReadyGroup,
+            circleChannelID: circleTopicID + "_" + circleID,
+          });
+        }
+      });
+    });
+
+    // 等待所有異步操作完成
+    await Promise.all(createPromises);
   } catch (e) {
-    console.log(e);
+    console.log("圈圈分群遇到問題", e);
   }
 };
 
@@ -214,6 +286,30 @@ const sliceGroupUsers = (userIDS) => {
     }
   }
   return tmpSliceGroup;
+};
+
+//地區排序代號
+const regionOrder = {
+  A: 1, // 台北
+  F: 2, // 新北
+  C: 3, // 基隆
+  H: 4, // 桃園
+  J: 5, // 新竹
+  K: 6, // 苗栗
+  B: 7, // 台中
+  N: 8, // 彰化
+  M: 9, // 南投
+  P: 10, // 雲林
+  Q: 11, // 嘉義
+  D: 12, // 台南
+  E: 13, // 高雄
+  S: 14, // 屏東
+  V: 15, // 台東
+  U: 16, // 花蓮
+  G: 17, // 宜蘭
+  X: 18, // 澎湖
+  W: 19, // 金門
+  Z: 20, // 連江
 };
 
 module.exports = startSchedule;

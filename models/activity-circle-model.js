@@ -3,6 +3,11 @@ const { Schema } = mongoose;
 
 //製作正在活躍圈圈 Schema
 const activityCircleSchema = new Schema({
+  //流水編號 ID
+  circleID: {
+    type: String,
+    default: "",
+  },
   //圈圈主題ID
   circleTopicID: {
     type: String,

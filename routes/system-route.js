@@ -9,6 +9,7 @@ const EmotionLetter = require("../models").letter;
 const Report = require("../models").report;
 const Sticker = require("../models").sticker;
 const Topic = require("../models").topic;
+const ActivityCircle = require("../models").activityCircle;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
@@ -1179,6 +1180,27 @@ router.post("/topic-series", async (req, res) => {
       status: false,
       message: "Server Error!",
       e,
+    });
+  }
+});
+
+//刪除除了指定圈圈以外的圈圈
+router.post("/delete-circles", async (req, res) => {
+  try {
+    const { sendbirdUrl } = req.body;
+
+    await ActivityCircle.deleteMany({
+      circleChannelID: { $ne: sendbirdUrl },
+    });
+
+    return res.status(200).send({
+      status: true,
+      message: "刪除成功",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
     });
   }
 });

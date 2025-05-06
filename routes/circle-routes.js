@@ -553,7 +553,6 @@ router.post("/cancel-vote-circle", async (req, res) => {
       validCode: "1",
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
