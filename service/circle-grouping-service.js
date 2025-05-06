@@ -26,14 +26,14 @@ const { CircleTopicIDS } = require("../config/enum");
 const startSchedule = async () => {
   try {
     //連結 mongoDB
-    // mongoose
-    //   .connect(process.env.MONGODB_CONNECTION)
-    //   .then(() => {
-    //     console.log("連結到 mongoDB");
-    //   })
-    //   .catch((e) => {
-    //     console.log(e);
-    //   });
+    mongoose
+      .connect(process.env.MONGODB_CONNECTION)
+      .then(() => {
+        console.log("連結到 mongoDB");
+      })
+      .catch((e) => {
+        console.log(e);
+      });
 
     //過濾掉 random 的列舉主題
     const nonRandomTopics = CircleTopicIDS.filter(

@@ -17,13 +17,15 @@ const letterRemind = require("./letter-remind-service");
 const userBackRemind = require("./user-back-remind-service");
 //提醒午夜配對 23:30
 const alertMatch = require("./alert-match-service");
-
-//測試分群
+//執行主題圈圈分群
 const circleGrouping = require("./circle-grouping-service");
+//銷毀已經過期的圈圈票券
+const destoryTickets = require("./destory-expired-tickets");
 
 //設定每天執行
 const startFetching = () => {
   //circleGrouping();
+  //destoryTickets();
   generalMatch();
   letterMatch();
   checkDevice();

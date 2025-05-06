@@ -33,7 +33,7 @@ const circleTicketSchema = new Schema({
     default: Date.now(),
   },
 
-  //票券截止日期
+  //票券截止日期(暫時無用)
   expiredTime: {
     type: Date,
   },
