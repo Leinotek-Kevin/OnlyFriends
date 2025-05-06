@@ -1,4 +1,3 @@
-const User = require("../models").user;
 const ActivityCircle = require("../models").activityCircle;
 const CircleTicket = require("../models").circleTicket;
 const dotenv = require("dotenv");
@@ -58,7 +57,7 @@ const startSchedule = async () => {
       console.log("已完成銷毀票券作業", "銷毀數量:" + result.deletedCount);
     }
   } catch (e) {
-    console.log("圈圈分群遇到問題", e);
+    console.log("銷毀票券作業異常", e);
   }
 };
 

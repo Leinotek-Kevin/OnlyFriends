@@ -82,4 +82,4 @@ const systemCheck = async () => {
 systemCheck();
 
 //測試分群
-//require("./service/destory-expired-tickets")();
+//require("./service/delete-circle-channel")();

@@ -247,6 +247,11 @@ const startSchedule = async () => {
 
     // 等待所有異步操作完成
     await Promise.all(createPromises);
+
+    // 將預備圈圈的所有主題的 circleReadyUsers 清空
+    await ReadyCircle.updateMany({}, { $set: { circleReadyUsers: [] } });
+
+    console.log("圈圈分群已完成");
   } catch (e) {
     console.log("圈圈分群遇到問題", e);
   }

@@ -21,11 +21,14 @@ const alertMatch = require("./alert-match-service");
 const circleGrouping = require("./circle-grouping-service");
 //銷毀已經過期的圈圈票券
 const destoryTickets = require("./destory-expired-tickets");
+//批量刪除主題圈圈 SendBird 渠道
+const deleteCircleChannels = require("./delete-circle-channel");
 
 //設定每天執行
 const startFetching = () => {
   //circleGrouping();
   //destoryTickets();
+  //deleteCircleChannels();
   generalMatch();
   letterMatch();
   checkDevice();
