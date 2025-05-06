@@ -383,6 +383,7 @@ router.post("/query-circle-info", async (req, res) => {
     delete data._id;
     delete data.__v;
     delete data.circleUserIDS;
+    delete data.circleVoteBox;
 
     return res.status(200).send({
       status: true,
