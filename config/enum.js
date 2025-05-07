@@ -189,7 +189,7 @@ const TopicNames = Object.freeze([
   },
 ]);
 
-const CircleTopicIDS = Object.freeze([
+const CircleTopicNames = Object.freeze([
   {
     itemID: "random",
     des_ZH: "隨機加入小圈圈",
@@ -197,8 +197,8 @@ const CircleTopicIDS = Object.freeze([
   },
   {
     itemID: "movie-1",
-    des_ZH: "電影研究社",
-    des_EN: "Movie Research",
+    des_ZH: "電影欣賞",
+    des_EN: "Movie Appreciation",
   },
   {
     itemID: "cartoon-1",
@@ -221,6 +221,11 @@ const CircleTopicIDS = Object.freeze([
     des_EN: "Food Explorer",
   },
   {
+    itemID: "food-3",
+    des_ZH: "烹飪小達人",
+    des_EN: "Cooking Master",
+  },
+  {
     itemID: "liquor-1",
     des_ZH: "微醺酒吧",
     des_EN: "Tipsy Bar",
@@ -231,9 +236,24 @@ const CircleTopicIDS = Object.freeze([
     des_EN: "Tour Group",
   },
   {
+    itemID: "basketball-1",
+    des_ZH: "籃球同好",
+    des_EN: "Basketball Fans",
+  },
+  {
     itemID: "fashion-1",
     des_ZH: "時尚美妝",
     des_EN: "Fashion Beauty",
+  },
+  {
+    itemID: "reading-1",
+    des_ZH: "閱讀室",
+    des_EN: "Reading Room",
+  },
+  {
+    itemID: "photography-1",
+    des_ZH: "攝影交流",
+    des_EN: "Photography Exchange",
   },
 ]);
 
@@ -244,5 +264,5 @@ module.exports = {
   Traits,
   FriendMotives,
   Values,
-  CircleTopicIDS,
+  CircleTopicNames,
 };

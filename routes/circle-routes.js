@@ -10,7 +10,7 @@ const User = require("../models").user;
 const { v4: uuidv4 } = require("uuid");
 const uuid = uuidv4(); // 生成 UUID v4
 
-const { CircleTopicIDS } = require("../config/enum");
+const { CircleTopicNames } = require("../config/enum");
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 circle 有關的請求");
@@ -190,7 +190,7 @@ router.post("/show-circles", async (req, res) => {
         content,
         contentID,
         everChoose: ticket != null,
-        circleTopics: CircleTopicIDS.map(mapItem),
+        circleTopics: CircleTopicNames.map(mapItem),
       },
     });
   } catch (e) {
@@ -359,7 +359,7 @@ router.post("/query-circle-info", async (req, res) => {
 
     data.circleActivityUsers = activityUserInfos;
 
-    const matchedItem = CircleTopicIDS.find(
+    const matchedItem = CircleTopicNames.find(
       (item) => item.itemID === circleInfo.circleTopicID
     );
 
@@ -558,107 +558,6 @@ router.post("/cancel-vote-circle", async (req, res) => {
       message: "Server Error!",
       validCode: "-1",
       e,
-    });
-  }
-});
-
-//建立主題圈圈
-router.post("/create-circles", async (req, res) => {
-  try {
-    await ReadyCircle.deleteMany({});
-
-    await Promise.all(
-      CircleTopicIDS.map((circleTopic) =>
-        ReadyCircle.create({
-          circleTopicID: circleTopic.itemID,
-          circleIntro: circleTopic.des_ZH,
-          circleReadyUsers: [],
-        })
-      )
-    );
-
-    return res.status(200).send({
-      status: true,
-      message: "成功建立指定圈圈群組",
-    });
-  } catch (e) {
-    return res.status(500).send({
-      status: false,
-      message: "Server Error",
-      e,
-    });
-  }
-});
-
-//將用戶隨機分配到預備圈圈
-router.post("/random-circle-user", async (req, res) => {
-  try {
-    const readyCircles = await ReadyCircle.find(
-      {},
-      { circleTopicID: 1, circleReadyUsers: 1 }
-    );
-
-    const circleTopicIDS = readyCircles.map((circle) => circle.circleTopicID);
-
-    // 取得所有用戶的 userID 和 userRegion
-    const users = await User.find(
-      { identity: 0 },
-      { _id: 0, userID: 1, userRegion: 1 }
-    );
-
-    const shuffled = [...users].sort(() => Math.random() - 0.5);
-    const circleGroups = {};
-
-    // 初始化各主題已有的 users 陣列
-    readyCircles.forEach((circle) => {
-      circleGroups[circle.circleTopicID] = [...(circle.circleReadyUsers || [])];
-    });
-
-    // 完全隨機分配每個 user 到任一主題
-    shuffled.forEach((user) => {
-      const randomTopic =
-        circleTopicIDS[Math.floor(Math.random() * circleTopicIDS.length)];
-      circleGroups[randomTopic].push(user.userID);
-    });
-
-    // 更新 DB
-    await Promise.all(
-      circleTopicIDS.map((circleTopicID) =>
-        ReadyCircle.updateOne(
-          { circleTopicID },
-          { circleReadyUsers: circleGroups[circleTopicID] }
-        )
-      )
-    );
-
-    return res.status(200).send({
-      status: true,
-      message: "成功完成隨機分配",
-      data: { circleGroups },
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).send({
-      status: false,
-      message: "Server Error",
-      e,
-    });
-  }
-});
-
-//清空所有預備圈圈的用戶們
-router.post("/clear-ready-circle", async (req, res) => {
-  try {
-    await ReadyCircle.updateMany({}, { $set: { circleReadyUsers: [] } });
-    return res.status(200).send({
-      status: true,
-      message: "All circleReadyUsers cleared.",
-    });
-  } catch (err) {
-    return res.status(200).send({
-      status: false,
-      message: "Error clearing circleReadyUsers:",
-      err,
     });
   }
 });

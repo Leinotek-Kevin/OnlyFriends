@@ -10,6 +10,7 @@ const Report = require("../models").report;
 const Sticker = require("../models").sticker;
 const Topic = require("../models").topic;
 const ActivityCircle = require("../models").activityCircle;
+const ReadyCircle = require("../models").readyCircle;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
@@ -18,6 +19,8 @@ const sbUtil = require("../utils/sendbird-util");
 const multer = require("multer");
 const SendBird = require("sendbird");
 const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
+
+const { CircleTopicNames } = require("../config/enum");
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 system 有關的請求");
@@ -1175,7 +1178,6 @@ router.post("/topic-series", async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
@@ -1184,7 +1186,134 @@ router.post("/topic-series", async (req, res) => {
   }
 });
 
-//刪除除了指定圈圈以外的圈圈
+//建立主題圈圈
+router.post("/create-circle", async (req, res) => {
+  try {
+    const {
+      circleTopicID,
+      statusColor,
+      functionColor,
+      selfMsgColor,
+      readTagColor,
+      systemTimeColor,
+      sendBtnColor,
+      circleBackground,
+      circleTopicLogo,
+    } = req.body;
+
+    const matchedItem = CircleTopicNames.find(
+      (item) => item.itemID === circleTopicID
+    );
+
+    await ReadyCircle.findOneAndUpdate(
+      {
+        circleTopicID,
+      },
+      {
+        circleTopicID,
+        circleTopicName: matchedItem.des_ZH,
+        "circleTopicColors.statusColor": statusColor,
+        "circleTopicColors.functionColor": functionColor,
+        "circleTopicColors.selfMsgColor": selfMsgColor,
+        "circleTopicColors.readTagColor": readTagColor,
+        "circleTopicColors.systemTimeColor": systemTimeColor,
+        "circleTopicColors.sendBtnColor": sendBtnColor,
+        circleBackground,
+        circleTopicLogo,
+      },
+      {
+        upsert: true,
+      }
+    );
+
+    return res.status(200).send({
+      status: true,
+      message: "成功建立指定圈圈群組",
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+//將用戶隨機分配到預備圈圈
+router.post("/random-circle-user", async (req, res) => {
+  try {
+    const readyCircles = await ReadyCircle.find(
+      {},
+      { circleTopicID: 1, circleReadyUsers: 1 }
+    );
+
+    const circleTopicIDS = readyCircles.map((circle) => circle.circleTopicID);
+
+    // 取得所有用戶的 userID 和 userRegion
+    const users = await User.find(
+      { identity: 0 },
+      { _id: 0, userID: 1, userRegion: 1 }
+    );
+
+    const shuffled = [...users].sort(() => Math.random() - 0.5);
+    const circleGroups = {};
+
+    // 初始化各主題已有的 users 陣列
+    readyCircles.forEach((circle) => {
+      circleGroups[circle.circleTopicID] = [...(circle.circleReadyUsers || [])];
+    });
+
+    // 完全隨機分配每個 user 到任一主題
+    shuffled.forEach((user) => {
+      const randomTopic =
+        circleTopicIDS[Math.floor(Math.random() * circleTopicIDS.length)];
+      circleGroups[randomTopic].push(user.userID);
+    });
+
+    // 更新 DB
+    await Promise.all(
+      circleTopicIDS.map((circleTopicID) =>
+        ReadyCircle.updateOne(
+          { circleTopicID },
+          { circleReadyUsers: circleGroups[circleTopicID] }
+        )
+      )
+    );
+
+    return res.status(200).send({
+      status: true,
+      message: "成功完成隨機分配",
+      data: { circleGroups },
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+//清空所有預備圈圈的用戶們
+router.post("/clear-ready-circle", async (req, res) => {
+  try {
+    await ReadyCircle.updateMany({}, { $set: { circleReadyUsers: [] } });
+    return res.status(200).send({
+      status: true,
+      message: "All circleReadyUsers cleared.",
+    });
+  } catch (err) {
+    return res.status(200).send({
+      status: false,
+      message: "Error clearing circleReadyUsers:",
+      err,
+    });
+  }
+});
+
+//刪除除了指定圈圈以外的活躍圈圈
 router.post("/delete-circles", async (req, res) => {
   try {
     const { sendbirdUrl } = req.body;

@@ -6,7 +6,7 @@ dotenv.config();
 const sbUtil = require("../utils/sendbird-util");
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
-const { CircleTopicIDS } = require("../config/enum");
+const { CircleTopicNames } = require("../config/enum");
 
 //主題圈圈分群演算法
 // 1.查找資料庫中有報名人數的主題圈圈
@@ -36,9 +36,24 @@ const startSchedule = async () => {
       });
 
     //過濾掉 random 的列舉主題
-    const nonRandomTopics = CircleTopicIDS.filter(
+    const nonRandomTopics = CircleTopicNames.filter(
       (topic) => topic.itemID !== "random"
     ).map((topic) => topic.itemID);
+
+    //列出所有主題圈圈的主題參數(色系,背景)
+    const circleTopicParams = await ReadyCircle.find(
+      {
+        circleTopicID: { $ne: "random" },
+      },
+      {
+        _id: 0,
+        circleTopicID: 1,
+        circleTopicName: 1,
+        circleTopicColors: 1,
+        circleBackground: 1,
+        circleTopicLogo: 1,
+      }
+    );
 
     //找出有報名人數的主題圈圈
     const readyCircles = await ReadyCircle.find(
@@ -220,9 +235,9 @@ const startSchedule = async () => {
       return limit(async () => {
         const { circleTopicID, circleReadyGroup } = circleGroup;
 
-        const matchedItem = CircleTopicIDS.find(
-          (item) => item.itemID === circleTopicID
-        );
+        // const matchedItem = CircleTopicIDS.find(
+        //   (item) => item.itemID === circleTopicID
+        // );
 
         const uuid = uuidv4(); // 生成 UUID v4
         const circleID = uuid.replace(/\D/g, "").slice(0, 10);
@@ -233,13 +248,20 @@ const startSchedule = async () => {
           circleTopicID + "_" + circleID
         );
 
+        const param = circleTopicParams.find((param) => {
+          return param.circleTopicID == circleTopicID;
+        });
+
         if (status) {
           return ActivityCircle.create({
             circleID,
             circleTopicID,
-            circleTopicName: matchedItem.des_ZH,
-            circleUserIDS: circleReadyGroup,
+            circleTopicName: param.circleTopicName,
             circleChannelID: circleTopicID + "_" + circleID,
+            circleTopicColors: param.circleTopicColors,
+            circleBackground: param.circleBackground,
+            circleTopicLogo: param.circleTopicLogo,
+            circleUserIDS: circleReadyGroup,
           });
         }
       });
