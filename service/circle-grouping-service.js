@@ -1,4 +1,5 @@
 const User = require("../models").user;
+const CircleTicket = require("../models").circleTicket;
 const ReadyCircle = require("../models").readyCircle;
 const ActivityCircle = require("../models").activityCircle;
 const dotenv = require("dotenv");
@@ -235,17 +236,14 @@ const startSchedule = async () => {
       return limit(async () => {
         const { circleTopicID, circleReadyGroup } = circleGroup;
 
-        // const matchedItem = CircleTopicIDS.find(
-        //   (item) => item.itemID === circleTopicID
-        // );
-
         const uuid = uuidv4(); // 生成 UUID v4
         const circleID = uuid.replace(/\D/g, "").slice(0, 10);
+        const circleChannelID = circleTopicID + "_" + circleID;
 
         const status = await sbUtil.createCircleChannel(
           circleReadyGroup,
           circleID,
-          circleTopicID + "_" + circleID
+          circleChannelID
         );
 
         const param = circleTopicParams.find((param) => {
@@ -253,16 +251,25 @@ const startSchedule = async () => {
         });
 
         if (status) {
-          return ActivityCircle.create({
+          await ActivityCircle.create({
             circleID,
             circleTopicID,
             circleTopicName: param.circleTopicName,
-            circleChannelID: circleTopicID + "_" + circleID,
+            circleChannelID,
             circleTopicColors: param.circleTopicColors,
             circleBackground: param.circleBackground,
             circleTopicLogo: param.circleTopicLogo,
             circleUserIDS: circleReadyGroup,
           });
+
+          await CircleTicket.updateMany(
+            {
+              ticketOwnerID: { $in: circleReadyGroup },
+            },
+            {
+              circleChannelID,
+            }
+          );
         }
       });
     });

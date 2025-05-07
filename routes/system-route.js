@@ -11,6 +11,7 @@ const Sticker = require("../models").sticker;
 const Topic = require("../models").topic;
 const ActivityCircle = require("../models").activityCircle;
 const ReadyCircle = require("../models").readyCircle;
+const CircleTicket = require("../models").circleTicket;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
@@ -1281,6 +1282,28 @@ router.post("/random-circle-user", async (req, res) => {
       )
     );
 
+    const aliveCircle = await ReadyCircle.find(
+      {
+        circleReadyUsers: { $ne: [] },
+      },
+      { _id: 0, circleTopicID: 1, circleReadyUsers: 1 }
+    );
+
+    for (const circle of aliveCircle) {
+      const users = circle.circleReadyUsers;
+
+      for (const userID of users) {
+        const uuid = uuidv4();
+        const ticketID = uuid.replace(/\D/g, "").slice(0, 10);
+
+        await CircleTicket.create({
+          ticketID,
+          ticketOwnerID: userID,
+          circleTopicID: circle.circleTopicID,
+        });
+      }
+    }
+
     return res.status(200).send({
       status: true,
       message: "成功完成隨機分配",
@@ -1321,6 +1344,23 @@ router.post("/delete-circles", async (req, res) => {
     await ActivityCircle.deleteMany({
       circleChannelID: { $ne: sendbirdUrl },
     });
+
+    return res.status(200).send({
+      status: true,
+      message: "刪除成功",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+    });
+  }
+});
+
+//刪除所有票券
+router.post("/delete-circle-tickets", async (req, res) => {
+  try {
+    await CircleTicket.deleteMany({});
 
     return res.status(200).send({
       status: true,

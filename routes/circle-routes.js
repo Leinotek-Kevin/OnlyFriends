@@ -8,7 +8,6 @@ const ActivityCircle = require("../models").activityCircle;
 const ReadyCircle = require("../models").readyCircle;
 const User = require("../models").user;
 const { v4: uuidv4 } = require("uuid");
-const uuid = uuidv4(); // 生成 UUID v4
 
 const { CircleTopicNames } = require("../config/enum");
 
@@ -222,6 +221,8 @@ router.post("/join-circle", async (req, res) => {
 
     //查詢用戶是否已經參加主題圈圈(是否擁有圈圈門票)
     const ticket = await CircleTicket.findOne({ ticketOwnerID: userID });
+
+    const uuid = uuidv4(); // 生成 UUID v4
     const ticketID = uuid.replace(/\D/g, "").slice(0, 10);
 
     if (ticket == null) {

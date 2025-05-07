@@ -22,7 +22,7 @@ const startSchedule = async () => {
     const day = new Date(Date.now()).getDay();
     const targetUsers = [];
 
-    if (day != 6 || day != 1) {
+    if (day != 6 && day != 1) {
       console.log("今天是星期" + day + ",不執行銷毀票券業務");
     } else {
       if (day == 6) {
