@@ -76,7 +76,7 @@ router.post("/circle-npc", async (req, res) => {
       content: "尚未開放報名",
       contentID: "0",
       canJoin: false,
-      circleChannelID: "liquor-1_0123456789",
+      circleChannelID: "",
       everChoose: false,
       chooseCircleTopicID: "",
     };
@@ -84,7 +84,7 @@ router.post("/circle-npc", async (req, res) => {
     if (ticket) {
       result.everChoose = true;
       result.chooseCircleTopicID = ticket.circleTopicID;
-      //result.circleChannelID = ticket.circleChannelID;
+      result.circleChannelID = ticket.circleChannelID;
     }
 
     if (circleStatusCode.statusCode == 0) {
