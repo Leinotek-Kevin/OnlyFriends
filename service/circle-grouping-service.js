@@ -5,6 +5,7 @@ const ActivityCircle = require("../models").activityCircle;
 const dotenv = require("dotenv");
 dotenv.config();
 const sbUtil = require("../utils/sendbird-util");
+const cloudAnnou = require("../utils/cloudAnnou-util");
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 const { CircleTopicNames } = require("../config/enum");
@@ -294,6 +295,9 @@ const startSchedule = async () => {
       await ReadyCircle.updateMany({}, { $set: { circleReadyUsers: [] } });
 
       console.log("圈圈分群已完成");
+
+      //刪除過去的 circle 公告訊息
+      await cloudAnnou.removeAnnouMsgByType("circle");
     } catch (e) {
       console.log("圈圈分群遇到問題", e);
     }

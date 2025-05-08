@@ -1310,7 +1310,6 @@ router.post("/random-circle-user", async (req, res) => {
       data: { circleGroups },
     });
   } catch (e) {
-    console.error(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",

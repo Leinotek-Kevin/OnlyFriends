@@ -23,9 +23,12 @@ const circleGrouping = require("./circle-grouping-service");
 const destoryTickets = require("./destory-expired-tickets");
 //批量刪除主題圈圈 SendBird 渠道
 const deleteCircleChannels = require("./delete-circle-channel");
+//提醒用戶查看已開放的主題圈圈
+const circleOpeningRemind = require("./circle-opening-remind");
 
 //設定每天執行
 const startFetching = () => {
+  circleOpeningRemind();
   circleGrouping();
   destoryTickets();
   deleteCircleChannels();

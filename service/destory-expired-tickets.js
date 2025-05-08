@@ -1,5 +1,6 @@
 const ActivityCircle = require("../models").activityCircle;
 const CircleTicket = require("../models").circleTicket;
+const cloudAnnou = require("../utils/cloudAnnou-util");
 const dotenv = require("dotenv");
 dotenv.config();
 const mongoose = require("mongoose");
@@ -26,6 +27,8 @@ const startSchedule = async () => {
       //如果今天是星期六,則刪掉沒有贊成延長的圈圈用戶票券; 星期一～三就刪除全部
       const day = new Date(Date.now()).getDay();
       const targetUsers = [];
+
+      //今天星期六
       if (day == 6) {
         const nonExtendCircles = await ActivityCircle.find(
           {
@@ -56,6 +59,13 @@ const startSchedule = async () => {
         "今天是星期" + day + "已完成銷毀票券作業",
         "銷毀數量:" + result.deletedCount
       );
+
+      await cloudAnnou.addAnnouMessage({
+        customType: "circleClosing",
+        msg: "主題圈圈已經關閉嚕！",
+        link: "",
+        image: "",
+      });
     } catch (e) {
       console.log("銷毀票券作業異常", e);
     }
