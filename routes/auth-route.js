@@ -119,7 +119,6 @@ router.post("/register", async (req, res) => {
       token: "JWT " + token, //返回 JWT token
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",

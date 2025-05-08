@@ -7,22 +7,22 @@ const mongoose = require("mongoose");
 //星期一～星期三 05:00 執行刪除渠道作業
 //其中一和二批量刪除一半,三則全部刪除
 const startSchedule = async () => {
-  try {
-    //連結 mongoDB
-    mongoose
-      .connect(process.env.MONGODB_CONNECTION)
-      .then(() => {
-        console.log("連結到 mongoDB");
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+  const day = new Date(Date.now()).getDay();
+  const now = new Date();
 
-    let day = new Date(Date.now()).getDay();
+  //現在是星期一～三的 凌晨５點
+  if (day > 0 && day < 4 && now.getHours() == 5 && now.getMinutes() == 0) {
+    try {
+      //連結 mongoDB
+      mongoose
+        .connect(process.env.MONGODB_CONNECTION)
+        .then(() => {
+          console.log("連結到 mongoDB");
+        })
+        .catch((e) => {
+          console.log(e);
+        });
 
-    if (day > 3 || day < 1) {
-      console.log("今天星期" + day, "目前不會執行刪除圈圈渠道業務");
-    } else {
       const circles = await ActivityCircle.find(
         {
           circleChannelID: { $ne: "liquor-1_0123456789" },
@@ -74,9 +74,11 @@ const startSchedule = async () => {
 
         console.log("刪除圈圈渠道已完成");
       }
+    } catch (e) {
+      console.log("刪除圈圈渠道異常", e);
     }
-  } catch (e) {
-    console.log("刪除圈圈渠道異常", e);
+  } else {
+    console.log("今天星期" + day, "目前不會執行刪除圈圈渠道業務");
   }
 };
 

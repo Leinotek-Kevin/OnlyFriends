@@ -24,265 +24,279 @@ const { CircleTopicNames } = require("../config/enum");
 // 2.若餘數是 3 ,先併入最後一組 ,並拆成 4 和 4 兩組
 // 3.若餘數是 4 ,則直接將這4人作為一組
 
+//主題圈圈分群排程 , 每週四 凌晨4點
 const startSchedule = async () => {
-  try {
-    //連結 mongoDB
-    mongoose
-      .connect(process.env.MONGODB_CONNECTION)
-      .then(() => {
-        console.log("連結到 mongoDB");
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+  const day = new Date(Date.now()).getDay();
 
-    //過濾掉 random 的列舉主題
-    const nonRandomTopics = CircleTopicNames.filter(
-      (topic) => topic.itemID !== "random"
-    ).map((topic) => topic.itemID);
-
-    //列出所有主題圈圈的主題參數(色系,背景)
-    const circleTopicParams = await ReadyCircle.find(
-      {
-        circleTopicID: { $ne: "random" },
-      },
-      {
-        _id: 0,
-        circleTopicID: 1,
-        circleTopicName: 1,
-        circleTopicColors: 1,
-        circleBackground: 1,
-        circleTopicLogo: 1,
-      }
-    );
-
-    //找出有報名人數的主題圈圈
-    const readyCircles = await ReadyCircle.find(
-      {
-        circleReadyUsers: { $ne: [] },
-      },
-      { _id: 0, circleTopicID: 1, circleReadyUsers: 1 }
-    );
-
-    //console.log("資料庫查找資料:", readyCircles);
-
-    // 拆分 random 跟其他主題圈圈
-    const randomCircle = readyCircles.find((c) => c.circleTopicID === "random");
-    // 其他有報名人數的主題圈圈
-    const activityCircles = readyCircles.filter(
-      (c) => c.circleTopicID !== "random"
-    );
-
-    //  1. 先將隨機池中的用戶平均分配到有人數的圈圈裡
-    if (randomCircle && randomCircle.circleReadyUsers.length > 0) {
-      if (activityCircles && activityCircles.length == 0) {
-        //如果沒有其他報名的主題=> 就隨機開一個主題,讓這些人都進去這個主題
-        const anyTopicID =
-          nonRandomTopics[Math.floor(Math.random() * nonRandomTopics.length)];
-
-        activityCircles.push({
-          circleTopicID: anyTopicID,
-          circleReadyUsers: randomCircle.circleReadyUsers,
+  const now = new Date();
+  //現在是週四凌晨4點
+  if (day == 4 && now.getHours() == 4 && now.getMinutes() == 0) {
+    try {
+      //連結 mongoDB
+      mongoose
+        .connect(process.env.MONGODB_CONNECTION)
+        .then(() => {
+          console.log("連結到 mongoDB");
+        })
+        .catch((e) => {
+          console.log(e);
         });
 
-        //console.log("用戶都在 random , 隨機給一個主題:", activityCircles);
-      } else {
-        //如果有其他報名的主題,就將 random 用戶平均分配到有報名的主題
-        const randomUsers = [...randomCircle.circleReadyUsers].sort(
-          () => Math.random() - 0.5
-        );
-        let index = 0;
+      //過濾掉 random 的列舉主題
+      const nonRandomTopics = CircleTopicNames.filter(
+        (topic) => topic.itemID !== "random"
+      ).map((topic) => topic.itemID);
 
-        while (randomUsers.length > 0) {
-          const user = randomUsers.pop();
-          const targetCircle = activityCircles[index % activityCircles.length];
-          targetCircle.circleReadyUsers.push(user);
-          index++;
+      //列出所有主題圈圈的主題參數(色系,背景)
+      const circleTopicParams = await ReadyCircle.find(
+        {
+          circleTopicID: { $ne: "random" },
+        },
+        {
+          _id: 0,
+          circleTopicID: 1,
+          circleTopicName: 1,
+          circleTopicColors: 1,
+          circleBackground: 1,
+          circleTopicLogo: 1,
         }
+      );
 
-        //console.log("將 random 用戶平均分配到有報名的主題:", activityCircles);
-      }
-    }
+      //找出有報名人數的主題圈圈
+      const readyCircles = await ReadyCircle.find(
+        {
+          circleReadyUsers: { $ne: [] },
+        },
+        { _id: 0, circleTopicID: 1, circleReadyUsers: 1 }
+      );
 
-    //---- 目前所有用戶都已經在 activityCircles ------//
-    let finalCircleGroup = [];
+      //console.log("資料庫查找資料:", readyCircles);
 
-    //2. 計算所有參加人數,如果總人數<2人,則不開團;若1<x<5,
-    // 計算 activityCircles 的總報名人數
-    let totalUsers = 0;
-    activityCircles.forEach((circle) => {
-      totalUsers += circle.circleReadyUsers.length;
-    });
+      // 拆分 random 跟其他主題圈圈
+      const randomCircle = readyCircles.find(
+        (c) => c.circleTopicID === "random"
+      );
+      // 其他有報名人數的主題圈圈
+      const activityCircles = readyCircles.filter(
+        (c) => c.circleTopicID !== "random"
+      );
 
-    //目前的活躍主題
-    const activityTopicIDS = activityCircles.map((c) => c.circleTopicID);
+      //  1. 先將隨機池中的用戶平均分配到有人數的圈圈裡
+      if (randomCircle && randomCircle.circleReadyUsers.length > 0) {
+        if (activityCircles && activityCircles.length == 0) {
+          //如果沒有其他報名的主題=> 就隨機開一個主題,讓這些人都進去這個主題
+          const anyTopicID =
+            nonRandomTopics[Math.floor(Math.random() * nonRandomTopics.length)];
 
-    //console.log("目前的活躍主題", activityTopicIDS);
+          activityCircles.push({
+            circleTopicID: anyTopicID,
+            circleReadyUsers: randomCircle.circleReadyUsers,
+          });
 
-    //報名人數不足 2 人，不進行分組
-    if (totalUsers < 2) {
-      console.log("報名人數不足 2 人，不進行分組");
-      return;
-    } else if (totalUsers < 5) {
-      //報名人數介於2-4 人，則將這些人都放入一個活躍主題
-      const anyActivityTopicID =
-        activityTopicIDS[Math.floor(Math.random() * activityTopicIDS.length)];
-
-      const activityUserIDS = [];
-      activityCircles.forEach((c) => {
-        activityUserIDS.push(...c.circleReadyUsers);
-      });
-
-      finalCircleGroup.push({
-        circleTopicID: anyActivityTopicID,
-        circleReadyGroup: activityUserIDS,
-      });
-    } else {
-      // 報名人數 >= 5 人 ,開始分群, 以 5 人一群為最優先原則 , 其次是 7 ,再來是 4 , 6
-      // 先依照5人區分人數多與少的活躍圈圈 (<5:人數少)
-      let lessActivityCircles = [];
-      let largeActivityCircles = [];
-
-      activityCircles.forEach((c) => {
-        if (c.circleReadyUsers.length < 5) {
-          lessActivityCircles.push(c);
+          //console.log("用戶都在 random , 隨機給一個主題:", activityCircles);
         } else {
-          largeActivityCircles.push(c);
-        }
-      });
-
-      // 1. 先處理較少人數的主題圈圈
-      let lessUsers = [];
-      let lessActivityTopicIDS = [];
-      lessActivityCircles.forEach((c) => {
-        lessUsers.push(...c.circleReadyUsers);
-        lessActivityTopicIDS.push(c.circleTopicID);
-      });
-
-      //如果少數人的總和<5人,就將這些人再平均分配到人數多的圈圈
-      if (lessUsers.length < 5) {
-        const randomLessUsers = lessUsers.sort(() => Math.random() - 0.5);
-        let index = 0;
-
-        while (randomLessUsers.length > 0) {
-          const user = randomLessUsers.pop();
-          const targetCircle =
-            largeActivityCircles[index % largeActivityCircles.length];
-          targetCircle.circleReadyUsers.push(user);
-          index++;
-        }
-      } else {
-        //反之,總和>=5人,就將這些人合併到少數人的其中一個主題,並分群
-        const anyLessActivityTopicID =
-          lessActivityTopicIDS[
-            Math.floor(Math.random() * lessActivityTopicIDS.length)
-          ];
-
-        const users = await User.find(
-          {
-            userID: { $in: lessUsers },
-          },
-          { _id: 0, userID: 1, userRegion: 1 }
-        );
-
-        const sortedUserIDS = users
-          .sort((a, b) => regionOrder[a.userRegion] - regionOrder[b.userRegion])
-          .map((user) => user.userID);
-
-        const lessSliceGroups = sliceGroupUsers(sortedUserIDS);
-
-        lessSliceGroups.forEach((group) => {
-          finalCircleGroup.push({
-            circleTopicID: anyLessActivityTopicID,
-            circleReadyGroup: group,
-          });
-        });
-      }
-
-      // 2. 處理較多人數的主題圈圈
-      for (const largeCircle of largeActivityCircles) {
-        const topicID = largeCircle.circleTopicID;
-
-        const users = await User.find(
-          {
-            userID: { $in: largeCircle.circleReadyUsers },
-          },
-          { _id: 0, userID: 1, userRegion: 1 }
-        );
-
-        const sortedUserIDS = users
-          .sort((a, b) => regionOrder[a.userRegion] - regionOrder[b.userRegion])
-          .map((user) => user.userID);
-
-        const largeSliceGroups = sliceGroupUsers(sortedUserIDS);
-
-        largeSliceGroups.forEach((group) => {
-          finalCircleGroup.push({
-            circleTopicID: topicID,
-            circleReadyGroup: group,
-          });
-        });
-      }
-    }
-
-    console.log("最終的結果", finalCircleGroup);
-
-    //----------------- 以分群完畢, 開始創建 ActivityCircle 和 SendBird Channel
-    // 設定每次最多允許 5 個並行請求
-    const pLimit = (await import("p-limit")).default;
-    const limit = pLimit(5);
-
-    const createPromises = finalCircleGroup.map((circleGroup) => {
-      return limit(async () => {
-        const { circleTopicID, circleReadyGroup } = circleGroup;
-
-        const uuid = uuidv4(); // 生成 UUID v4
-        const circleID = uuid.replace(/\D/g, "").slice(0, 10);
-        const circleChannelID = circleTopicID + "_" + circleID;
-
-        const status = await sbUtil.createCircleChannel(
-          circleReadyGroup,
-          circleID,
-          circleChannelID
-        );
-
-        const param = circleTopicParams.find((param) => {
-          return param.circleTopicID == circleTopicID;
-        });
-
-        if (status) {
-          await ActivityCircle.create({
-            circleID,
-            circleTopicID,
-            circleTopicName: param.circleTopicName,
-            circleChannelID,
-            circleTopicColors: param.circleTopicColors,
-            circleBackground: param.circleBackground,
-            circleTopicLogo: param.circleTopicLogo,
-            circleUserIDS: circleReadyGroup,
-          });
-
-          await CircleTicket.updateMany(
-            {
-              ticketOwnerID: { $in: circleReadyGroup },
-            },
-            {
-              circleChannelID,
-            }
+          //如果有其他報名的主題,就將 random 用戶平均分配到有報名的主題
+          const randomUsers = [...randomCircle.circleReadyUsers].sort(
+            () => Math.random() - 0.5
           );
+          let index = 0;
+
+          while (randomUsers.length > 0) {
+            const user = randomUsers.pop();
+            const targetCircle =
+              activityCircles[index % activityCircles.length];
+            targetCircle.circleReadyUsers.push(user);
+            index++;
+          }
+
+          //console.log("將 random 用戶平均分配到有報名的主題:", activityCircles);
         }
+      }
+
+      //---- 目前所有用戶都已經在 activityCircles ------//
+      let finalCircleGroup = [];
+
+      //2. 計算所有參加人數,如果總人數<2人,則不開團;若1<x<5,
+      // 計算 activityCircles 的總報名人數
+      let totalUsers = 0;
+      activityCircles.forEach((circle) => {
+        totalUsers += circle.circleReadyUsers.length;
       });
-    });
 
-    // 等待所有異步操作完成
-    await Promise.all(createPromises);
+      //目前的活躍主題
+      const activityTopicIDS = activityCircles.map((c) => c.circleTopicID);
 
-    // 將預備圈圈的所有主題的 circleReadyUsers 清空
-    await ReadyCircle.updateMany({}, { $set: { circleReadyUsers: [] } });
+      //console.log("目前的活躍主題", activityTopicIDS);
 
-    console.log("圈圈分群已完成");
-  } catch (e) {
-    console.log("圈圈分群遇到問題", e);
+      //報名人數不足 2 人，不進行分組
+      if (totalUsers < 2) {
+        console.log("報名人數不足 2 人，不進行分組");
+        return;
+      } else if (totalUsers < 5) {
+        //報名人數介於2-4 人，則將這些人都放入一個活躍主題
+        const anyActivityTopicID =
+          activityTopicIDS[Math.floor(Math.random() * activityTopicIDS.length)];
+
+        const activityUserIDS = [];
+        activityCircles.forEach((c) => {
+          activityUserIDS.push(...c.circleReadyUsers);
+        });
+
+        finalCircleGroup.push({
+          circleTopicID: anyActivityTopicID,
+          circleReadyGroup: activityUserIDS,
+        });
+      } else {
+        // 報名人數 >= 5 人 ,開始分群, 以 5 人一群為最優先原則 , 其次是 7 ,再來是 4 , 6
+        // 先依照5人區分人數多與少的活躍圈圈 (<5:人數少)
+        let lessActivityCircles = [];
+        let largeActivityCircles = [];
+
+        activityCircles.forEach((c) => {
+          if (c.circleReadyUsers.length < 5) {
+            lessActivityCircles.push(c);
+          } else {
+            largeActivityCircles.push(c);
+          }
+        });
+
+        // 1. 先處理較少人數的主題圈圈
+        let lessUsers = [];
+        let lessActivityTopicIDS = [];
+        lessActivityCircles.forEach((c) => {
+          lessUsers.push(...c.circleReadyUsers);
+          lessActivityTopicIDS.push(c.circleTopicID);
+        });
+
+        //如果少數人的總和<5人,就將這些人再平均分配到人數多的圈圈
+        if (lessUsers.length < 5) {
+          const randomLessUsers = lessUsers.sort(() => Math.random() - 0.5);
+          let index = 0;
+
+          while (randomLessUsers.length > 0) {
+            const user = randomLessUsers.pop();
+            const targetCircle =
+              largeActivityCircles[index % largeActivityCircles.length];
+            targetCircle.circleReadyUsers.push(user);
+            index++;
+          }
+        } else {
+          //反之,總和>=5人,就將這些人合併到少數人的其中一個主題,並分群
+          const anyLessActivityTopicID =
+            lessActivityTopicIDS[
+              Math.floor(Math.random() * lessActivityTopicIDS.length)
+            ];
+
+          const users = await User.find(
+            {
+              userID: { $in: lessUsers },
+            },
+            { _id: 0, userID: 1, userRegion: 1 }
+          );
+
+          const sortedUserIDS = users
+            .sort(
+              (a, b) => regionOrder[a.userRegion] - regionOrder[b.userRegion]
+            )
+            .map((user) => user.userID);
+
+          const lessSliceGroups = sliceGroupUsers(sortedUserIDS);
+
+          lessSliceGroups.forEach((group) => {
+            finalCircleGroup.push({
+              circleTopicID: anyLessActivityTopicID,
+              circleReadyGroup: group,
+            });
+          });
+        }
+
+        // 2. 處理較多人數的主題圈圈
+        for (const largeCircle of largeActivityCircles) {
+          const topicID = largeCircle.circleTopicID;
+
+          const users = await User.find(
+            {
+              userID: { $in: largeCircle.circleReadyUsers },
+            },
+            { _id: 0, userID: 1, userRegion: 1 }
+          );
+
+          const sortedUserIDS = users
+            .sort(
+              (a, b) => regionOrder[a.userRegion] - regionOrder[b.userRegion]
+            )
+            .map((user) => user.userID);
+
+          const largeSliceGroups = sliceGroupUsers(sortedUserIDS);
+
+          largeSliceGroups.forEach((group) => {
+            finalCircleGroup.push({
+              circleTopicID: topicID,
+              circleReadyGroup: group,
+            });
+          });
+        }
+      }
+
+      console.log("最終的結果", finalCircleGroup);
+
+      //----------------- 以分群完畢, 開始創建 ActivityCircle 和 SendBird Channel
+      // 設定每次最多允許 5 個並行請求
+      const pLimit = (await import("p-limit")).default;
+      const limit = pLimit(5);
+
+      const createPromises = finalCircleGroup.map((circleGroup) => {
+        return limit(async () => {
+          const { circleTopicID, circleReadyGroup } = circleGroup;
+
+          const uuid = uuidv4(); // 生成 UUID v4
+          const circleID = uuid.replace(/\D/g, "").slice(0, 10);
+          const circleChannelID = circleTopicID + "_" + circleID;
+
+          const status = await sbUtil.createCircleChannel(
+            circleReadyGroup,
+            circleID,
+            circleChannelID
+          );
+
+          const param = circleTopicParams.find((param) => {
+            return param.circleTopicID == circleTopicID;
+          });
+
+          if (status) {
+            await ActivityCircle.create({
+              circleID,
+              circleTopicID,
+              circleTopicName: param.circleTopicName,
+              circleChannelID,
+              circleTopicColors: param.circleTopicColors,
+              circleBackground: param.circleBackground,
+              circleTopicLogo: param.circleTopicLogo,
+              circleUserIDS: circleReadyGroup,
+            });
+
+            await CircleTicket.updateMany(
+              {
+                ticketOwnerID: { $in: circleReadyGroup },
+              },
+              {
+                circleChannelID,
+              }
+            );
+          }
+        });
+      });
+
+      // 等待所有異步操作完成
+      await Promise.all(createPromises);
+
+      // 將預備圈圈的所有主題的 circleReadyUsers 清空
+      await ReadyCircle.updateMany({}, { $set: { circleReadyUsers: [] } });
+
+      console.log("圈圈分群已完成");
+    } catch (e) {
+      console.log("圈圈分群遇到問題", e);
+    }
   }
 };
 

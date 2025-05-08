@@ -26,9 +26,9 @@ const deleteCircleChannels = require("./delete-circle-channel");
 
 //設定每天執行
 const startFetching = () => {
-  //circleGrouping();
-  //destoryTickets();
-  //deleteCircleChannels();
+  circleGrouping();
+  destoryTickets();
+  deleteCircleChannels();
   generalMatch();
   letterMatch();
   checkDevice();
@@ -45,5 +45,5 @@ if (process.env.HEROKU_ENV !== "DEBUG") {
   setInterval(startFetching, 60 * 1000);
 } else {
   console.log("開發站啟動定時服務");
-  //setInterval(startFetching, 60 * 1000);
+  setInterval(startFetching, 60 * 1000);
 }
