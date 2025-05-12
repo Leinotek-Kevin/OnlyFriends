@@ -70,7 +70,7 @@ const startSchedule = async () => {
       console.log("銷毀票券作業異常", e);
     }
   } else {
-    console.log("今天是星期" + day + ",不執行銷毀票券業務");
+    console.log("現在不執行銷毀票券業務");
   }
 };
 

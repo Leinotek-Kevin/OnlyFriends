@@ -85,7 +85,7 @@ class CloudMsgService {
             }
           })
           .then((response) => {
-            console.log("發送結果 ", response + "=>" + token);
+            console.log("發送結果成功", response + "=>" + token);
           });
       });
 
