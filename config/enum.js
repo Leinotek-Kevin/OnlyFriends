@@ -255,6 +255,16 @@ const CircleTopicNames = Object.freeze([
     des_ZH: "攝影交流",
     des_EN: "Photography Exchange",
   },
+  {
+    itemID: "fitness-1",
+    des_ZH: "運動健身",
+    des_EN: "Sport & Fitness",
+  },
+  {
+    itemID: "divination-1",
+    des_ZH: "占卜算命",
+    des_EN: "Divination",
+  },
 ]);
 
 module.exports = {

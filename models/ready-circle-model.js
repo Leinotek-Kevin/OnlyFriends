@@ -71,6 +71,12 @@ const readyCircleSchema = new Schema({
     type: [{ type: String }],
     default: [],
   },
+
+  //累積報名參加人數
+  cumulativeCounts: {
+    type: Number,
+    default: 0,
+  },
 });
 
 //隱藏 _id,__v

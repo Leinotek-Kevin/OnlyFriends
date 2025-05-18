@@ -69,8 +69,6 @@ const startSchedule = async () => {
     } catch (e) {
       console.log("銷毀票券作業異常", e);
     }
-  } else {
-    console.log("現在不執行銷毀票券業務");
   }
 };
 

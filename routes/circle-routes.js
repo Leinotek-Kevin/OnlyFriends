@@ -132,10 +132,34 @@ router.post("/show-circles", async (req, res) => {
 
     const ticket = await CircleTicket.findOne({ ticketOwnerID: userID });
 
-    const mapItem = (item) => ({
-      circleTopicID: item.itemID,
-      description: language == "en" ? item.des_EN : item.des_ZH,
-      isChoose: ticket ? item.itemID == ticket.circleTopicID : false,
+    const readyCircles = await ReadyCircle.find(
+      {},
+      { circleTopicID: 1, _id: 0 }
+    ).sort({
+      cumulativeCounts: -1,
+    });
+
+    // 將 "random" 的元素挑出來放到最前面
+    const randomItem = readyCircles.find(
+      (item) => item.circleTopicID === "random"
+    );
+    const otherItems = readyCircles.filter(
+      (item) => item.circleTopicID !== "random"
+    );
+
+    const sortCircles = [randomItem, ...otherItems];
+
+    const finalCicles = sortCircles.map((circle) => {
+      const circleTopicEnum = CircleTopicNames.find(
+        (item) => item.itemID === circle.circleTopicID
+      );
+
+      return {
+        circleTopicID: circle.circleTopicID,
+        description:
+          language == "en" ? circleTopicEnum.des_EN : circleTopicEnum.des_ZH,
+        isChoose: ticket ? circle.circleTopicID == ticket.circleTopicID : false,
+      };
     });
 
     //目前圈圈報名系統狀態碼
@@ -189,7 +213,7 @@ router.post("/show-circles", async (req, res) => {
         content,
         contentID,
         everChoose: ticket != null,
-        circleTopics: CircleTopicNames.map(mapItem),
+        circleTopics: finalCicles,
       },
     });
   } catch (e) {
@@ -234,14 +258,15 @@ router.post("/join-circle", async (req, res) => {
       });
 
       //加入指定預備圈圈
-      await ReadyCircle.updateOne(
-        {
-          circleTopicID,
-        },
-        {
-          $addToSet: { circleReadyUsers: userID }, // 加入 userID，避免重複
-        }
-      );
+      const updateQuery = {
+        $addToSet: { circleReadyUsers: userID },
+      };
+
+      if (circleTopicID !== "random") {
+        updateQuery.$inc = { cumulativeCounts: 1 };
+      }
+
+      await ReadyCircle.updateOne({ circleTopicID }, updateQuery);
 
       return res.status(200).send({
         status: true,
@@ -268,6 +293,7 @@ router.post("/join-circle", async (req, res) => {
       });
     }
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",

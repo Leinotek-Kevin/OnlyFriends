@@ -77,8 +77,6 @@ const startSchedule = async () => {
     } catch (e) {
       console.log("刪除圈圈渠道異常", e);
     }
-  } else {
-    console.log("目前不會執行刪除圈圈渠道業務");
   }
 };
 
