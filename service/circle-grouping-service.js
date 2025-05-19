@@ -295,9 +295,6 @@ const startSchedule = async () => {
       await ReadyCircle.updateMany({}, { $set: { circleReadyUsers: [] } });
 
       console.log("圈圈分群已完成");
-
-      //刪除過去的 circle 公告訊息
-      await cloudAnnou.removeAnnouMsgByType("circle");
     } catch (e) {
       console.log("圈圈分群遇到問題", e);
     }

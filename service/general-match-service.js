@@ -363,7 +363,7 @@ const generalMatch = async () => {
         console.log("刪除所有有關聊天的檔案出現問題:", e);
       }
 
-      //送出配對完成的 openchannel 廣播
+      //送出配對完成的公告廣播
       try {
         await cloudAnnou.addAnnouMessage({
           customType: "matchFinish",
