@@ -6,6 +6,7 @@ import LandingComponent from "./components/landing-component";
 import UsersComponent from "./components/users-component";
 import ReportsComponent from "./components/reports-component";
 import DeleteComponent from "./components/delete-component";
+import DrinkQuizComponent from "./components/quiz/drink-quiz-component";
 import Layout from "./components/layout";
 
 function App() {
@@ -59,6 +60,8 @@ function App() {
               }
             ></Route>
           </Route>
+          {/*飲料小測驗*/}
+          <Route path="drink-test" element={<DrinkQuizComponent />}></Route>
         </Route>
       </Routes>
     </BrowserRouter>

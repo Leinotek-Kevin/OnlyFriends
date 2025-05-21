@@ -1,0 +1,266 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+::after,
+::before {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+div.enter-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+div.enter-page main {
+  flex: 1;
+}
+div.enter-page main img.background {
+  width: 100%;
+  height: 100vh;
+  z-index: -5;
+  position: fixed;
+  -o-object-fit: cover;
+  object-fit: cover;
+}
+div.enter-page main div.entrance {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  flex: 1;
+}
+div.enter-page main div.entrance p.title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-top: 3rem;
+}
+div.enter-page main div.entrance p.sub-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-top: 0.5rem;
+  letter-spacing: 0.05rem;
+}
+div.enter-page main div.entrance button {
+  font-weight: 300;
+  margin-top: 2rem;
+  font-size: 1.2rem;
+  font-weight: 350;
+  background-color: #22425e;
+  color: white;
+  border: 0;
+  border-radius: 8px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+div.enter-page main div.entrance button:hover {
+  transform: scale(1.05);
+}
+div.enter-page footer p {
+  text-align: center;
+}
+
+div.intro-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+div.intro-page img.background {
+  width: 100%;
+  height: 100vh;
+  z-index: -5;
+  position: fixed;
+  -o-object-fit: cover;
+  object-fit: cover;
+  opacity: 0.8;
+}
+div.intro-page main {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  max-width: 30rem;
+}
+div.intro-page main p {
+  font-size: 1.8rem;
+  letter-spacing: 0.2rem;
+  font-weight: 500;
+  padding: 1rem;
+}
+div.intro-page main button {
+  width: 100%;
+  color: white;
+  background: none;
+  margin-top: 1rem;
+  border-radius: 15px;
+  border: 2px solid white;
+  background-color: rgba(254, 244, 228, 0.15);
+  padding-top: 1.3rem;
+  padding-bottom: 1.3rem;
+  font-size: 2rem;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+div.intro-page main button:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
+  cursor: pointer;
+}
+
+div.quiz-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+div.quiz-page img.background {
+  width: 100%;
+  height: 100vh;
+  z-index: -5;
+  position: fixed;
+  -o-object-fit: cover;
+  object-fit: cover;
+  opacity: 0.8;
+}
+div.quiz-page .progress-container {
+  width: 40%;
+  height: 13px;
+  background-color: #f1f1f1;
+  border-radius: 999px;
+  position: relative;
+  margin-bottom: 24px;
+  margin-top: 80px;
+}
+div.quiz-page .progress-container .progress-bar-fill {
+  height: 100%;
+  background-color: black;
+  border-radius: 999px;
+  position: relative;
+  transition: width 0.4s ease;
+}
+div.quiz-page .progress-container .progress-bar-fill .progress-indicator {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(50%, -50%);
+  width: 25px;
+  height: 25px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+div.quiz-page main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+div.quiz-page main p {
+  font-size: 1.8rem;
+  letter-spacing: 0.2rem;
+  font-weight: 500;
+  padding: 1rem;
+  max-width: 50rem;
+}
+div.quiz-page main div.quiz-area {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 80px;
+}
+div.quiz-page main div.quiz-area div.quizs {
+  max-width: 30rem;
+}
+div.quiz-page main div.quiz-area div.quizs button.btn {
+  width: 100%;
+  color: black;
+  margin-top: 1rem;
+  border-radius: 15px;
+  border: 2px solid white;
+  background-color: rgb(254, 244, 228);
+  padding-top: 1.3rem;
+  padding-bottom: 1.3rem;
+  font-size: 1.5rem;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+div.quiz-page main div.quiz-area div.quizs button.btn:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
+  cursor: pointer;
+}
+div.quiz-page main div.quiz-area button.opt-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: rgba(254, 244, 228, 0.5);
+  color: black;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  align-items: center;
+  margin-left: 30px;
+  margin-right: 30px;
+}
+div.quiz-page main div.quiz-area button.opt-btn:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
+  cursor: pointer;
+}
+
+div.result-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #fef3e2;
+}
+div.result-page main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+div.result-page main div {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  margin-top: 30px;
+  width: 90%;
+}
+div.result-page main div img {
+  width: 100%;
+  -o-object-fit: cover;
+  object-fit: cover;
+}
+div.result-page main button {
+  width: 200px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: rgb(254, 244, 228);
+  color: black;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  align-items: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+div.result-page main button:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
+  cursor: pointer;
+}
+div.result-page footer {
+  margin-top: 20px;
+}
+div.result-page footer p {
+  text-align: center;
+}/*# sourceMappingURL=drink.css.map */
