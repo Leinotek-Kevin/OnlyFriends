@@ -192,7 +192,7 @@ const DrinkTestComponent = () => {
                 ))}
               </div>
 
-              {current < questions.length - 1 ? (
+              {current < questions.length - 1 && answers[current] !== -1 ? (
                 <button
                   className="opt-btn"
                   onClick={() => setCurrent(current + 1)}

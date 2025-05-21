@@ -61,7 +61,7 @@ function App() {
             ></Route>
           </Route>
           {/*飲料小測驗*/}
-          <Route path="drink-test" element={<DrinkQuizComponent />}></Route>
+          <Route path="drink-quiz" element={<DrinkQuizComponent />}></Route>
         </Route>
       </Routes>
     </BrowserRouter>
