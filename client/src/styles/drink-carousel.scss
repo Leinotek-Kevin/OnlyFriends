@@ -1,0 +1,136 @@
+.carousel-container {
+  width: 100%;
+  // padding: 2rem 0;
+  padding-left: 10rem;
+  padding-right: 10rem;
+  margin-top: 1.5rem;
+
+  .carousel-slide {
+    text-align: center;
+    transition: transform 0.3s ease;
+    transform: scale(0.7);
+    opacity: 0.5;
+
+    img {
+      width: 95%;
+      border-radius: 0px;
+    }
+  }
+
+  div.carousel-text {
+    margin-top: 1.5rem;
+    text-align: center;
+    color: #333;
+
+    p.drink-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 0;
+      padding: 0;
+    }
+
+    p.drink-desc {
+      font-size: 1.5rem;
+      color: rgb(63, 70, 78, 0.8);
+      font-weight: 400;
+      margin: 0;
+      margin-top: 0.2rem;
+    }
+  }
+
+  .swiper-slide-active .carousel-slide {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .swiper-button-prev,
+  .swiper-button-next {
+    color: #555;
+  }
+
+  .swiper-pagination-bullet {
+    background: #aaa;
+    opacity: 1;
+  }
+
+  .swiper-pagination-bullet-active {
+    background: #333;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  div.carousel-container {
+    padding-left: 3rem;
+    padding-right: 3rem;
+
+    .carousel-slide {
+      img {
+        width: 120%;
+        border-radius: 0px;
+      }
+    }
+    div.carousel-text {
+      p.drink-title {
+        font-size: 1.8rem;
+      }
+
+      p.drink-desc {
+        font-size: 1.4rem;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 550px) {
+  div.carousel-container {
+    padding-left: 0rem;
+    padding-right: 1rem;
+
+    .carousel-slide {
+      img {
+        width: 120%;
+      }
+    }
+    div.carousel-text {
+      p.drink-title {
+        font-size: 1.3rem;
+      }
+
+      p.drink-desc {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 450px) {
+  div.carousel-container {
+    padding-left: 0rem;
+    padding-right: 0rem;
+    margin-top: 2rem;
+    margin-left: -10px;
+    overflow: hidden; // 👈 重點在這裡
+
+    .carousel-slide {
+      transform: scale(0.6);
+      img {
+        width: 120%;
+      }
+    }
+
+    .swiper-slide-active .carousel-slide {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    div.carousel-text {
+      p.drink-title {
+        font-size: 1.3rem;
+      }
+
+      p.drink-desc {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}

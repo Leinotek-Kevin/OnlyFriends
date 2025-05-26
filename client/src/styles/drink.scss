@@ -1,66 +1,104 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
-::after,
-::before {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 $button-color: rgb(235, 235, 235);
 
-div.enter-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+div.drink-quiz {
+  div.enter-page {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 
-  main {
-    flex: 1;
-
-    img.background {
+    header {
       width: 100%;
-      height: 100vh;
-      z-index: -5;
-      position: fixed;
-      -o-object-fit: cover;
-      object-fit: cover;
-    }
-
-    div.entrance {
+      aspect-ratio: 16/9;
+      position: relative;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: flex-start;
-      text-align: center;
-      flex: 1;
+      align-items: center;
 
-      p.title {
-        margin: 0;
-        font-size: 2rem;
-        font-weight: 600;
-        margin-top: 3rem;
+      img {
+        width: 100%;
+        height: 100%;
+        position: absolute; // ✅ 相對於 header
+        //找最近有設置 relative 的元素作為基準
+        top: 0;
+        left: 0;
+        z-index: 0;
+        object-fit: fill;
       }
 
-      p.sub-title {
+      p.title {
+        font-size: 3rem;
+        font-weight: 600;
+        z-index: 1;
+        margin-top: 8rem;
+      }
+
+      button {
+        z-index: 1;
+        font-weight: 300;
+        margin-top: 1rem;
+        font-size: 1.5rem;
+        font-weight: 350;
+        background-color: #000000;
+        color: white;
+        border: 0;
+        border-radius: 3rem;
+        padding-left: 3rem;
+        padding-right: 3rem;
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+    }
+
+    main {
+      width: 100%;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      justify-self: flex-start;
+      align-items: center;
+      margin-top: 4rem;
+
+      p.carousel-title {
+        font-size: 2.5rem;
+        font-weight: 600;
         margin: 0;
-        font-size: 1rem;
+      }
+
+      p.carousel-subtitle {
+        font-size: 1.5rem;
         font-weight: 400;
-        margin-top: 0.5rem;
-        letter-spacing: 0.05rem;
+        margin: 0;
+        margin-top: 0.8rem;
+        text-align: center;
+        letter-spacing: 0.1rem;
+      }
+
+      div.drink-carousel {
+        width: 100%;
+        height: auto;
+        margin-top: 3rem;
       }
 
       button {
         font-weight: 300;
-        margin-top: 2rem;
-        font-size: 1.2rem;
+        margin-top: 5rem;
+        margin-bottom: 5rem;
+        font-size: 2rem;
         font-weight: 350;
-        background-color: #22425e;
+        background-color: #000000;
         color: white;
         border: 0;
-        border-radius: 8px;
-        padding-left: 20px;
-        padding-right: 20px;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        border-radius: 3rem;
+        padding-left: 3rem;
+        padding-right: 3rem;
+        padding-top: 1.2rem;
+        padding-bottom: 1.2rem;
 
         &:hover {
           transform: scale(1.05);
@@ -69,167 +107,57 @@ div.enter-page {
     }
   }
 
-  footer {
-    p {
-      text-align: center;
-    }
-  }
-}
-
-div.intro-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  img.background {
-    width: 100%;
-    height: 100vh;
-    z-index: -5;
-    position: fixed;
-    -o-object-fit: cover;
-    object-fit: cover;
-    opacity: 0.8; // 0～1之間，數字越小越淡
-  }
-
-  main {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    max-width: 30rem;
-
-    p {
-      font-size: 1.8rem;
-      letter-spacing: 0.2rem;
-      font-weight: 500;
-      padding: 1rem;
-    }
-
-    button {
-      width: 100%;
-      color: white;
-      background: none;
-      margin-top: 1rem;
-      border-radius: 15px;
-      border: 2px solid white; // 白色邊框
-      background-color: rgba(254, 244, 228, 0.15); // 透明灰色背景（20% 不透明
-      padding-top: 1.3rem;
-      padding-bottom: 1.3rem;
-      font-size: 2rem;
-      transition: box-shadow 0.3s ease, transform 0.2s ease;
-
-      &:hover {
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); // 深灰色陰影
-        transform: translateY(-1px); // 微微上浮效果
-        cursor: pointer;
-      }
-    }
-  }
-}
-
-div.quiz-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-
-  img.background {
-    width: 100%;
-    height: 100vh;
-    z-index: -5;
-    position: fixed;
-    -o-object-fit: cover;
-    object-fit: cover;
-    opacity: 0.8; // 0～1之間，數字越小越淡
-  }
-
-  .progress-container {
-    width: 40%;
-    height: 13px;
-    background-color: #f1f1f1;
-    border-radius: 999px;
-    position: relative;
-    margin-bottom: 24px;
-    margin-top: 80px;
-
-    .progress-bar-fill {
-      height: 100%;
-      background-color: black;
-      border-radius: 999px;
-      position: relative;
-      transition: width 0.4s ease;
-
-      .progress-indicator {
-        position: absolute;
-        right: 0;
-        top: 50%;
-        transform: translate(50%, -50%);
-        width: 25px;
-        height: 25px;
-        background-color: white;
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
-    }
-  }
-
-  main {
+  div.intro-page {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
 
-    p {
-      font-size: 1.8rem;
-      letter-spacing: 0.2rem;
-      font-weight: 500;
-      padding: 1rem;
-      max-width: 50rem;
+    img.background {
+      width: 100%;
+      height: 100vh;
+      z-index: -5;
+      position: fixed;
+      //-o-object-fit: cover;
+      object-position: center 90%;
+      object-fit: cover;
+      //opacity: 0.8; // 0～1之間，數字越小越淡
     }
 
-    div.quiz-area {
+    main {
       display: flex;
-      flex-direction: row;
-      justify-content: center;
+      width: 100%;
+      flex-direction: column;
+      justify-content: flex-start;
       align-items: center;
-      margin-top: 80px;
 
-      div.quizs {
-        max-width: 30rem;
-        button.btn {
-          width: 100%;
-          color: black;
-          margin-top: 1rem;
-          border-radius: 15px;
-          border: 2px solid white; // 白色邊框
-          background-color: rgba(254, 244, 228); // 透明灰色背景（20% 不透明
-          padding-top: 1.3rem;
-          padding-bottom: 1.3rem;
-          font-size: 1.5rem;
-          transition: box-shadow 0.3s ease, transform 0.2s ease;
-
-          &:hover {
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); // 深灰色陰影
-            transform: translateY(-1px); // 微微上浮效果
-            cursor: pointer;
-          }
-        }
+      p {
+        max-width: 100%;
+        width: 40rem;
+        font-size: 1.6rem;
+        letter-spacing: 0.2rem;
+        line-height: 1.8;
+        font-weight: 500;
+        text-align: center;
+        padding: 1rem;
+        margin: 0;
       }
 
-      button.opt-btn {
-        width: 50px;
-        height: 50px;
-        border-radius: 10px;
-        background-color: rgba(254, 244, 228, 0.5);
+      button {
+        max-width: 100%;
+        width: 18rem;
         color: black;
+        font-weight: 500;
+        background: none;
+        margin-top: 1.8rem;
+        border-radius: 50px;
+        border: 3px solid white; // 白色邊框
+        background-color: rgb(255, 255, 255, 0.85); // 透明灰色背景（20% 不透明
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        font-size: 1.8rem;
         transition: box-shadow 0.3s ease, transform 0.2s ease;
-        align-items: center;
-        margin-left: 30px;
-        margin-right: 30px;
 
         &:hover {
           box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); // 深灰色陰影
@@ -239,31 +167,154 @@ div.quiz-page {
       }
     }
   }
-}
 
-div.result-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #fef3e2;
+  div.quiz-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
 
-  main {
+    img.background {
+      width: 100%;
+      height: 100vh;
+      z-index: -5;
+      position: fixed;
+      //-o-object-fit: cover;
+      object-position: center 90%;
+      object-fit: cover;
+      //opacity: 0.8; // 0～1之間，數字越小越淡
+    }
+
+    .progress-container {
+      width: 40%;
+      height: 16px;
+      background-color: rgb(243, 243, 243);
+      border-radius: 999px;
+      position: relative;
+      margin-bottom: 24px;
+      margin-top: 60px;
+
+      .progress-bar-fill {
+        height: 100%;
+        background-color: white;
+        border-radius: 999px;
+        position: relative;
+        transition: width 0.4s ease;
+
+        .progress-indicator {
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translate(50%, -50%);
+          width: 25px;
+          height: 25px;
+          background-color: white;
+          border-radius: 50%;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+      }
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-top: 25px;
+
+      p {
+        font-size: 1.8rem;
+        letter-spacing: 0.2rem;
+        font-weight: 500;
+        padding: 1rem;
+        max-width: 50rem;
+      }
+
+      div.quiz-area {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        margin-top: 45px;
+
+        div.quizs {
+          max-width: 30rem;
+
+          button.btn {
+            width: 100%;
+            color: black;
+            font-weight: 500;
+            background: none;
+            margin-top: 1.8rem;
+            border-radius: 50px;
+            border: 3px solid white; // 白色邊框
+            background-color: rgb(
+              255,
+              255,
+              255,
+              0.85
+            ); // 透明灰色背景（20% 不透明
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            font-size: 1.5rem;
+            transition: box-shadow 0.3s ease, transform 0.2s ease;
+
+            &:hover {
+              box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); // 深灰色陰影
+              transform: translateY(-1px); // 微微上浮效果
+              cursor: pointer;
+            }
+          }
+        }
+
+        button.opt-btn {
+          width: 50px;
+          height: 50px;
+          border-radius: 10px;
+          background-color: rgba(254, 244, 228, 0.5);
+          color: black;
+          transition: box-shadow 0.3s ease, transform 0.2s ease;
+          align-items: center;
+          margin-left: 30px;
+          margin-right: 30px;
+
+          &:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); // 深灰色陰影
+            transform: translateY(-1px); // 微微上浮效果
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+
+  div.result-page {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex: 1;
+    background-color: white;
 
-    div {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 20px;
-      margin-top: 30px;
-      width: 90%;
+    p.title {
+      font-weight: 500;
+      font-size: 2.5rem;
+      margin: 0;
+      margin-top: 2rem;
+    }
+
+    a.download {
+      margin-top: 0.4rem;
+      p {
+        color: #000000;
+        font-size: 1.2rem;
+        font-weight: 400;
+      }
+    }
+
+    div.drink-result {
+      width: 40%;
 
       img {
         width: 100%;
@@ -272,16 +323,20 @@ div.result-page {
       }
     }
 
-    button {
-      width: 200px;
-      height: 50px;
-      border-radius: 10px;
-      background-color: rgba(254, 244, 228);
-      color: black;
+    button.share-quiz {
+      width: 14rem;
+      border-radius: 30px;
+      color: white;
+      background-color: black;
       transition: box-shadow 0.3s ease, transform 0.2s ease;
       align-items: center;
-      margin-top: 5px;
-      margin-bottom: 5px;
+      font-size: 1.5rem;
+      padding-top: 0.6rem;
+      padding-bottom: 0.6rem;
+      padding-left: 2rem;
+      padding-right: 2rem;
+      margin-top: 1.7rem;
+      margin-bottom: 1.3rem;
 
       &:hover {
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); // 深灰色陰影
@@ -289,12 +344,1213 @@ div.result-page {
         cursor: pointer;
       }
     }
+
+    button.reset-quiz {
+      width: 14rem;
+      border-radius: 30px;
+      color: black;
+      background-color: white;
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+      border: 3px solid black; // 白色邊框
+      align-items: center;
+      font-size: 1.5rem;
+      padding-top: 0.6rem;
+      padding-bottom: 0.6rem;
+      padding-left: 2rem;
+      padding-right: 2rem;
+      margin-bottom: 4rem;
+
+      &:hover {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); // 深灰色陰影
+        transform: translateY(-1px); // 微微上浮效果
+        cursor: pointer;
+      }
+    }
+
+    p.keep-look {
+      margin: 0;
+      color: black;
+      font-size: 1.8rem;
+    }
+
+    p.question-title {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin: 0;
+      margin-top: 3.5rem;
+    }
+
+    p.question-subtitle {
+      font-size: 1.5rem;
+      font-weight: 400;
+      margin: 0;
+      margin-top: 0.8rem;
+      text-align: center;
+      letter-spacing: 0.1rem;
+    }
+
+    img.app-logo {
+      width: 10rem;
+      height: 10rem;
+      margin-top: 3rem;
+    }
+
+    p.ofs-intro-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 0;
+      margin-top: 2rem;
+    }
+
+    p.ofs-intro-subtitle {
+      font-size: 1.5rem;
+      font-weight: 400;
+      margin: 0;
+      margin-top: 0.5rem;
+      text-align: center;
+      letter-spacing: 0.1rem;
+      margin-bottom: 5rem;
+    }
   }
 
-  footer {
-    margin-top: 20px;
-    p {
+  p.keep-look {
+    margin: 0;
+    color: black;
+    font-size: 1.8rem;
+  }
+
+  p.question-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin: 0;
+    margin-top: 3.5rem;
+  }
+
+  p.question-subtitle {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin: 0;
+    margin-top: 0.8rem;
+    text-align: center;
+    letter-spacing: 0.1rem;
+  }
+
+  img.app-logo {
+    width: 10rem;
+    height: 10rem;
+    margin-top: 3rem;
+  }
+
+  p.ofs-intro-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    margin-top: 2rem;
+  }
+
+  p.ofs-intro-subtitle {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin: 0;
+    margin-top: 0.5rem;
+    text-align: center;
+    letter-spacing: 0.1rem;
+    margin-bottom: 5rem;
+  }
+
+  div.ofs-area {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    img.background {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      //找最近有設置 relative 的元素作為基準
+      top: 0;
+      left: 0;
+      z-index: 0;
+      object-fit: fill;
+    }
+
+    div.slogan {
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      width: 28rem;
+      max-width: 100%;
+      margin-top: 5rem;
+
+      p.white-line {
+        padding: 0;
+        height: 0.3rem; /* 調整線條的粗細 */
+        background-color: white; /* 設定線條的顏色 */
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+      }
+
+      p.main-slogan {
+        text-align: center;
+        color: white;
+        margin: 0;
+        font-weight: 600;
+        font-size: 2.5rem;
+        letter-spacing: 0.5rem;
+      }
+
+      p.sub-slogan {
+        text-align: center;
+        color: white;
+        margin-top: 0.5rem;
+        font-size: 1.8rem;
+        letter-spacing: 0.2rem;
+      }
+    }
+
+    div.display {
+      z-index: 1;
+      width: 40rem;
+      max-width: 100%;
+      aspect-ratio: 462/622;
+      position: relative;
+      margin-top: 3rem;
+
+      img {
+        position: absolute;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        object-fit: fill;
+      }
+    }
+
+    p.download-hint {
+      z-index: 1;
+      margin-top: 4rem;
+      color: white;
+      font-size: 2.2rem;
+      font-weight: 500;
+    }
+
+    div.download-btn {
+      display: flex;
+      flex-direction: row;
+      width: 26rem;
+      max-width: 100%;
+      height: 4rem;
+      z-index: 1;
+      margin-top: 0.5rem;
+
+      div.btn {
+        flex: 1;
+        position: relative;
+
+        a {
+          display: block; // 保險一點，讓 a 也有點大小感知（非必要，但建議保留）
+
+          img {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            object-fit: fill;
+            transition: transform 0.5s ease; // 👈 transition 放這裡，針對 img 的 transform 動畫
+          }
+
+          &:hover img {
+            transform: scale(1.05); // 👈 動畫效果移到 img 上
+          }
+        }
+      }
+
+      div.space {
+        flex: 0.1;
+      }
+    }
+
+    div.white-logo {
+      width: 5rem;
+      z-index: 1;
+      aspect-ratio: 57/37;
+      position: relative;
+      margin-top: 8.5rem;
+
+      img.app-white-logo {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    }
+
+    div.footer {
+      margin-top: 1rem;
+      z-index: 1;
       text-align: center;
+      color: white;
+      position: relative;
+
+      a {
+        text-decoration: none;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 450;
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+      }
+
+      p.copyright {
+        margin-top: 0.5rem;
+        font-size: large;
+        color: white;
+      }
+    }
+  }
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: $button-color;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: $button-color;
+}
+
+@media screen and (max-width: 1024px) {
+  div.drink-quiz {
+    div.enter-page {
+      header {
+        p.title {
+          font-size: 2.5rem;
+          margin-top: 5rem;
+          text-align: center;
+        }
+      }
+
+      main {
+        p.carousel-title {
+          font-size: 2rem;
+        }
+        p.carousel-subtitle {
+          font-size: 1.3rem;
+        }
+
+        button {
+          font-size: 1.8rem;
+          padding-left: 3rem;
+          padding-right: 3rem;
+          padding-top: 1rem;
+          padding-bottom: 1rem;
+        }
+      }
+    }
+
+    p.keep-look {
+      margin: 0;
+      color: black;
+      font-size: 1.6rem;
+    }
+
+    p.question-title {
+      font-size: 2rem;
+      margin-top: 3.5rem;
+    }
+
+    p.question-subtitle {
+      font-size: 1.3rem;
+      margin-top: 0.8rem;
+    }
+
+    p.ofs-intro-title {
+      font-size: 1.8rem;
+    }
+
+    p.ofs-intro-subtitle {
+      font-size: 1.3rem;
+    }
+
+    div.ofs-area {
+      div.slogan {
+        width: 25rem;
+
+        p.white-line {
+          height: 0.2rem; /* 調整線條的粗細 */
+        }
+
+        p.main-slogan {
+          font-size: 2.3rem;
+        }
+
+        p.sub-slogan {
+          font-size: 1.5rem;
+          letter-spacing: 0.1rem;
+        }
+      }
+
+      div.display {
+        width: 32rem;
+      }
+
+      p.download-hint {
+        font-size: 1.8rem;
+      }
+
+      div.download-btn {
+        width: 20rem;
+        height: 3.5rem;
+      }
+
+      div.white-logo {
+        width: 4.5rem;
+      }
+
+      div.footer {
+        a {
+          font-size: 1rem;
+        }
+      }
+    }
+
+    div.intro-page {
+      main {
+        p {
+          font-size: 1.3rem;
+          line-height: 1.5;
+        }
+
+        button {
+          max-width: 100%;
+          width: 13rem;
+          margin-top: 1.8rem;
+          padding-top: 0.5rem;
+          padding-bottom: 0.5rem;
+          font-size: 1.5rem;
+        }
+      }
+    }
+
+    div.quiz-page {
+      .progress-container {
+        width: 60%;
+        height: 10px;
+        margin-bottom: 0;
+        margin-top: 30px;
+
+        .progress-bar-fill {
+          .progress-indicator {
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+
+      main {
+        p {
+          font-size: 1.5rem;
+        }
+
+        div.quiz-area {
+          margin-top: 0px;
+
+          div.quizs {
+            max-width: 25rem;
+
+            button.btn {
+              margin-top: 1.5rem;
+              padding-top: 0.8rem;
+              padding-bottom: 0.8rem;
+              font-size: 1.2rem;
+            }
+          }
+        }
+      }
+    }
+
+    div.result-page {
+      p.title {
+        font-size: 2rem;
+        margin-top: 1rem;
+      }
+
+      a.download {
+        margin-top: 0.3rem;
+        p {
+          font-size: 1.3rem;
+        }
+      }
+
+      div.drink-result {
+        width: 50%;
+      }
+
+      button.share-quiz {
+        width: 13rem;
+        font-size: 1.3rem;
+        padding: 0.8rem;
+        margin-top: 1.7rem;
+        margin-bottom: 1rem;
+      }
+
+      button.reset-quiz {
+        width: 13rem;
+        font-size: 1.3rem;
+        padding: 0.8rem;
+        margin-bottom: 3rem;
+      }
+
+      p.keep-look {
+        font-size: 1.4rem;
+      }
+
+      p.question-title {
+        font-size: 1.8rem;
+        margin-top: 2.5rem;
+      }
+
+      p.question-subtitle {
+        font-size: 1.3rem;
+        margin-top: 0.5rem;
+      }
+
+      img.app-logo {
+        width: 8rem;
+        height: 8rem;
+      }
+
+      p.ofs-intro-title {
+        font-size: 1.7rem;
+      }
+
+      p.ofs-intro-subtitle {
+        font-size: 1.4rem;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 550px) {
+  div.drink-quiz {
+    div.enter-page {
+      header {
+        p.title {
+          font-size: 1.8rem;
+          margin-top: 2rem;
+        }
+
+        button {
+          margin: 0;
+          font-size: 1rem;
+          padding-left: 2.5rem;
+          padding-right: 2.5rem;
+          padding-top: 0.6rem;
+          padding-bottom: 0.6rem;
+        }
+      }
+
+      main {
+        margin-top: 2rem;
+
+        p.carousel-title {
+          margin-top: 1rem;
+          font-size: 1.5rem;
+        }
+        p.carousel-subtitle {
+          margin-top: 0.5rem;
+          font-size: 1.2rem;
+        }
+
+        button {
+          margin-top: 3rem;
+          margin-bottom: 3rem;
+          font-size: 1.3rem;
+          padding-left: 2.2rem;
+          padding-right: 2.2rem;
+          padding-top: 0.8rem;
+          padding-bottom: 0.8rem;
+        }
+      }
+    }
+
+    p.keep-look {
+      font-size: 1.3rem;
+    }
+
+    p.question-title {
+      font-size: 1.5rem;
+      margin-top: 3.5rem;
+    }
+
+    p.question-subtitle {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+    }
+
+    p.ofs-intro-title {
+      font-size: 1.4rem;
+    }
+
+    p.ofs-intro-subtitle {
+      font-size: 1.2rem;
+      margin-bottom: 4rem;
+    }
+
+    img.app-logo {
+      width: 9rem;
+      height: 9rem;
+      margin-top: 2rem;
+    }
+
+    div.ofs-area {
+      aspect-ratio: 9/16;
+      div.slogan {
+        width: 22rem;
+
+        p.white-line {
+          height: 0.2rem; /* 調整線條的粗細 */
+        }
+
+        p.main-slogan {
+          font-size: 2.1rem;
+        }
+
+        p.sub-slogan {
+          font-size: 1.3rem;
+          letter-spacing: 0.1rem;
+        }
+      }
+
+      div.display {
+        margin-top: 1rem;
+        width: 28rem;
+      }
+
+      p.download-hint {
+        margin-top: 3rem;
+        font-size: 1.8rem;
+      }
+
+      div.download-btn {
+        width: 18rem;
+        height: 3.2rem;
+      }
+
+      div.white-logo {
+        width: 4.3rem;
+      }
+
+      div.footer {
+        a {
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    div.intro-page {
+      main {
+        p {
+          font-size: 1.2rem;
+        }
+
+        button {
+          width: 12rem;
+          margin-top: 1.8rem;
+          padding-top: 0.5rem;
+          padding-bottom: 0.5rem;
+          font-size: 1.5rem;
+        }
+      }
+    }
+
+    div.quiz-page {
+      .progress-container {
+        width: 70%;
+        height: 10px;
+        margin-bottom: 0;
+        margin-top: 30px;
+
+        .progress-bar-fill {
+          .progress-indicator {
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+
+      main {
+        p {
+          max-width: 30rem;
+          font-size: 1.3rem;
+          margin-top: 1rem;
+        }
+
+        div.quiz-area {
+          margin-top: 0px;
+
+          div.quizs {
+            max-width: 23rem;
+
+            button.btn {
+              margin-top: 1.5rem;
+              padding-top: 0.8rem;
+              padding-bottom: 0.8rem;
+              font-size: 1.1rem;
+            }
+          }
+        }
+      }
+    }
+
+    div.result-page {
+      p.title {
+        font-size: 1.3rem;
+        margin-top: 1rem;
+      }
+
+      a.download {
+        margin-top: 0.3rem;
+        p {
+          font-size: 0.8rem;
+        }
+      }
+
+      div.drink-result {
+        width: 90%;
+      }
+
+      button.share-quiz {
+        width: 12rem;
+        font-size: 1.2rem;
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+        margin-top: 1.7rem;
+        margin-bottom: 1rem;
+      }
+
+      button.reset-quiz {
+        width: 12rem;
+        font-size: 1.2rem;
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+        margin-bottom: 3rem;
+      }
+
+      p.keep-look {
+        font-size: 1.2rem;
+      }
+
+      p.question-title {
+        font-size: 1.3rem;
+        margin-top: 2.5rem;
+      }
+
+      p.question-subtitle {
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+      }
+
+      img.app-logo {
+        width: 7rem;
+        height: 7rem;
+        margin-top: 2rem;
+      }
+
+      p.ofs-intro-title {
+        font-size: 1.3rem;
+        margin-top: 2rem;
+      }
+
+      p.ofs-intro-subtitle {
+        font-size: 1rem;
+        margin-top: 0.4rem;
+        text-align: center;
+        letter-spacing: 0.1rem;
+        margin-bottom: 3rem;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 450px) {
+  div.drink-quiz {
+    div.enter-page {
+      header {
+        aspect-ratio: 375/812;
+
+        p.title {
+          font-size: 2.7rem;
+          width: 60%;
+          text-align: center;
+          margin-top: 18rem;
+        }
+
+        img {
+          object-fit: cover;
+        }
+
+        button {
+          padding-top: 0.6rem;
+          padding-bottom: 0.6rem;
+        }
+      }
+
+      main {
+        p.carousel-title {
+          margin-top: 1rem;
+          font-size: 1.5rem;
+        }
+        p.carousel-subtitle {
+          margin-top: 0.2rem;
+          font-size: 1.1rem;
+        }
+
+        button {
+          padding-top: 0.7rem;
+          padding-bottom: 0.7rem;
+        }
+      }
+    }
+
+    p.keep-look {
+      font-size: 1.3rem;
+    }
+
+    p.question-title {
+      font-size: 1.5rem;
+      margin-top: 3.5rem;
+    }
+
+    p.question-subtitle {
+      font-size: 1.1rem;
+      margin-top: 0.4rem;
+    }
+
+    p.ofs-intro-title {
+      font-size: 1.4rem;
+    }
+
+    p.ofs-intro-subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 3rem;
+    }
+
+    img.app-logo {
+      width: 7rem;
+      height: 7rem;
+      margin-top: 2rem;
+    }
+
+    div.ofs-area {
+      aspect-ratio: 9/16;
+      img.background {
+        object-fit: fill;
+      }
+
+      div.slogan {
+        margin-top: 3.5rem;
+        width: 18rem;
+
+        p.white-line {
+          height: 0.15rem; /* 調整線條的粗細 */
+        }
+
+        p.main-slogan {
+          font-size: 1.8rem;
+          letter-spacing: 0.3rem;
+        }
+
+        p.sub-slogan {
+          font-size: 1.2rem;
+          letter-spacing: 0.05rem;
+        }
+      }
+
+      div.display {
+        margin-top: 1rem;
+        width: 23rem;
+      }
+
+      p.download-hint {
+        margin-top: 3rem;
+        margin-bottom: 0.3rem;
+        font-size: 1.5rem;
+      }
+
+      div.download-btn {
+        width: 16rem;
+        height: 2.7rem;
+      }
+
+      div.white-logo {
+        width: 4rem;
+      }
+
+      div.footer {
+        margin-top: 0.8rem;
+        a {
+          font-size: 0.8rem;
+        }
+        p.copyright {
+          font-size: small;
+        }
+      }
+    }
+
+    div.intro-page {
+      main {
+        p {
+          max-width: 100%;
+          font-size: 1.1rem;
+          padding: 2.3rem;
+          line-height: 1.7;
+        }
+
+        button {
+          width: 12rem;
+          padding-top: 0.7rem;
+          padding-bottom: 0.7rem;
+          font-size: 1.2rem;
+          margin-top: 0;
+        }
+      }
+    }
+
+    div.quiz-page {
+      .progress-container {
+        width: 75%;
+        height: 15px;
+        margin-bottom: 0;
+        margin-top: 40px;
+
+        .progress-bar-fill {
+          .progress-indicator {
+            width: 23px;
+            height: 23px;
+          }
+        }
+      }
+
+      main {
+        p {
+          max-width: 23rem;
+          font-size: 1.4rem;
+          margin-top: 3rem;
+          text-align: center;
+        }
+
+        div.quiz-area {
+          margin-top: 0px;
+
+          div.quizs {
+            max-width: 21rem;
+
+            button.btn {
+              margin-top: 1.5rem;
+              padding-top: 0.8rem;
+              padding-bottom: 0.8rem;
+              font-size: 1.1rem;
+            }
+          }
+        }
+      }
+    }
+
+    div.result-page {
+      p.title {
+        font-size: 1.3rem;
+        margin-top: 1rem;
+      }
+
+      a.download {
+        margin-top: 0.3rem;
+        p {
+          font-size: 0.8rem;
+        }
+      }
+
+      div.drink-result {
+        width: 90%;
+      }
+
+      button.share-quiz {
+        width: 12rem;
+        font-size: 1.2rem;
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+        margin-top: 1.7rem;
+        margin-bottom: 1rem;
+      }
+
+      button.reset-quiz {
+        width: 12rem;
+        font-size: 1.2rem;
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+        margin-bottom: 3rem;
+      }
+
+      p.keep-look {
+        font-size: 1.2rem;
+      }
+
+      p.question-title {
+        font-size: 1.3rem;
+        margin-top: 2.5rem;
+      }
+
+      p.question-subtitle {
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+      }
+
+      img.app-logo {
+        width: 7rem;
+        height: 7rem;
+        margin-top: 2rem;
+      }
+
+      p.ofs-intro-title {
+        font-size: 1.3rem;
+        margin-top: 2rem;
+      }
+
+      p.ofs-intro-subtitle {
+        font-size: 1rem;
+        margin-top: 0.4rem;
+        text-align: center;
+        letter-spacing: 0.1rem;
+        margin-bottom: 3rem;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 380px) {
+  div.drink-quiz {
+    div.enter-page {
+      header {
+        aspect-ratio: 375/812;
+
+        p.title {
+          font-size: 2.7rem;
+          width: 70%;
+          text-align: center;
+          margin-top: 15rem;
+        }
+
+        img {
+          object-fit: cover;
+        }
+
+        button {
+          padding-top: 0.6rem;
+          padding-bottom: 0.6rem;
+        }
+      }
+    }
+
+    div.intro-page {
+      main {
+        p {
+          max-width: 100%;
+          font-size: 1.1rem;
+          padding: 1.5rem;
+          line-height: 1.6;
+        }
+
+        button {
+          width: 12rem;
+          padding-top: 0.7rem;
+          padding-bottom: 0.7rem;
+          font-size: 1.2rem;
+          margin-top: 1rem;
+        }
+      }
+    }
+
+    div.quiz-page {
+      .progress-container {
+        width: 75%;
+        height: 13px;
+        margin-bottom: 0;
+        margin-top: 40px;
+
+        .progress-bar-fill {
+          .progress-indicator {
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+
+      main {
+        p {
+          max-width: 23rem;
+          font-size: 1.2rem;
+          margin-top: 3rem;
+          text-align: center;
+        }
+
+        div.quiz-area {
+          margin-top: 0px;
+
+          div.quizs {
+            max-width: 19rem;
+
+            button.btn {
+              margin-top: 1.3rem;
+              padding-top: 0.8rem;
+              padding-bottom: 0.8rem;
+              font-size: 1rem;
+            }
+          }
+        }
+      }
+    }
+
+    div.result-page {
+      p.title {
+        font-size: 1.3rem;
+        margin-top: 1rem;
+      }
+
+      a.download {
+        margin-top: 0.3rem;
+        p {
+          font-size: 0.8rem;
+        }
+      }
+
+      div.drink-result {
+        width: 90%;
+      }
+
+      button.share-quiz {
+        width: 12rem;
+        font-size: 1.2rem;
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+        margin-top: 1.7rem;
+        margin-bottom: 1rem;
+      }
+
+      button.reset-quiz {
+        width: 12rem;
+        font-size: 1.2rem;
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+        margin-bottom: 3rem;
+      }
+
+      p.keep-look {
+        font-size: 1.2rem;
+      }
+
+      p.question-title {
+        font-size: 1.3rem;
+        margin-top: 2.5rem;
+      }
+
+      p.question-subtitle {
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+      }
+
+      img.app-logo {
+        width: 7rem;
+        height: 7rem;
+        margin-top: 2rem;
+      }
+
+      p.ofs-intro-title {
+        font-size: 1.3rem;
+        margin-top: 2rem;
+      }
+
+      p.ofs-intro-subtitle {
+        font-size: 1rem;
+        margin-top: 0.4rem;
+        text-align: center;
+        letter-spacing: 0.1rem;
+        margin-bottom: 3rem;
+      }
+    }
+
+    div.ofs-area {
+      div.slogan {
+        width: 17rem;
+
+        p.main-slogan {
+          font-size: 1.5rem;
+          letter-spacing: 0.3rem;
+        }
+
+        p.sub-slogan {
+          font-size: 1.1rem;
+          letter-spacing: 0.05rem;
+        }
+      }
+
+      div.display {
+        margin-top: 1rem;
+        width: 20rem;
+      }
+
+      p.download-hint {
+        margin-top: 2.5rem;
+        margin-bottom: 0.3rem;
+        font-size: 1.3rem;
+      }
+
+      div.download-btn {
+        width: 14rem;
+        height: 2.3rem;
+      }
+
+      div.white-logo {
+        width: 3rem;
+      }
+
+      div.footer {
+        margin-top: 0.6rem;
+        a {
+          font-size: 0.8rem;
+        }
+        p.copyright {
+          font-size: x-small;
+        }
+      }
     }
   }
 }

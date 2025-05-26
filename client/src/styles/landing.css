@@ -170,114 +170,114 @@ div.landing footer div.privacy p.copyright {
 }
 
 @media screen and (max-width: 1400px) {
-  #root header {
+  div.landing header {
     width: 50vw;
   }
-  #root header div.app-logo {
+  div.landing header div.app-logo {
     margin-top: 2rem;
     margin-bottom: 1rem;
   }
-  #root header div.app-logo img {
+  div.landing header div.app-logo img {
     width: 15%;
   }
-  #root header div.title {
+  div.landing header div.title {
     width: 70%;
   }
-  #root header div.title p.white-line {
+  div.landing header div.title p.white-line {
     height: 0.1rem; /* 調整線條的粗細 */
   }
-  #root header div.title p.main-slogan {
+  div.landing header div.title p.main-slogan {
     font-size: 1.5rem;
   }
-  #root header div.title p.sub-slogan {
+  div.landing header div.title p.sub-slogan {
     font-size: 1rem;
   }
 }
 @media screen and (max-width: 550px) {
-  #root header div.app-logo img {
+  div.landing header div.app-logo img {
     width: 20%;
   }
-  #root header div.title {
+  div.landing header div.title {
     width: 93%;
   }
 }
 @media screen and (max-width: 450px) {
-  #root header {
+  div.landing header {
     width: 100vw;
   }
-  #root header div.app-logo {
+  div.landing header div.app-logo {
     margin-top: 2rem;
     margin-bottom: 1rem;
   }
-  #root header div.app-logo img {
+  div.landing header div.app-logo img {
     width: 20%;
   }
-  #root header div.title {
+  div.landing header div.title {
     width: 63%;
   }
-  #root header div.title p.white-line {
+  div.landing header div.title p.white-line {
     height: 0.1rem; /* 調整線條的粗細 */
   }
-  #root header div.title p.main-slogan {
+  div.landing header div.title p.main-slogan {
     font-size: 1.5rem;
   }
-  #root header div.title p.sub-slogan {
+  div.landing header div.title p.sub-slogan {
     font-size: 0.95rem;
   }
-  #root main div.display {
+  div.landing main div.display {
     width: 85%;
   }
-  #root main p.download-hint {
+  div.landing main p.download-hint {
     font-size: 1.3rem;
   }
-  #root main div.store-btn {
+  div.landing main div.store-btn {
     margin-bottom: 1.5rem;
   }
-  #root main div.store-btn a {
+  div.landing main div.store-btn a {
     flex: 0 1 120px;
   }
-  #root main p.keep-look {
+  div.landing main p.keep-look {
     font-size: medium;
   }
-  #root main p.rule-title {
+  div.landing main p.rule-title {
     margin-top: 1.5rem;
     color: white;
     font-size: 1.8rem;
   }
-  #root main.sub-main {
+  div.landing main.sub-main {
     margin-top: 3rem;
   }
-  #root main.sub-main div p.intro-title {
+  div.landing main.sub-main div p.intro-title {
     font-size: 1.4rem;
     margin-top: 2rem;
     margin-bottom: 0.2rem;
   }
-  #root main.sub-main div p.intro-sub-title {
+  div.landing main.sub-main div p.intro-sub-title {
     font-size: 0.9rem;
     margin-bottom: 2rem;
   }
-  #root main.sub-main p.space {
+  div.landing main.sub-main p.space {
     margin-top: 2rem;
     margin-bottom: 2rem;
   }
-  #root div.footer-logo img {
+  div.landing div.footer-logo img {
     width: 15%;
   }
-  #root footer {
+  div.landing footer {
     margin-top: 1rem;
     margin-bottom: 1rem;
   }
-  #root footer div.privacy a {
+  div.landing footer div.privacy a {
     font-size: 0.8rem;
   }
-  #root footer div.privacy p.copyright {
+  div.landing footer div.privacy p.copyright {
     text-align: center;
     font-size: 0.8rem;
     margin-top: 0.3rem;
   }
 }
 @media screen and (max-width: 350px) {
-  #root header div.title {
+  div.landing header div.title {
     width: 70%;
   }
 }/*# sourceMappingURL=landing.css.map */

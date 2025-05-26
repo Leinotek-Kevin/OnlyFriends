@@ -88,6 +88,7 @@ div.landing {
       align-content: center;
       justify-content: center;
       margin-bottom: 2rem;
+
       a {
         flex: 0 1 180px;
         padding: 0.3rem;
@@ -191,7 +192,7 @@ div.landing {
 
 //RWD 平板
 @media screen and (max-width: 1400px) {
-  #root {
+  div.landing {
     header {
       width: 50vw;
 
@@ -223,7 +224,7 @@ div.landing {
 }
 
 @media screen and (max-width: 550px) {
-  #root {
+  div.landing {
     header {
       div.app-logo {
         img {
@@ -239,7 +240,7 @@ div.landing {
 }
 
 @media screen and (max-width: 450px) {
-  #root {
+  div.landing {
     header {
       width: 100vw;
 
@@ -342,7 +343,7 @@ div.landing {
 }
 
 @media screen and (max-width: 350px) {
-  #root {
+  div.landing {
     header {
       div.title {
         width: 70%;

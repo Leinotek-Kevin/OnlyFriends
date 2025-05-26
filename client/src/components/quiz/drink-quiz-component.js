@@ -1,8 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../styles/drink.css";
-import enterBackground from "../../images/drinks/enter-background.png";
-import introBackground from "../../images/drinks/intro-background.png";
+import desktopEnterBg from "../../images/drinks/bg-drink-quiz-enter.png";
+import mobileEnterBg from "../../images/drinks/bg-drink-quiz-m-enter.png";
+import introBackground from "../../images/drinks/bg-drink-quiz-intro.png";
+import ofsLogo from "../../images/ic-logo-fill.png";
+import ofsWhiteLogo from "../../images/bg-logo.png";
+import ofsBackground from "../../images/bg-onlyfriends.png";
+import displayTitle from "../../images/bg-display-title.png";
+import iOSButton from "../../images/ic-iOS-btn.png";
+import googleButton from "../../images/ic-google-btn.png";
 import { questions, drinks } from "../../constants/drink-enum";
+import { Helmet } from "react-helmet";
+import Carousel from "../quiz/drink-carousel";
 
 const DrinkTestComponent = () => {
   //state : enter , intro , quiz , result
@@ -14,6 +23,12 @@ const DrinkTestComponent = () => {
 
   //有10題,預設填入 -1 表示還沒有作答
   const [answers, setAnswers] = useState(Array(questions.length).fill(-1));
+
+  useEffect(() => {
+    if (step === "enter") {
+      window.scrollTo(0, 0);
+    }
+  }, [step]);
 
   const handleOptionClick = (index) => {
     const newAnswers = [...answers];
@@ -32,10 +47,10 @@ const DrinkTestComponent = () => {
   };
 
   const handleShare = () => {
-    const shareText = `我剛做了人格測驗，結果是：紅酒！#飲料人際測驗`;
+    const shareText = `測你交友的最大阻礙 - Only Friends`;
     const url = window.location.href;
     navigator.share?.({
-      title: "蛋糕人格測驗",
+      title: "你是什麼飲料呢？",
       text: shareText,
       url,
     });
@@ -102,31 +117,142 @@ const DrinkTestComponent = () => {
     localStorage.removeItem("result");
   };
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 530);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 530);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const enterBackground = isMobile ? mobileEnterBg : desktopEnterBg;
+
   return (
-    <div>
+    <div className="drink-quiz">
+      <Helmet>
+        <title>Only Friends - 測你交友的最大阻礙</title>
+      </Helmet>
       {step === "enter" && (
         <div className="enter-page">
-          <main>
+          <header>
             <img src={enterBackground} alt="背景" className="background" />
 
-            <div className="entrance">
-              <p className="title">你是什麼飲料?</p>
-              <p className="sub-title">3 分鐘揭曉你與朋友的 10 種人際關係</p>
+            <p className="title">測你交友的最大阻礙</p>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setStep("intro");
-                }}
-              >
-                立即測驗
-              </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStep("intro");
+              }}
+            >
+              開始測驗
+            </button>
+          </header>
+
+          <main>
+            <p className="carousel-title">交友總覺得不順利嗎？</p>
+            <p className="carousel-subtitle">或許你的特質是...</p>
+
+            <Carousel className="carousel" />
+
+            <button
+              type="button"
+              onClick={() => {
+                setStep("intro");
+              }}
+            >
+              找出交友阻礙
+            </button>
+
+            <p className="keep-look">▼</p>
+            <p className="keep-look">▼</p>
+            <p className="keep-look">▼</p>
+
+            <p className="question-title">一般的交友軟體不適合你？</p>
+            <p className="question-subtitle">也許你該試試...</p>
+
+            <img src={ofsLogo} alt="only friends logo" className="app-logo" />
+
+            <p className="ofs-intro-title">Only Friends</p>
+            <p className="ofs-intro-subtitle">
+              24小時限時交友機制
+              <br />
+              擺脫交友疲乏，告別無止盡滑卡！
+            </p>
+
+            <div className="ofs-area">
+              <img src={ofsBackground} alt="背景" className="background" />
+
+              <div className="slogan">
+                <p className="white-line" />
+                <p className="main-slogan">恰好今天遇見你</p>
+                <p className="sub-slogan">放慢腳步 專注於眼前的他</p>
+                <p className="white-line" />
+              </div>
+
+              <div className="display">
+                <img src={displayTitle} alt="Display Logo" />
+              </div>
+
+              <p className="download-hint">馬上下載</p>
+
+              <div className="download-btn">
+                <div className="btn">
+                  <a
+                    href="https://apps.apple.com/tw/app/only-friends-%E6%81%B0%E5%A5%BD%E4%BB%8A%E5%A4%A9%E9%81%87%E8%A6%8B%E4%BD%A0/id6738079426"
+                    target="_blank"
+                  >
+                    <img src={iOSButton} alt="apple download" />
+                  </a>
+                </div>
+
+                <div className="space"></div>
+
+                <div className="btn">
+                  <a
+                    href="https://play.google.com/store/apps/details?id=com.anonymous.onlyfriends"
+                    target="_blank"
+                  >
+                    <img src={googleButton} alt="google download" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="white-logo">
+                <img
+                  src={ofsWhiteLogo}
+                  alt="only friends logo"
+                  className="app-white-logo"
+                />
+              </div>
+
+              <div className="footer">
+                <a
+                  href="https://hackmd.io/@6haHDxSMQPeSHmmc7TDlUA/r1IUytRIJe"
+                  target="_blank"
+                >
+                  隱私權政策
+                </a>
+                |
+                <a
+                  href="https://hackmd.io/hcpUXL1kRkqXkMEXfN94eQ?view"
+                  target="_blank"
+                >
+                  使用者條款
+                </a>
+                |
+                <a href="https://lin.ee/cUD3cfH" target="_blank">
+                  聯絡我們
+                </a>
+                <p className="copyright">
+                  Copyright © 2025 OnlyFriends by Leinotek Co,.Ltd.
+                </p>
+              </div>
             </div>
           </main>
-
-          <footer className="copyright">
-            <p>Copyright © 2025 OnlyFriends by Leinotek Co,.Ltd.</p>
-          </footer>
         </div>
       )}
 
@@ -137,6 +263,8 @@ const DrinkTestComponent = () => {
             <p>
               你和幾位朋友走進一座繽紛又陌生的遊樂園，每個選擇都藏著你的交友風格與挑戰。請跟著故事，選出你最真實的反應吧！
             </p>
+
+            {/* <p>請跟著故事，選出你最真實的反應吧！</p> */}
 
             <button
               type="button"
@@ -167,7 +295,7 @@ const DrinkTestComponent = () => {
             <p>{questions[current].question}</p>
 
             <div className="quiz-area">
-              {current > 0 ? (
+              {/* {current > 0 ? (
                 <button
                   className="opt-btn"
                   onClick={() => setCurrent(current - 1)}
@@ -178,7 +306,7 @@ const DrinkTestComponent = () => {
                 <button className="opt-btn" style={{ visibility: "hidden" }}>
                   <i className="bi bi-caret-left-fill fs-3"></i>
                 </button>
-              )}
+              )} */}
               <div className="quizs">
                 {questions[current].options.map((opt, idx) => (
                   <button
@@ -192,7 +320,7 @@ const DrinkTestComponent = () => {
                 ))}
               </div>
 
-              {current < questions.length - 1 && answers[current] !== -1 ? (
+              {/* {current < questions.length - 1 && answers[current] !== -1 ? (
                 <button
                   className="opt-btn"
                   onClick={() => setCurrent(current + 1)}
@@ -203,7 +331,7 @@ const DrinkTestComponent = () => {
                 <button className="opt-btn" style={{ visibility: "hidden" }}>
                   <i className="bi bi-caret-right-fill fs-3"></i>
                 </button>
-              )}
+              )} */}
             </div>
           </main>
         </div>
@@ -211,38 +339,121 @@ const DrinkTestComponent = () => {
 
       {step === "result" && (
         <div className="result-page">
-          <main>
-            <div>
+          <p className="title">你的測驗結果是...</p>
+
+          <a
+            className="download"
+            href={`/images/drinks/${result}.png`}
+            download={`${
+              drinks.find((drink) => drink.drinkSign === result)?.drinkName
+            }-飲料測驗結果.png`}
+          >
+            <p>(點擊下載圖片)</p>
+          </a>
+
+          <div className="drink-result">
+            <img
+              src={`/images/drinks/${result}.png`}
+              className="result"
+              alt={
+                drinks.find((drink) => drink.drinkSign === result)?.drinkName
+              }
+            />
+          </div>
+
+          <button type="button" onClick={handleShare} className="share-quiz">
+            分享測驗連結
+          </button>
+
+          <button type="button" onClick={resetQuiz} className="reset-quiz">
+            重測一次
+          </button>
+
+          <p className="keep-look">▼</p>
+          <p className="keep-look">▼</p>
+          <p className="keep-look">▼</p>
+
+          <p className="question-title">一般的交友軟體不適合你？</p>
+          <p className="question-subtitle">也許你該試試...</p>
+
+          <img src={ofsLogo} alt="only friends logo" className="app-logo" />
+
+          <p className="ofs-intro-title">Only Friends</p>
+          <p className="ofs-intro-subtitle">
+            24小時限時交友機制
+            <br />
+            擺脫交友疲乏，告別無止盡滑卡！
+          </p>
+          <div className="ofs-area">
+            <img src={ofsBackground} alt="背景" className="background" />
+
+            <div className="slogan">
+              <p className="white-line" />
+              <p className="main-slogan">恰好今天遇見你</p>
+              <p className="sub-slogan">放慢腳步 專注於眼前的他</p>
+              <p className="white-line" />
+            </div>
+
+            <div className="display">
+              <img src={displayTitle} alt="Display Logo" />
+            </div>
+
+            <p className="download-hint">馬上下載</p>
+
+            {/* 下載按鈕 */}
+            <div className="download-btn">
+              <div className="btn">
+                <a
+                  href="https://apps.apple.com/tw/app/only-friends-%E6%81%B0%E5%A5%BD%E4%BB%8A%E5%A4%A9%E9%81%87%E8%A6%8B%E4%BD%A0/id6738079426"
+                  target="_blank"
+                >
+                  <img src={iOSButton} alt="apple download" />
+                </a>
+              </div>
+
+              <div className="space"></div>
+
+              <div className="btn">
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.anonymous.onlyfriends"
+                  target="_blank"
+                >
+                  <img src={googleButton} alt="google download" />
+                </a>
+              </div>
+            </div>
+
+            <div className="white-logo">
               <img
-                src={`/images/drinks/${result}.png`}
-                className="result"
-                alt={
-                  drinks.find((drink) => drink.drinkSign === result)?.drinkName
-                }
+                src={ofsWhiteLogo}
+                alt="only friends logo"
+                className="app-white-logo"
               />
             </div>
 
-            <button type="button" onClick={handleShare}>
-              分享結果
-            </button>
-
-            <a
-              href={`/images/drinks/${result}.png`}
-              download={`${
-                drinks.find((drink) => drink.drinkSign === result)?.drinkName
-              }-飲料測驗結果.png`}
-            >
-              <button type="button">下載圖片</button>
-            </a>
-
-            <button type="button" onClick={resetQuiz}>
-              重新測驗
-            </button>
-          </main>
-
-          <footer className="copyright">
-            <p>Copyright © 2025 OnlyFriends by Leinotek Co,.Ltd.</p>
-          </footer>
+            <div className="footer">
+              <a
+                href="https://hackmd.io/@6haHDxSMQPeSHmmc7TDlUA/r1IUytRIJe"
+                target="_blank"
+              >
+                隱私權政策
+              </a>
+              |
+              <a
+                href="https://hackmd.io/hcpUXL1kRkqXkMEXfN94eQ?view"
+                target="_blank"
+              >
+                使用者條款
+              </a>
+              |
+              <a href="https://lin.ee/cUD3cfH" target="_blank">
+                聯絡我們
+              </a>
+              <p className="copyright">
+                Copyright © 2025 OnlyFriends by Leinotek Co,.Ltd.
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -482,7 +482,7 @@ const createCircleChannel = async (userIDS, circleID, circleChannelID) => {
     name: "Circle Room:" + circleID,
     channel_url: circleChannelID,
     cover_url: "",
-    custom_type: "chat",
+    custom_type: "chat_circle",
     is_distinct: true,
     user_ids: users,
     operator_ids: [process.env.SENDBIRD_OPERATOR_ID],

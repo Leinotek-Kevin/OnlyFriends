@@ -4,23 +4,23 @@ export const questions = Object.freeze([
     question: "你和幾位朋友走進遊樂園，第一眼你注意到的是什麼？",
     options: [
       {
-        quiz: "色彩繽紛的裝飾和歡樂氣氛",
+        quiz: "A. 色彩繽紛的裝飾和歡樂氣氛",
         value: "A + K*0.3",
       },
       {
-        quiz: "各種適合拍照的打卡點！",
+        quiz: "B. 各種適合拍照的打卡點！",
         value: "I + C*0.3",
       },
       {
-        quiz: "想直衝遊樂設施，超期待！",
+        quiz: "C. 想直衝遊樂設施，超期待！",
         value: "F + B*0.2",
       },
       {
-        quiz: "園內的動線和設施分布",
+        quiz: "D. 園內的動線和設施分布",
         value: "G + D*0.4",
       },
       {
-        quiz: "人群中的自由與隨興氣息",
+        quiz: "E. 人群中的自由與隨興氣息",
         value: "C + I*0.3",
       },
     ],
@@ -30,19 +30,19 @@ export const questions = Object.freeze([
     question: "第一個熱門設施大排長龍，你會？",
     options: [
       {
-        quiz: "想找個更安靜不用排隊的項目",
+        quiz: "A. 想找個更安靜不用排隊的項目",
         value: "D + J*0.3",
       },
       {
-        quiz: "提議去玩冷門，但刺激的設施",
+        quiz: "B. 提議去玩冷門，但刺激的設施",
         value: "H + A*0.3",
       },
       {
-        quiz: "開始跟朋友玩小遊戲打發時間",
+        quiz: "C. 開始跟朋友玩小遊戲打發時間",
         value: "C + I*0.3",
       },
       {
-        quiz: "默默排隊，但內心有點煩躁",
+        quiz: "D. 默默排隊，但內心有點煩躁",
         value: "K + G*0.2",
       },
     ],
@@ -52,24 +52,24 @@ export const questions = Object.freeze([
     question: "朋友們提議分組行動再會合，你怎麼看？",
     options: [
       {
-        quiz: "願意配合，自己也想放空一下",
+        quiz: "A. 願意配合，自己也想放空一下",
         value: "J + D*0.3",
       },
       {
-        quiz: "覺得大家分開不太好，會失去群體感",
+        quiz: "B. 覺得大家分開不太好，會失去群體感",
         value: "A + K*0.2",
       },
       ,
       {
-        quiz: "願意配合，重點是大家開心",
+        quiz: "C. 願意配合，重點是大家開心",
         value: "G + B*0.3",
       },
       {
-        quiz: "難得出來玩，一起比較有趣！",
+        quiz: "D. 難得出來玩，一起比較有趣！",
         value: "F + C*0.2",
       },
       {
-        quiz: "不太喜歡分開，想和更多人互動",
+        quiz: "E. 既期待獨處時光，也想和大家分享",
         value: "I + C*0.3",
       },
     ],
@@ -79,19 +79,19 @@ export const questions = Object.freeze([
     question: "有人突然心情低落、不太說話，你？",
     options: [
       {
-        quiz: "主動陪伴，並想辦法讓對方笑",
+        quiz: "A. 主動陪伴，並想辦法讓對方笑",
         value: "B + F*0.3",
       },
       {
-        quiz: "默默靠近，並說句關心的話",
+        quiz: "B. 默默靠近，並說句關心的話",
         value: "K + A*0.2",
       },
       {
-        quiz: "給對方空間，等他準備好再說",
+        quiz: "C. 給對方空間，等他準備好再說",
         value: "J + D*0.3",
       },
       {
-        quiz: "裝作沒發現，怕越幫越忙",
+        quiz: "D. 裝作沒發現，怕越幫越忙",
         value: "H + G*0.2",
       },
     ],
@@ -101,19 +101,19 @@ export const questions = Object.freeze([
     question: "大家聚在一起拍照，你的第一反應是？",
     options: [
       {
-        quiz: "搶當主角，擺個浮誇Pose！",
+        quiz: "A. 搶當主角，擺個浮誇Pose！",
         value: "C + B*0.3",
       },
       {
-        quiz: "自告奮勇拿自拍棒！",
+        quiz: "B. 自告奮勇拿自拍棒！",
         value: "I + F*0.2",
       },
       {
-        quiz: "站邊邊就好，笑一下意思到",
+        quiz: "C. 站邊邊就好，笑一下意思到",
         value: "A + K*0.3",
       },
       {
-        quiz: "拍完默默看自己拍得好不好",
+        quiz: "D. 拍完默默看自己拍得好不好",
         value: "D + J*0.3",
       },
     ],
@@ -123,23 +123,23 @@ export const questions = Object.freeze([
     question: "午餐時發現有朋友還沒來，你會？",
     options: [
       {
-        quiz: "傳訊問對方還好嗎？",
+        quiz: "A. 主動傳訊關心對方狀況",
         value: "G + B*0.2",
       },
       {
-        quiz: "開始焦慮是不是自己說錯話",
+        quiz: "B. 開始擔心是不是自己說錯話",
         value: "K + A*0.2",
       },
       {
-        quiz: "覺得他可能自己有安排吧",
+        quiz: "C. 想他可能有其他安排吧",
         value: "F + D*0.2",
       },
       {
-        quiz: "說出來提醒大家他還沒來",
+        quiz: "D. 直接提出來讓大家知道",
         value: "H + J*0.3",
       },
       {
-        quiz: "不太在意，繼續享受自己的時光",
+        quiz: "E. 繼續享受當下，相信他會處理好",
         value: "C + B*0.3",
       },
     ],
@@ -149,19 +149,19 @@ export const questions = Object.freeze([
     question: "接下來要去哪裡玩，大夥有點分歧，你？",
     options: [
       {
-        quiz: "默默觀察大家意見後再發言",
+        quiz: "A. 默默觀察大家意見後再發言",
         value: "J + D*0.3",
       },
       {
-        quiz: "提出個效率最高的方案",
+        quiz: "B. 提出個效率最高的方案",
         value: "D + G*0.3",
       },
       {
-        quiz: "讓大家投票最快啦！",
+        quiz: "C. 讓大家投票最快啦！",
         value: "I + B*0.3",
       },
       {
-        quiz: "興奮拋出新選項，吸引注意",
+        quiz: "D. 興奮拋出新選項，吸引注意",
         value: "C + F*0.3",
       },
     ],
@@ -171,23 +171,23 @@ export const questions = Object.freeze([
     question: "有些人想玩雲霄飛車，有些人怕高，你？",
     options: [
       {
-        quiz: "提議輪流陪，大家都能玩",
+        quiz: "A. 提議分批進行，兩邊都照顧到",
         value: "A + G*0.3",
       },
       {
-        quiz: "順著氣氛，大家想玩就玩",
+        quiz: "B. 順著多數人的意見走",
         value: "F + B*0.2",
       },
       {
-        quiz: "幫忙協調讓兩邊都舒服",
+        quiz: "C. 努力協調讓兩邊都舒服",
         value: "G + D*0.2",
       },
       {
-        quiz: "直接說服其中一方讓步",
+        quiz: "D. 直接建議其中一方妥協",
         value: "H + A*0.3",
       },
       {
-        quiz: "試圖讓氣氛不尷尬",
+        quiz: "E. 用幽默化解尷尬氣氛",
         value: "B + C*0.3",
       },
     ],
@@ -197,19 +197,19 @@ export const questions = Object.freeze([
     question: "你發現有兩位朋友在旁邊講悄悄話，你會？",
     options: [
       {
-        quiz: "心裡默默不舒服，但不說",
+        quiz: "A. 心裡不太舒服，但不表現出來",
         value: "D + J*0.3",
       },
       {
-        quiz: "裝沒事，但開始觀察氣氛",
+        quiz: "B. 表面裝沒事，但開始觀察氣氛",
         value: "C + A*0.2",
       },
       {
-        quiz: "擔心自己是不是被排擠了",
+        quiz: "C. 擔心自己是不是被排擠了",
         value: "K + G*0.2",
       },
       {
-        quiz: "開玩笑說「你們在講我壞話喔？」",
+        quiz: "D. 開玩笑說「你們在講我壞話嗎？」",
         value: "H + F*0.2",
       },
     ],
@@ -219,23 +219,23 @@ export const questions = Object.freeze([
     question: "你準備選餐點時會：",
     options: [
       {
-        quiz: "問大家想吃什麼再決定",
+        quiz: "A. 先問大家想吃什麼再決定",
         value: "B + C*0.3",
       },
       {
-        quiz: "看到新推出的就想嘗試",
+        quiz: "B. 看到新推出的就想嘗試",
         value: "F + I*0.3",
       },
       {
-        quiz: "快速決定自己最熟悉的",
+        quiz: "C. 快速決定自己最熟悉的選項",
         value: "D + J*0.3",
       },
       {
-        quiz: "顧慮大家預算和習慣再說",
+        quiz: "D. 考慮大家預算和口味偏好",
         value: "G + A*0.3",
       },
       {
-        quiz: "跟著最多人選的一起點",
+        quiz: "E. 跟著最多人選的一起點",
         value: "J + K*0.3",
       },
     ],
@@ -245,23 +245,23 @@ export const questions = Object.freeze([
     question: "兩位朋友因小事爭執，你會：",
     options: [
       {
-        quiz: "試著安撫氣氛，叫大家冷靜",
+        quiz: "A. 溫和地安撫氣氛，請大家冷靜",
         value: "K + G*0.2 + J*0.1",
       },
       {
-        quiz: "裝作沒聽到，怕被捲進去",
+        quiz: "B. 裝作沒聽到，怕被捲進去",
         value: "H + D*0.2",
       },
       {
-        quiz: "像和事佬一樣努力調停",
+        quiz: "C. 像和事佬努力進行調停",
         value: "A + J*0.2 + J*0.1",
       },
       {
-        quiz: "想辦法轉移話題",
+        quiz: "D. 巧妙轉移話題化解衝突",
         value: "J + G*0.2 + A*0.1",
       },
       {
-        quiz: "說點笑話緩和氣氛",
+        quiz: "E. 說點輕鬆話緩和氣氛",
         value: "I + C*0.2 + F*0.1",
       },
     ],
@@ -271,41 +271,41 @@ export const questions = Object.freeze([
     question: "有人講話開過頭，有人不太開心，你？",
     options: [
       {
-        quiz: "看誰情緒不對勁，暗中關心",
+        quiz: "A. 觀察誰情緒不對，私下關心",
         value: "D + H*0.2 + G*0.1",
       },
       {
-        quiz: "小聲勸朋友不要太過分",
+        quiz: "B. 小聲提醒朋友要適可而止",
         value: "G + J*0.2 + D*0.1",
       },
       {
-        quiz: "轉移話題讓大家笑一笑",
+        quiz: "C. 轉移話題讓大家重新歡樂",
         value: "C + I*0.2 + F*0.1",
       },
       {
-        quiz: "覺得沒什麼，大家心臟大顆點",
+        quiz: "D. 覺得沒什麼，大家別太敏感",
         value: "F + C*0.2 + I*0.1",
       },
     ],
   },
   {
     moment: "陌生人搭話",
-    question: "排隊時隔壁人突然搭話，你會？",
+    question: "排隊時隔壁陌生人突然搭話，你會？",
     options: [
       {
-        quiz: "聊起來超自然還互加IG",
+        quiz: "A. 聊得很開心，還互加聯絡方式",
         value: "I + C*0.2 + F*0.1",
       },
       {
-        quiz: "蠻開心地閒聊幾句",
+        quiz: "B. 愉快地閒聊幾句交流",
         value: "F + I*0.2 + C*0.1",
       },
       {
-        quiz: "微笑回應，但不主動聊",
+        quiz: "C. 禮貌回應，但保持距離",
         value: "A + J*0.2 + G*0.1",
       },
       {
-        quiz: "笑一笑就滑手機裝忙",
+        quiz: "D. 微笑後滑手機表示忙碌",
         value: "J + A*0.2 + G*0.1",
       },
     ],
@@ -315,45 +315,45 @@ export const questions = Object.freeze([
     question: "朋友提議離開後去唱KTV，你會？",
     options: [
       {
-        quiz: "馬上附和說超想唱！",
+        quiz: "A. 立刻興奮地表示贊成！",
         value: "C + I*0.3 + F*0.1",
       },
       {
-        quiz: "擔心時間太晚會打擾家人",
+        quiz: "B. 擔心時間太晚會影響他人",
         value: "K + A*0.2 + J*0.1",
       },
       {
-        quiz: "覺得提議不錯，但自己不想唱",
+        quiz: "C. 覺得不錯但自己不想唱歌",
         value: "H + D*0.2 + G*0.1",
       },
       {
-        quiz: "陪去但不唱，當攝影師",
+        quiz: "D. 願意陪去當聽眾和攝影師",
         value: "D + H*0.2 + G*0.1",
       },
     ],
   },
   {
     moment: "回顧旅程",
-    question: "離開前大家在出口拍最後一張照，你在想？",
+    question: "離開前大家在出口拍最後合照，你在想？",
     options: [
       {
-        quiz: "今天其實很開心，雖然中間有點小波折",
+        quiz: "A. 今天雖然有小波折，但整體很開心",
         value: "A + K*0.3 + G*0.1",
       },
       {
-        quiz: "我好像又在迎合大家了？",
+        quiz: "B. 我是不是又在過度迎合大家了？",
         value: "G + J*0.2 + D*0.1",
       },
       {
-        quiz: "希望下次我們還能一起出來玩",
+        quiz: "C. 希望我們以後還能常常一起出來",
         value: "B + I*0.2 + K*0.1",
       },
       {
-        quiz: "還好我沒有太突兀",
+        quiz: "D. 還好我今天表現得不會太突兀",
         value: "J + A*0.2 + G*0.1",
       },
       {
-        quiz: "明天要來發限動好好整理一下照片",
+        quiz: "E. 等等要好好整理照片發到社群上",
         value: "C + I*0.2 + F*0.1",
       },
     ],
