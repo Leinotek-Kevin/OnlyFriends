@@ -235,10 +235,17 @@ div.drink-quiz div.quiz-page main div.quiz-area div.quizs button.btn {
   font-size: 1.5rem;
   transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
-div.drink-quiz div.quiz-page main div.quiz-area div.quizs button.btn:hover {
+div.drink-quiz div.quiz-page main div.quiz-area div.quizs button.btn:active {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   transform: translateY(-1px);
+}
+div.drink-quiz div.quiz-page main div.quiz-area div.quizs button.btn:hover {
   cursor: pointer;
+}
+div.drink-quiz div.quiz-page main div.quiz-area div.quizs button.btn.clicked {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 div.drink-quiz div.quiz-page main div.quiz-area button.opt-btn {
   width: 50px;

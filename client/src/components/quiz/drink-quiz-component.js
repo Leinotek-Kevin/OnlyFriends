@@ -31,6 +31,9 @@ const DrinkTestComponent = () => {
   }, [step]);
 
   const handleOptionClick = (index) => {
+    if (answers[current] !== -1) return; // 已作答則不執行
+    setClickedIndex(index);
+
     const newAnswers = [...answers];
     newAnswers[current] = index;
     setAnswers(newAnswers);
@@ -38,12 +41,15 @@ const DrinkTestComponent = () => {
     // 儲存到 localStorage
     localStorage.setItem("quizAnswers", JSON.stringify(newAnswers));
 
-    if (current < questions.length - 1) {
-      setCurrent(current + 1);
-    } else {
-      setResult(getTopTrait(calculatePersonalityScores(newAnswers)).trait);
-      setStep("result");
-    }
+    setTimeout(() => {
+      setClickedIndex(null);
+      if (current < questions.length - 1) {
+        setCurrent(current + 1);
+      } else {
+        setResult(getTopTrait(calculatePersonalityScores(newAnswers)).trait);
+        setStep("result");
+      }
+    }, 150);
   };
 
   const handleShare = () => {
@@ -130,6 +136,8 @@ const DrinkTestComponent = () => {
   }, []);
 
   const enterBackground = isMobile ? mobileEnterBg : desktopEnterBg;
+
+  const [clickedIndex, setClickedIndex] = useState(null);
 
   return (
     <div className="drink-quiz">
@@ -311,7 +319,7 @@ const DrinkTestComponent = () => {
                     key={idx}
                     variant={answers[current] === idx ? "default" : "outline"}
                     onClick={() => handleOptionClick(idx)}
-                    className="btn"
+                    className={`btn ${clickedIndex === idx ? "clicked" : ""}`}
                   >
                     {opt.quiz}
                   </button>

@@ -251,23 +251,27 @@ div.drink-quiz {
             background: none;
             margin-top: 1.8rem;
             border-radius: 50px;
-            border: 3px solid white; // 白色邊框
-            background-color: rgb(
-              255,
-              255,
-              255,
-              0.85
-            ); // 透明灰色背景（20% 不透明
+            border: 3px solid white;
+            background-color: rgba(255, 255, 255, 0.85); // rgba 更簡潔
             padding-top: 1rem;
             padding-bottom: 1rem;
             font-size: 1.5rem;
             transition: box-shadow 0.3s ease, transform 0.2s ease;
 
+            &:active {
+              box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+              transform: translateY(-1px);
+            }
+
             &:hover {
-              box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); // 深灰色陰影
-              transform: translateY(-1px); // 微微上浮效果
               cursor: pointer;
             }
+          }
+
+          button.btn.clicked {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            transform: translateY(-1px);
+            transition: box-shadow 0.3s ease, transform 0.2s ease;
           }
         }
 
