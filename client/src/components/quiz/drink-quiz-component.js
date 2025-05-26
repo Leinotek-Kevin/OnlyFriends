@@ -49,6 +49,7 @@ const DrinkTestComponent = () => {
   const handleShare = () => {
     const shareText = `測你交友的最大阻礙 - Only Friends`;
     const url = window.location.href;
+
     navigator.share?.({
       title: "你是什麼飲料呢？",
       text: shareText,
@@ -164,6 +165,7 @@ const DrinkTestComponent = () => {
           content="https://dev.ofs.leinotek.com/images/drinks/wine.png"
         />
       </Helmet>
+
       {step === "enter" && (
         <div className="enter-page">
           <header>
