@@ -1,13 +1,16 @@
 $button-color: rgb(235, 235, 235);
 
 div.drink-quiz {
+  overflow-x: hidden;
   div.enter-page {
+    max-width: 100%;
     width: 100vw;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 
     header {
+      max-width: 100%;
       width: 100%;
       aspect-ratio: 16/9;
       position: relative;

@@ -1,11 +1,16 @@
 @charset "UTF-8";
+div.drink-quiz {
+  overflow-x: hidden;
+}
 div.drink-quiz div.enter-page {
+  max-width: 100%;
   width: 100vw;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 div.drink-quiz div.enter-page header {
+  max-width: 100%;
   width: 100%;
   aspect-ratio: 16/9;
   position: relative;
