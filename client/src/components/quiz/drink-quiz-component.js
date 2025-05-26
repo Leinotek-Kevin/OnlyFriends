@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/drink.css";
-import desktopEnterBg from "../../images/drinks/bg-drink-quiz-enter.png";
-import mobileEnterBg from "../../images/drinks/bg-drink-quiz-m-enter.png";
-import introBackground from "../../images/drinks/bg-drink-quiz-intro.png";
+import desktopEnterBg from "../../images/drinks/bg-drink-quiz-enter-t.jpg";
+import mobileEnterBg from "../../images/drinks/bg-drink-quiz-m-enter-t.jpg";
+import introBackground from "../../images/drinks/bg-drink-quiz-intro-t.jpg";
 import ofsLogo from "../../images/ic-logo-fill.png";
 import ofsWhiteLogo from "../../images/bg-logo.png";
 import ofsBackground from "../../images/bg-onlyfriends.png";
