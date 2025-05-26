@@ -134,6 +134,35 @@ const DrinkTestComponent = () => {
     <div className="drink-quiz">
       <Helmet>
         <title>Only Friends - 測你交友的最大阻礙</title>
+        <meta property="og:title" content="Only Friends - 測你交友的最大阻礙" />
+        <meta
+          property="og:description"
+          content="用飲料風格測出你的社交盲點，看看你是哪一種社交飲料人！"
+        />
+        <meta
+          property="og:image"
+          content="https://dev.ofs.leinotek.com/images/drinks/wine.png"
+        />
+        <meta
+          property="og:url"
+          content="https://dev.ofs.leinotek.com/drink-quiz"
+        />
+        <meta property="og:type" content="website" />
+
+        {/* 建議也加上 Twitter Card metadata */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content="Only Friends - 測你交友的最大阻礙"
+        />
+        <meta
+          name="twitter:description"
+          content="用飲料風格測出你的社交盲點，看看你是哪一種社交飲料人！"
+        />
+        <meta
+          name="twitter:image"
+          content="https://dev.ofs.leinotek.com/images/drinks/wine.png"
+        />
       </Helmet>
       {step === "enter" && (
         <div className="enter-page">
