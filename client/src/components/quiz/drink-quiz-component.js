@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/drink.css";
-import desktopEnterBg from "../../images/drinks/bg-drink-quiz-enter-t.jpg";
-import mobileEnterBg from "../../images/drinks/bg-drink-quiz-m-enter-t.jpg";
-import introBackground from "../../images/drinks/bg-drink-quiz-intro-t.jpg";
+import desktopEnterBg from "../../images/drinks/bg-drink-quiz-enter.jpg";
+import mobileEnterBg from "../../images/drinks/bg-drink-quiz-m-enter.jpg";
+import introBackground from "../../images/drinks/bg-drink-quiz-intro.jpg";
 import ofsLogo from "../../images/ic-logo-fill.png";
 import ofsWhiteLogo from "../../images/bg-logo.png";
 import ofsBackground from "../../images/bg-onlyfriends.png";
@@ -341,17 +341,17 @@ const DrinkTestComponent = () => {
 
           <a
             className="download"
-            href={`/images/drinks/${result}.png`}
+            href={`/images/drinks/${result}.jpg`}
             download={`${
               drinks.find((drink) => drink.drinkSign === result)?.drinkName
-            }-飲料測驗結果.png`}
+            }-你是什麼飲料測驗結果.jpg`}
           >
             <p>(點擊下載圖片)</p>
           </a>
 
           <div className="drink-result">
             <img
-              src={`/images/drinks/${result}.png`}
+              src={`/images/drinks/${result}.jpg`}
               className="result"
               alt={
                 drinks.find((drink) => drink.drinkSign === result)?.drinkName
