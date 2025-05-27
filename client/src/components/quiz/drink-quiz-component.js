@@ -352,7 +352,7 @@ const DrinkTestComponent = () => {
             href={`/images/drinks/${result}.jpg`}
             download={`${
               drinks.find((drink) => drink.drinkSign === result)?.drinkName
-            }-你是什麼飲料測驗結果.jpg`}
+            }_測你交友的最大阻礙_OnlyFriends`}
           >
             <p>(點擊下載圖片)</p>
           </a>
