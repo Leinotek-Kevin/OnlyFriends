@@ -54,7 +54,7 @@ const DrinkTestComponent = () => {
 
   const handleShare = () => {
     //const shareText = "測你交友的最大阻礙 - Only Friends";
-    const shareUrl = "https://dev.ofs.leinotek.com/drink-share.html"; // 改成你實際部署網址！
+    const shareUrl = "https://dev.ofs.leinotek.com/drink.html"; // 改成你實際部署網址！
 
     navigator.share?.({
       title: "你是什麼飲料呢？",
