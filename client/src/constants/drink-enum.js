@@ -105,7 +105,7 @@ export const questions = Object.freeze([
         value: "C + B*0.3",
       },
       {
-        quiz: "B. 自告奮勇拿自拍棒！",
+        quiz: "B. 自告奮勇拿相機當攝影師！",
         value: "I + F*0.2",
       },
       {
@@ -157,11 +157,11 @@ export const questions = Object.freeze([
         value: "D + G*0.3",
       },
       {
-        quiz: "C. 讓大家投票最快啦！",
+        quiz: "C. 建議大家投票決定最公平！",
         value: "I + B*0.3",
       },
       {
-        quiz: "D. 興奮拋出新選項，吸引注意",
+        quiz: "D. 興奮提出新選項，吸引注意",
         value: "C + F*0.3",
       },
     ],
@@ -249,7 +249,7 @@ export const questions = Object.freeze([
         value: "K + G*0.2 + J*0.1",
       },
       {
-        quiz: "B. 裝作沒聽到，怕被捲進去",
+        quiz: "B. 假裝沒聽到，不想被捲入",
         value: "H + D*0.2",
       },
       {
@@ -268,7 +268,7 @@ export const questions = Object.freeze([
   },
   {
     moment: "玩笑失控",
-    question: "有人講話開過頭，有人不太開心，你？",
+    question: "有人開玩笑過頭，讓另一人不開心，你？",
     options: [
       {
         quiz: "A. 觀察誰情緒不對，私下關心",
@@ -323,7 +323,7 @@ export const questions = Object.freeze([
         value: "K + A*0.2 + J*0.1",
       },
       {
-        quiz: "C. 覺得不錯但自己不想唱歌",
+        quiz: "C. 覺得不錯，但自己不想唱歌",
         value: "H + D*0.2 + G*0.1",
       },
       {
