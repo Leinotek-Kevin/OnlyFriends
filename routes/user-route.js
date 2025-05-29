@@ -1528,9 +1528,13 @@ router.post("/use-promotion-code", async (req, res) => {
         const start = new Date(code.promotionStart);
         const end = new Date(code.promotionExpired);
 
+        let future = new Date(); // 現在時間
+
         if (now >= start && now <= end) {
           //允許兌換
           //確定兌換項目
+          let future = new Date(); // 未來截止時間
+
           if (code.promotionType == "100") {
             //免費試用兩週
             if (isSubscription) {
@@ -1545,13 +1549,13 @@ router.post("/use-promotion-code", async (req, res) => {
               });
             }
 
-            const now = new Date(); // 現在時間
-            now.setDate(now.getDate() + 14); // 加上 14 天
+            future.setDate(now.getDate() + 14); // 加上 14 天
+            future.setHours(23, 59, 59, 999);
 
             // 輸出成 "YYYY/MM/DD" 格式
-            const formattedExpireDate = `${now.getFullYear()}/${String(
-              now.getMonth() + 1
-            ).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
+            const formattedExpireDate = `${future.getFullYear()}/${String(
+              future.getMonth() + 1
+            ).padStart(2, "0")}/${String(future.getDate()).padStart(2, "0")}`;
 
             //標記指定用戶已經訂閱
             await User.updateOne(
@@ -1569,7 +1573,7 @@ router.post("/use-promotion-code", async (req, res) => {
             agentUserID: code.agentUserID,
             userID,
             promotionType: code.promotionType,
-            expiredDate: code.promotionExpired,
+            expiredDate: future,
             ticketStubStatus: "1",
           });
 
@@ -1611,11 +1615,12 @@ router.post("/use-promotion-code", async (req, res) => {
         validCode: "1",
         data: {
           queryCode: "-1",
-          promotionType: code.promotionType,
+          promotionType: null,
         },
       });
     }
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
