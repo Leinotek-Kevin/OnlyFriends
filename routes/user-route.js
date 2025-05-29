@@ -1611,6 +1611,7 @@ router.post("/use-promotion-code", async (req, res) => {
         validCode: "1",
         data: {
           queryCode: "-1",
+          promotionType: code.promotionType,
         },
       });
     }
