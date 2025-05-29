@@ -23,12 +23,12 @@ const promotionCodeSchema = new Schema({
 
   //兌換開始日期
   promotionStart: {
-    type: Date,
+    type: Number,
   },
 
   //兌換截止日期
   promotionExpired: {
-    type: Date,
+    type: Number,
   },
 });
 

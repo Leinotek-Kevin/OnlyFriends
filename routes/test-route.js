@@ -295,7 +295,10 @@ router.post("/test-time", async (req, res) => {
     return res.status(200).send({
       status: true,
       message: "測試時間",
-      now,
+      time: {
+        hour: now.getHours(),
+        minutes: now.getMinutes(),
+      },
     });
   } catch (e) {
     return res.status(500).send({

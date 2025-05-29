@@ -29,7 +29,7 @@ const promotionStubSchema = new Schema({
 
   //促銷截止日期(ex: promotionType=100 , 截止日就是兌換再加 14 天)
   expiredDate: {
-    type: Date,
+    type: Number,
   },
 
   //票券狀態(-1:"已過期" , 0:"尚未生效" , 1:"活躍中")

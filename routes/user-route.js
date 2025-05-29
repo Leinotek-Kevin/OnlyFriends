@@ -1547,7 +1547,8 @@ router.post("/use-promotion-code", async (req, res) => {
               });
             }
 
-            future.setDate(now.getDate() + 14); // 加上 14 天
+            //future.setDate(now.getDate() + 14); // 加上 14 天
+            future.setDate(now.getDate() + 1); // 加上 14 天
             future.setHours(23, 59, 59, 999);
 
             // 輸出成 "YYYY/MM/DD" 格式
