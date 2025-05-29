@@ -1503,11 +1503,15 @@ router.post("/use-promotion-code", async (req, res) => {
     const { promotionCode } = req.body;
 
     const code = await PromotionCode.findOne({ promotionCode });
-    const stub = await PromotionStub.findOne({ userID });
 
     if (code) {
       // 確認有這個兌換碼
       // 已兌換完畢
+      const stub = await PromotionStub.findOne({
+        userID,
+        promotionType: code.promotionType,
+      });
+
       if (stub) {
         return res.status(200).send({
           status: true,
@@ -1515,6 +1519,7 @@ router.post("/use-promotion-code", async (req, res) => {
           validCode: "1",
           data: {
             queryCode: "2",
+            promotionType: code.promotionType,
           },
         });
       } else {
@@ -1535,6 +1540,7 @@ router.post("/use-promotion-code", async (req, res) => {
                 validCode: "1",
                 data: {
                   queryCode: "4",
+                  promotionType: code.promotionType,
                 },
               });
             }
@@ -1573,6 +1579,7 @@ router.post("/use-promotion-code", async (req, res) => {
             validCode: "1",
             data: {
               queryCode: "1",
+              promotionType: code.promotionType,
             },
           });
         } else {
@@ -1590,6 +1597,7 @@ router.post("/use-promotion-code", async (req, res) => {
               validCode: "1",
               data: {
                 queryCode: "3",
+                promotionType: code.promotionType,
               },
             });
           }
