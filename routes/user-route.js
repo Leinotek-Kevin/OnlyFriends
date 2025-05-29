@@ -9,6 +9,8 @@ const Report = require("../models").report;
 const Sticker = require("../models").sticker;
 const Topic = require("../models").topic;
 const { TopicNames } = require("../config/enum");
+const PromotionCode = require("../models").promotionCode;
+const PromotionStub = require("../models").promotionStub;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
@@ -1492,4 +1494,126 @@ router.post("/query-match-object", async (req, res) => {
     });
   }
 });
+
+//B-15 使用兌換碼
+router.post("/use-promotion-code", async (req, res) => {
+  try {
+    //兌換有以下狀態 : 查無此兌換碼(-1) / 已兌換完畢(2) / 已超過兌換期限(3) / 兌換成功(1) / 您已經訂閱(4)
+    const { userID, isSubscription } = req.user;
+    const { promotionCode } = req.body;
+
+    const code = await PromotionCode.findOne({ promotionCode });
+    const stub = await PromotionStub.findOne({ userID });
+
+    if (code) {
+      // 確認有這個兌換碼
+      // 已兌換完畢
+      if (stub) {
+        return res.status(200).send({
+          status: true,
+          message: "您已經兌換過了",
+          validCovde: "1",
+          data: {
+            queryCode: "2",
+          },
+        });
+      } else {
+        // 確認是否在兌換期限
+        const now = new Date();
+        const start = new Date(code.promotionStart);
+        const end = new Date(code.promotionExpired);
+
+        if (now >= start && now <= end) {
+          //允許兌換
+          //確定兌換項目
+          if (code.promotionType == "100") {
+            //免費試用兩週
+            if (isSubscription) {
+              return res.status(200).send({
+                status: true,
+                message: "兌換失敗！您已經是訂閱會員了！",
+                validCovde: "1",
+                data: {
+                  queryCode: "4",
+                },
+              });
+            }
+
+            const now = new Date(); // 現在時間
+            now.setDate(now.getDate() + 14); // 加上 14 天
+
+            // 輸出成 "YYYY/MM/DD" 格式
+            const formattedExpireDate = `${now.getFullYear()}/${String(
+              now.getMonth() + 1
+            ).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
+
+            //標記指定用戶已經訂閱
+            await User.updateOne(
+              {
+                userID,
+              },
+              {
+                isSubscription: true,
+                subExpiresDate: formattedExpireDate,
+              }
+            );
+          }
+
+          await PromotionStub.create({
+            agentUserID: code.agentUserID,
+            userID,
+            promotionType: code.promotionType,
+            expiredDate: code.promotionExpired,
+            ticketStubStatus: "1",
+          });
+
+          return res.status(200).send({
+            status: true,
+            message: "兌換成功！免費試用兩週",
+            validCovde: "1",
+            data: {
+              queryCode: "1",
+            },
+          });
+        } else {
+          //尚未開放兌換
+          if (now < start) {
+            return res.status(200).send({
+              status: true,
+              message: "目前促銷活動尚未開放",
+            });
+          } else if (now > end) {
+            //已超過兌換期限
+            return res.status(200).send({
+              status: true,
+              message: "已超過兌換期限",
+              validCode: "1",
+              data: {
+                queryCode: "3",
+              },
+            });
+          }
+        }
+      }
+    } else {
+      // 查無此兌換碼
+      return res.status(200).send({
+        status: true,
+        message: "查無此兌換碼",
+        validCode: "1",
+        data: {
+          queryCode: "-1",
+        },
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      validCode: "-1",
+      e,
+    });
+  }
+});
+
 module.exports = router;

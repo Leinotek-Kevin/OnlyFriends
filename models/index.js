@@ -13,4 +13,6 @@ module.exports = {
   readyCircle: require("./ready-circle-model"),
   circleTicket: require("./circle-ticket-model"),
   activityCircle: require("./activity-circle-model"),
+  promotionCode: require("./promotion-code-model"),
+  promotionStub: require("./promotion-stub-model"),
 };

@@ -12,6 +12,8 @@ const Topic = require("../models").topic;
 const ActivityCircle = require("../models").activityCircle;
 const ReadyCircle = require("../models").readyCircle;
 const CircleTicket = require("../models").circleTicket;
+const PromotionCode = require("../models").promotionCode;
+const PromotionStub = require("../models").promotionStub;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
@@ -1369,6 +1371,57 @@ router.post("/delete-circle-tickets", async (req, res) => {
     return res.status(500).send({
       status: false,
       message: "Server Error",
+    });
+  }
+});
+
+//建立促銷活動兌換碼
+router.post("/create-promotion-code", async (req, res) => {
+  try {
+    const {
+      agentUserID,
+      promotionType,
+      promotionStartTime,
+      promotionExpiredTime,
+    } = req.body;
+
+    const user = await User.findOne({ userID: agentUserID });
+
+    if (!user) {
+      return res.status(200).send({
+        status: true,
+        message: "查無此用戶",
+        data: null,
+      });
+    }
+
+    const code = uuidv4().replace(/-/g, "").toUpperCase().slice(0, 10);
+
+    await PromotionCode.create({
+      agentUserID,
+      promotionType,
+      promotionCode: code,
+      promotionStart: new Date(promotionStartTime),
+      promotionExpired: new Date(promotionExpiredTime),
+    });
+
+    return res.status(200).send({
+      status: true,
+      message: "兌換碼建立成功",
+      data: {
+        promotionCode: code,
+        agentInfo: {
+          agentID: user.userID,
+          agentName: user.userName,
+          agentEmail: user.userEmail,
+        },
+      },
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
     });
   }
 });
