@@ -288,4 +288,21 @@ router.post("/read-store-msg", async (req, res) => {
   }
 });
 
+router.post("/test-time", async (req, res) => {
+  try {
+    const now = new Date();
+
+    return res.status(200).send({
+      status: true,
+      message: "測試時間",
+      now,
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+    });
+  }
+});
+
 module.exports = router;
