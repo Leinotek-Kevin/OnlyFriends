@@ -1512,7 +1512,7 @@ router.post("/use-promotion-code", async (req, res) => {
         return res.status(200).send({
           status: true,
           message: "您已經兌換過了",
-          validCovde: "1",
+          validCode: "1",
           data: {
             queryCode: "2",
           },
@@ -1532,7 +1532,7 @@ router.post("/use-promotion-code", async (req, res) => {
               return res.status(200).send({
                 status: true,
                 message: "兌換失敗！您已經是訂閱會員了！",
-                validCovde: "1",
+                validCode: "1",
                 data: {
                   queryCode: "4",
                 },
@@ -1570,7 +1570,7 @@ router.post("/use-promotion-code", async (req, res) => {
           return res.status(200).send({
             status: true,
             message: "兌換成功！免費試用兩週",
-            validCovde: "1",
+            validCode: "1",
             data: {
               queryCode: "1",
             },
