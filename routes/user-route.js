@@ -1528,8 +1528,6 @@ router.post("/use-promotion-code", async (req, res) => {
         const start = new Date(code.promotionStart);
         const end = new Date(code.promotionExpired);
 
-        let future = new Date(); // 現在時間
-
         if (now >= start && now <= end) {
           //允許兌換
           //確定兌換項目
