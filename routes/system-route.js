@@ -1062,7 +1062,6 @@ router.post("/stickers-series", async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error !",

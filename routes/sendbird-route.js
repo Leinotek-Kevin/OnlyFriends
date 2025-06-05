@@ -306,19 +306,17 @@ router.post("/update-user", async (req, res) => {
 
 router.post("/update-users", async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({ userValidCode: "1" });
 
-    const pLimit = (await import("p-limit")).default;
-    const limit = pLimit(5); // 同時最多 10 個
+    // const pLimit = (await import("p-limit")).default;
+    // const limit = pLimit(5); // 同時最多 10 個
 
     const promises = users.map((user) => {
-      return limit(async () => {
-        const userPhoto =
-          user.userPhotos && user.userPhotos.length > 0
-            ? user.userPhotos[0]
-            : "";
-        return sbUtil.updateExistUser(user.userID, user.userName, userPhoto);
-      });
+      // return limit(async () => {
+      const userPhoto =
+        user.userPhotos && user.userPhotos.length > 0 ? user.userPhotos[0] : "";
+      return sbUtil.updateExistUser(user.userID, user.userName, userPhoto);
+      // });
     });
 
     const result = await Promise.all(promises);
@@ -329,7 +327,6 @@ router.post("/update-users", async (req, res) => {
       result,
     });
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
