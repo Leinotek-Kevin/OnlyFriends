@@ -3,6 +3,7 @@ const sbUtil = require("../utils/sendbird-util");
 const SendBird = require("sendbird");
 const sb = new SendBird({ appId: process.env.SENDBIRD_APP_ID });
 const User = require("../models").user;
+const Bottleneck = require("bottleneck");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -306,27 +307,33 @@ router.post("/update-user", async (req, res) => {
 
 router.post("/update-users", async (req, res) => {
   try {
+    const limiter = new Bottleneck({
+      minTime: 150, // 至少間隔 150ms，一秒最多約 6~7 次
+      maxConcurrent: 1, // 每次只跑一個，保證不併發
+    });
+
+    async function safeUpdateUser(user) {
+      const userPhoto = user.userPhotos?.[0] || "";
+      await sbUtil.updateExistUser(user.userID, user.userName, userPhoto);
+      return { userID: user.userID, status: "success" };
+    }
+
     const users = await User.find({ userValidCode: "1" });
 
-    const pLimit = (await import("p-limit")).default;
-    const limit = pLimit(5); // 同時最多 5 個
+    const results = [];
 
-    const promises = users.map((user) =>
-      limit(async () => {
-        try {
-          const userPhoto =
-            user.userPhotos && user.userPhotos.length > 0
-              ? user.userPhotos[0]
-              : "";
-          await sbUtil.updateExistUser(user.userID, user.userName, userPhoto);
-          return { userID: user.userID, status: "success" };
-        } catch (err) {
-          return { userID: user.userID, status: "fail", error: err };
-        }
-      })
-    );
-
-    const results = await Promise.all(promises);
+    for (const user of users) {
+      try {
+        const result = await limiter.schedule(() => safeUpdateUser(user));
+        results.push(result);
+      } catch (err) {
+        results.push({
+          userID: user.userID,
+          status: "fail",
+          error: err.message || err,
+        });
+      }
+    }
 
     return res.status(200).send({
       status: true,
