@@ -308,23 +308,30 @@ router.post("/update-users", async (req, res) => {
   try {
     const users = await User.find({ userValidCode: "1" });
 
-    // const pLimit = (await import("p-limit")).default;
-    // const limit = pLimit(5); // 同時最多 10 個
+    const pLimit = (await import("p-limit")).default;
+    const limit = pLimit(5); // 同時最多 5 個
 
-    const promises = users.map((user) => {
-      // return limit(async () => {
-      const userPhoto =
-        user.userPhotos && user.userPhotos.length > 0 ? user.userPhotos[0] : "";
-      return sbUtil.updateExistUser(user.userID, user.userName, userPhoto);
-      // });
-    });
+    const promises = users.map((user) =>
+      limit(async () => {
+        try {
+          const userPhoto =
+            user.userPhotos && user.userPhotos.length > 0
+              ? user.userPhotos[0]
+              : "";
+          await sbUtil.updateExistUser(user.userID, user.userName, userPhoto);
+          return { userID: user.userID, status: "success" };
+        } catch (err) {
+          return { userID: user.userID, status: "fail", error: err };
+        }
+      })
+    );
 
-    const result = await Promise.all(promises);
+    const results = await Promise.all(promises);
 
     return res.status(200).send({
       status: true,
       message: "更新完畢！",
-      result,
+      results,
     });
   } catch (e) {
     return res.status(500).send({
