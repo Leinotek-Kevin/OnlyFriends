@@ -308,7 +308,7 @@ router.post("/update-user", async (req, res) => {
 router.post("/update-users", async (req, res) => {
   try {
     const limiter = new Bottleneck({
-      minTime: 150, // 至少間隔 150ms，一秒最多約 6~7 次
+      minTime: 100, // 至少間隔 150ms，一秒最多約 6~7 次
       maxConcurrent: 1, // 每次只跑一個，保證不併發
     });
 

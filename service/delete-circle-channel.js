@@ -5,11 +5,12 @@ dotenv.config();
 const mongoose = require("mongoose");
 const cloudAnnou = require("../utils/cloudAnnou-util");
 const cloudStorage = require("../utils/cloudStorage-util");
+const Bottleneck = require("bottleneck");
 
 //星期一～星期三 05:00 執行刪除渠道作業
 //其中一和二批量刪除一半,三則全部刪除
 const startSchedule = async () => {
-  const day = new Date(Date.now()).getDay();
+  let day = new Date(Date.now()).getDay();
   const now = new Date();
 
   //現在是星期一～三的 凌晨５點
@@ -77,24 +78,22 @@ const startSchedule = async () => {
       if (deleteChannels.length == 0) {
         console.log("沒有圈圈渠道需要刪除");
       } else {
-        // 設定每次最多允許 5 個並行請求
-        const pLimit = (await import("p-limit")).default;
-        const limit = pLimit(5);
+        const limiter = new Bottleneck({
+          maxConcurrent: 1, // 一次只執行一個任務
+          minTime: 120, // 每次任務至少間隔 100ms
+        });
 
-        const deletePromises = deleteChannels.map((channel) => {
-          return limit(async () => {
+        for (const channel of deleteChannels) {
+          await limiter.schedule(async () => {
             const status = await sbUtil.deleteGroupChannel(channel);
 
             if (status) {
-              return ActivityCircle.deleteMany({
+              await ActivityCircle.deleteMany({
                 circleChannelID: channel,
               });
             }
           });
-        });
-
-        // 等待所有異步操作完成
-        await Promise.all(deletePromises);
+        }
 
         console.log("刪除圈圈渠道已完成");
       }
@@ -105,3 +104,22 @@ const startSchedule = async () => {
 };
 
 module.exports = startSchedule;
+
+// 設定每次最多允許 5 個並行請求
+// const pLimit = (await import("p-limit")).default;
+// const limit = pLimit(5);
+
+// const deletePromises = deleteChannels.map((channel) => {
+//   return limit(async () => {
+//     const status = await sbUtil.deleteGroupChannel(channel);
+
+//     if (status) {
+//       return ActivityCircle.deleteMany({
+//         circleChannelID: channel,
+//       });
+//     }
+//   });
+// });
+
+// // 等待所有異步操作完成
+// await Promise.all(deletePromises);

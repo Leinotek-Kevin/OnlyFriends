@@ -11,6 +11,7 @@ dotenv.config();
 const sbUtil = require("../utils/sendbird-util");
 const cloudAnnou = require("../utils/cloudAnnou-util");
 const cloudStorage = require("../utils/cloudStorage-util");
+const Bottleneck = require("bottleneck");
 
 //一般配對 00:00 執行
 const generalMatch = async () => {
@@ -407,17 +408,21 @@ const generalMatch = async () => {
 
       //執行清掉昨天配對的列表渠道
       // 設置同時進行的最大請求數
-      const pLimit = (await import("p-limit")).default;
-      const limit = pLimit(5);
 
-      const promises = pastMatches
-        .filter((match) => match.isChecked) // 只過濾出 isChecked 為 true 的配對
-        .map((match) =>
-          limit(() => sbUtil.deleteGroupChannel(match.sendbirdUrl))
+      const limiter = new Bottleneck({
+        maxConcurrent: 1,
+        minTime: 120,
+      });
+
+      const filteredMatches = pastMatches.filter((match) => match.isChecked); // 過濾 isChecked 為 true
+
+      for (const match of filteredMatches) {
+        await limiter.schedule(() =>
+          sbUtil.deleteGroupChannel(match.sendbirdUrl)
         );
+      }
 
-      await Promise.all(promises);
-
+      console.log("已刪除所有符合條件的 sendbird channel");
       console.log("完成清理昨天的配對！");
     } catch (error) {
       console.log("配對出現問題" + error);
@@ -426,3 +431,16 @@ const generalMatch = async () => {
 };
 
 module.exports = generalMatch;
+
+// const pLimit = (await import("p-limit")).default;
+// const limit = pLimit(5);
+
+// const promises = pastMatches
+//   .filter((match) => match.isChecked) // 只過濾出 isChecked 為 true 的配對
+//   .map((match) =>
+//     limit(() => sbUtil.deleteGroupChannel(match.sendbirdUrl))
+//   );
+
+// await Promise.all(promises);
+
+// 建立 Bottleneck 實例：一秒最多 5 次請求（每 200ms 一次），且單一執行緒

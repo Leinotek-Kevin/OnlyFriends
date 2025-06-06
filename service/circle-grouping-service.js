@@ -9,6 +9,7 @@ const cloudAnnou = require("../utils/cloudAnnou-util");
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 const { CircleTopicNames } = require("../config/enum");
+const Bottleneck = require("bottleneck");
 
 //主題圈圈分群演算法
 // 1.查找資料庫中有報名人數的主題圈圈
@@ -239,20 +240,24 @@ const startSchedule = async () => {
         }
       }
 
-      console.log("最終的結果", finalCircleGroup);
+      //console.log("最終的結果", finalCircleGroup);
 
       //----------------- 以分群完畢, 開始創建 ActivityCircle 和 SendBird Channel
-      // 設定每次最多允許 5 個並行請求
-      const pLimit = (await import("p-limit")).default;
-      const limit = pLimit(5);
 
-      const createPromises = finalCircleGroup.map((circleGroup) => {
-        return limit(async () => {
+      // 建立 limiter：一次只跑一個，每次間隔至少 100ms
+
+      const limiter = new Bottleneck({
+        maxConcurrent: 1, // 一次一個
+        minTime: 120, // 間隔 120ms，一秒最多 8 次
+      });
+
+      for (const circleGroup of finalCircleGroup) {
+        await limiter.schedule(async () => {
           const { circleTopicID, circleReadyGroup } = circleGroup;
 
           const uuid = uuidv4(); // 生成 UUID v4
           const circleID = uuid.replace(/\D/g, "").slice(0, 10);
-          const circleChannelID = circleTopicID + "_" + circleID;
+          const circleChannelID = `${circleTopicID}_${circleID}`;
 
           const status = await sbUtil.createCircleChannel(
             circleReadyGroup,
@@ -260,9 +265,9 @@ const startSchedule = async () => {
             circleChannelID
           );
 
-          const param = circleTopicParams.find((param) => {
-            return param.circleTopicID == circleTopicID;
-          });
+          const param = circleTopicParams.find(
+            (param) => param.circleTopicID === circleTopicID
+          );
 
           if (status) {
             await ActivityCircle.create({
@@ -286,10 +291,7 @@ const startSchedule = async () => {
             );
           }
         });
-      });
-
-      // 等待所有異步操作完成
-      await Promise.all(createPromises);
+      }
 
       // 將預備圈圈的所有主題的 circleReadyUsers 清空
       await ReadyCircle.updateMany({}, { $set: { circleReadyUsers: [] } });
@@ -362,3 +364,52 @@ const regionOrder = {
 };
 
 module.exports = startSchedule;
+
+// 設定每次最多允許 5 個並行請求
+// const pLimit = (await import("p-limit")).default;
+// const limit = pLimit(5);
+
+// const createPromises = finalCircleGroup.map((circleGroup) => {
+//   return limit(async () => {
+//     const { circleTopicID, circleReadyGroup } = circleGroup;
+
+//     const uuid = uuidv4(); // 生成 UUID v4
+//     const circleID = uuid.replace(/\D/g, "").slice(0, 10);
+//     const circleChannelID = circleTopicID + "_" + circleID;
+
+//     const status = await sbUtil.createCircleChannel(
+//       circleReadyGroup,
+//       circleID,
+//       circleChannelID
+//     );
+
+//     const param = circleTopicParams.find((param) => {
+//       return param.circleTopicID == circleTopicID;
+//     });
+
+//     if (status) {
+//       await ActivityCircle.create({
+//         circleID,
+//         circleTopicID,
+//         circleTopicName: param.circleTopicName,
+//         circleChannelID,
+//         circleTopicColors: param.circleTopicColors,
+//         circleBackground: param.circleBackground,
+//         circleTopicLogo: param.circleTopicLogo,
+//         circleUserIDS: circleReadyGroup,
+//       });
+
+//       await CircleTicket.updateMany(
+//         {
+//           ticketOwnerID: { $in: circleReadyGroup },
+//         },
+//         {
+//           circleChannelID,
+//         }
+//       );
+//     }
+//   });
+// });
+
+// // 等待所有異步操作完成
+// await Promise.all(createPromises);
