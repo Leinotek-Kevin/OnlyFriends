@@ -158,6 +158,12 @@ const userSchema = new Schema({
     default: false,
   },
 
+  //該用戶是否優惠試用
+  isPromotionSub: {
+    type: Boolean,
+    default: false,
+  },
+
   //是否通過真人驗證
   realVerifyStatus: {
     type: Boolean,

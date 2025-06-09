@@ -1563,6 +1563,7 @@ router.post("/use-promotion-code", async (req, res) => {
               },
               {
                 isSubscription: true,
+                isPromotionSub: true,
                 subExpiresDate: formattedExpireDate,
               }
             );

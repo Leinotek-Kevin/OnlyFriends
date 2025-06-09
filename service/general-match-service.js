@@ -54,7 +54,7 @@ const generalMatch = async () => {
       //取消試用者的訂閱
       await User.updateMany(
         { userID: { $in: freeSubUsers } },
-        { $set: { isSubscription: false } }
+        { $set: { isSubscription: false, isPromotionSub: false } }
       );
 
       //標記試用者的票根爲已過期
