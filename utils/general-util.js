@@ -4,6 +4,10 @@ const isNotNUllEmpty = (reqStr) => {
   return reqStr != null && reqStr != "";
 };
 
+const isNullOrEmpty = (reqStr) => {
+  return reqStr == undefined || reqStr == null || reqStr == "";
+};
+
 const decodeSignInfoByJWT = (jwtStr) => {
   try {
     const decodeInfo = jwt.decode(jwtStr, {
@@ -17,4 +21,4 @@ const decodeSignInfoByJWT = (jwtStr) => {
   }
 };
 
-module.exports = { isNotNUllEmpty, decodeSignInfoByJWT };
+module.exports = { isNotNUllEmpty, decodeSignInfoByJWT, isNullOrEmpty };

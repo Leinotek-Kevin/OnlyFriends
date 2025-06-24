@@ -72,6 +72,10 @@ router.post("/register", async (req, res) => {
         isLogin: true,
       };
 
+      if (generalUtil.isNullOrEmpty(userGender)) {
+        createData.userGender = "2";
+      }
+
       // 如果有提供 userPhoto，才將其加入更新資料中
       if (generalUtil.isNotNUllEmpty(userPhotos)) {
         try {
@@ -80,6 +84,10 @@ router.post("/register", async (req, res) => {
         } catch (e) {
           console.log("JSON 解析失敗:", e);
         }
+      } else {
+        createData.userPhotos = [
+          "https://lh3.googleusercontent.com/a/ACg8ocJM8JJmH481GagIdb0ED96c56TltKefHo9CAGASgVfG4PcJSQ=s96-c",
+        ];
       }
 
       // 如果有提供 deviceToken，才將其加入更新資料中
@@ -95,6 +103,8 @@ router.post("/register", async (req, res) => {
       if (generalUtil.isNotNUllEmpty(userMBTI)) {
         createData.userMBTI = userMBTI;
       }
+
+      console.log(createData);
 
       // 連接並設置 Sendbird 用戶ID,暱稱,大頭貼
       const tmpPhotos = createData.userPhotos;

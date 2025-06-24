@@ -431,16 +431,3 @@ const generalMatch = async () => {
 };
 
 module.exports = generalMatch;
-
-// const pLimit = (await import("p-limit")).default;
-// const limit = pLimit(5);
-
-// const promises = pastMatches
-//   .filter((match) => match.isChecked) // 只過濾出 isChecked 為 true 的配對
-//   .map((match) =>
-//     limit(() => sbUtil.deleteGroupChannel(match.sendbirdUrl))
-//   );
-
-// await Promise.all(promises);
-
-// 建立 Bottleneck 實例：一秒最多 5 次請求（每 200ms 一次），且單一執行緒
