@@ -17,7 +17,8 @@ const Bottleneck = require("bottleneck");
 const generalMatch = async () => {
   const now = new Date();
 
-  if (now.getHours() == 0 && now.getMinutes() == 0) {
+  // 0 : 0
+  if (now.getHours() == 12 && now.getMinutes() == 6) {
     const RE_MATCH_DELAY = 48 * 60 * 60 * 1000;
     const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
@@ -25,6 +26,10 @@ const generalMatch = async () => {
     try {
       console.log("開始執行配對");
       let time = Date.now();
+
+      // 是否為測試環境
+      const isDevelop =
+        process.env.PORT == 8080 || process.env.HEROKU_ENV == "DEBUG";
 
       //連結 mongoDB
       mongoose
@@ -195,25 +200,28 @@ const generalMatch = async () => {
         maxAge = maxAge == 50 ? 200 : maxAge;
 
         //聚合篩選條件
-        const targetUsers = await User.aggregate([
-          {
-            $match: {
-              userID: {
-                $ne: currentUser.userID,
-                $nin: Array.from(combinedArray), //排除曾經配對及已經用光配對次數的用戶
-              },
-              lastLoginTime: { $gte: lastNightTimeStamp },
-              userValidCode: "1",
-              identity: { $ne: 3 }, // 排除 apple / google 官方人員
-            },
+        // 動態組合 $match 條件
+        const matchCondition = {
+          userID: {
+            $ne: currentUser.userID,
+            $nin: Array.from(combinedArray),
           },
+          lastLoginTime: { $gte: lastNightTimeStamp },
+          userValidCode: "1",
+        };
+
+        if (!isDevelop) {
+          matchCondition.identity = { $ne: 3 }; // 非開發才排除 identity=3
+        }
+
+        // 放入 aggregate pipeline
+        const targetUsers = await User.aggregate([
+          { $match: matchCondition },
           {
             $addFields: {
-              //篩選對象性別條件
               genderScore: {
                 $cond: [{ $eq: ["$userGender", objectGender] }, 1, 0],
               },
-              //篩選對象年齡條件
               ageScore: {
                 $cond: [
                   {
@@ -226,7 +234,6 @@ const generalMatch = async () => {
                   0,
                 ],
               },
-              //篩選對象是否已通過真人辨識(需要用戶已經通過辨識才開放)
               realVerifyScore: {
                 $cond: [
                   { $eq: [currentUser.realVerifyStatus, true] },
@@ -245,39 +252,29 @@ const generalMatch = async () => {
                   0,
                 ],
               },
-              //篩選對象所在區域條件(需要用戶訂閱才開放)
               regionScore: {
                 $cond: [
-                  { $eq: [currentUser.isSubscription, true] }, // 只有訂閱用戶才有地區篩選
+                  { $eq: [currentUser.isSubscription, true] },
                   {
                     $cond: [{ $eq: ["$userRegion", objectRegion] }, 1, 6],
                   },
-                  0, // 如果當前用戶沒有訂閱，則區域對象 0
+                  0,
                 ],
               },
-              //篩選對象的興趣匹配(需要用戶訂閱才開放)
               interestedScore: {
-                // $cond: [
-                //   {
-                //     $and: [
-                //       { $eq: [currentUser.isSubscription, true] }, // 用戶必須是訂閱用戶
-                //       { $eq: [currentUser.needSameInterested, true] }, // 是否啟用共同興趣開關 true
-                //     ],
-                //   }, // 只有訂閱用戶才有興趣加權
-                //   {
                 $cond: [
                   {
                     $gt: [
                       {
                         $size: {
                           $setIntersection: [
-                            { $ifNull: ["$userAttribute.interested", []] }, // 確保是陣列
+                            { $ifNull: ["$userAttribute.interested", []] },
                             {
                               $ifNull: [
                                 currentUser.userAttribute.interested,
                                 [],
                               ],
-                            }, // 確保是陣列
+                            },
                           ],
                         },
                       },
@@ -287,33 +284,150 @@ const generalMatch = async () => {
                   {
                     $size: {
                       $setIntersection: [
-                        { $ifNull: ["$userAttribute.interested", []] }, // 確保是陣列
+                        { $ifNull: ["$userAttribute.interested", []] },
                         {
                           $ifNull: [currentUser.userAttribute.interested, []],
-                        }, // 確保是陣列
+                        },
                       ],
                     },
                   },
                   0,
                 ],
-                //   },
-                //   0, // 如果當前用戶沒有訂閱，興趣加權為 0
-                // ],
               },
             },
           },
           {
             $sort: {
-              identity: -1, //依照用戶識別->降序 2:真人 ,1：官方, 0：假人
-              interestedScore: -1, // 依照興趣匹配分數,降序
-              realVerifyScore: -1, // 依照實名驗證匹配分數，降序
-              genderScore: -1, //性別匹配的加權分數，降序
-              ageScore: -1, // 年齡匹配的加權分數，降序
-              regionScore: -1, // 地區匹配的加權分數，降序
+              identity: -1,
+              interestedScore: -1,
+              realVerifyScore: -1,
+              genderScore: -1,
+              ageScore: -1,
+              regionScore: -1,
             },
           },
           { $limit: targetUserCount },
         ]);
+
+        // const targetUsers = await User.aggregate([
+        //   {
+        //     $match: {
+        //       userID: {
+        //         $ne: currentUser.userID,
+        //         $nin: Array.from(combinedArray), //排除曾經配對及已經用光配對次數的用戶
+        //       },
+        //       lastLoginTime: { $gte: lastNightTimeStamp },
+        //       userValidCode: "1",
+        //       identity: { $ne: 3 }, // 排除 apple / google 官方人員
+        //     },
+        //   },
+        //   {
+        //     $addFields: {
+        //       //篩選對象性別條件
+        //       genderScore: {
+        //         $cond: [{ $eq: ["$userGender", objectGender] }, 1, 0],
+        //       },
+        //       //篩選對象年齡條件
+        //       ageScore: {
+        //         $cond: [
+        //           {
+        //             $and: [
+        //               { $gte: ["$userAge", minAge] },
+        //               { $lte: ["$userAge", maxAge] },
+        //             ],
+        //           },
+        //           1,
+        //           0,
+        //         ],
+        //       },
+        //       //篩選對象是否已通過真人辨識(需要用戶已經通過辨識才開放)
+        //       realVerifyScore: {
+        //         $cond: [
+        //           { $eq: [currentUser.realVerifyStatus, true] },
+        //           {
+        //             $cond: [
+        //               {
+        //                 $eq: [
+        //                   "$realVerifyStatus",
+        //                   currentUser.realVerifyStatus,
+        //                 ],
+        //               },
+        //               1,
+        //               0,
+        //             ],
+        //           },
+        //           0,
+        //         ],
+        //       },
+        //       //篩選對象所在區域條件(需要用戶訂閱才開放)
+        //       regionScore: {
+        //         $cond: [
+        //           { $eq: [currentUser.isSubscription, true] }, // 只有訂閱用戶才有地區篩選
+        //           {
+        //             $cond: [{ $eq: ["$userRegion", objectRegion] }, 1, 6],
+        //           },
+        //           0, // 如果當前用戶沒有訂閱，則區域對象 0
+        //         ],
+        //       },
+        //       //篩選對象的興趣匹配(需要用戶訂閱才開放)
+        //       interestedScore: {
+        //         // $cond: [
+        //         //   {
+        //         //     $and: [
+        //         //       { $eq: [currentUser.isSubscription, true] }, // 用戶必須是訂閱用戶
+        //         //       { $eq: [currentUser.needSameInterested, true] }, // 是否啟用共同興趣開關 true
+        //         //     ],
+        //         //   }, // 只有訂閱用戶才有興趣加權
+        //         //   {
+        //         $cond: [
+        //           {
+        //             $gt: [
+        //               {
+        //                 $size: {
+        //                   $setIntersection: [
+        //                     { $ifNull: ["$userAttribute.interested", []] }, // 確保是陣列
+        //                     {
+        //                       $ifNull: [
+        //                         currentUser.userAttribute.interested,
+        //                         [],
+        //                       ],
+        //                     }, // 確保是陣列
+        //                   ],
+        //                 },
+        //               },
+        //               0,
+        //             ],
+        //           },
+        //           {
+        //             $size: {
+        //               $setIntersection: [
+        //                 { $ifNull: ["$userAttribute.interested", []] }, // 確保是陣列
+        //                 {
+        //                   $ifNull: [currentUser.userAttribute.interested, []],
+        //                 }, // 確保是陣列
+        //               ],
+        //             },
+        //           },
+        //           0,
+        //         ],
+        //         //   },
+        //         //   0, // 如果當前用戶沒有訂閱，興趣加權為 0
+        //         // ],
+        //       },
+        //     },
+        //   },
+        //   {
+        //     $sort: {
+        //       identity: -1, //依照用戶識別->降序 2:真人 ,1：官方, 0：假人
+        //       interestedScore: -1, // 依照興趣匹配分數,降序
+        //       realVerifyScore: -1, // 依照實名驗證匹配分數，降序
+        //       genderScore: -1, //性別匹配的加權分數，降序
+        //       ageScore: -1, // 年齡匹配的加權分數，降序
+        //       regionScore: -1, // 地區匹配的加權分數，降序
+        //     },
+        //   },
+        //   { $limit: targetUserCount },
+        // ]);
 
         consumeUsers.add(currentUser.userID);
 
