@@ -8,7 +8,7 @@ const startForceUserLogin = async () => {
   const now = new Date();
 
   //06:00
-  if (now.getHours() == 12 && now.getMinutes() == 5) {
+  if (now.getHours() == 6 && now.getMinutes() == 0) {
     try {
       //連結 mongoDB
       mongoose
