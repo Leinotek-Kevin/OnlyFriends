@@ -48,5 +48,5 @@ if (process.env.HEROKU_ENV !== "DEBUG") {
   setInterval(startFetching, 60 * 1000);
 } else {
   console.log("開發站啟動定時服務");
-  setInterval(startFetching, 60 * 1000);
+  //setInterval(startFetching, 60 * 1000);
 }
