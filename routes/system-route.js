@@ -131,8 +131,11 @@ router.post("/match-general", async (req, res) => {
     for (let i = 0; i < aliveUsers.length; i++) {
       const currentUser = aliveUsers[i];
 
+      console.log("輪到這位用戶:", currentUser.userID);
+
       //如果這個用戶已經用完配對次數，就換下一個用戶執行
       if (consumeUsers.has(currentUser.userID)) {
+        console.log("這位用戶:已經用完配對次數勒");
         continue;
       }
 
@@ -299,6 +302,8 @@ router.post("/match-general", async (req, res) => {
         },
         { $limit: targetUserCount }, // 可根據需求加上此條來限制配對數量
       ]);
+
+      console.log("這位用戶可以配到的對象是:", targetUsers);
 
       consumeUsers.add(currentUser.userID);
 

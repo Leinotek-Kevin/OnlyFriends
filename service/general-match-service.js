@@ -18,7 +18,7 @@ const generalMatch = async () => {
   const now = new Date();
 
   // 0 : 0
-  if (now.getHours() == 0 && now.getMinutes() == 0) {
+  if (now.getHours() == 14 && now.getMinutes() == 40) {
     const RE_MATCH_DELAY = 48 * 60 * 60 * 1000;
     const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
@@ -128,8 +128,11 @@ const generalMatch = async () => {
       for (let i = 0; i < aliveUsers.length; i++) {
         const currentUser = aliveUsers[i];
 
+        console.log("輪到這位用戶:", currentUser.userID);
+
         //如果這個用戶已經用完配對次數，就換下一個用戶執行
         if (consumeUsers.has(currentUser.userID)) {
+          console.log("這位用戶:已經用完配對次數勒");
           continue;
         }
 
@@ -308,6 +311,8 @@ const generalMatch = async () => {
           },
           { $limit: targetUserCount },
         ]);
+
+        console.log("這位用戶可以配到的對象是:", targetUsers);
 
         // const targetUsers = await User.aggregate([
         //   {
