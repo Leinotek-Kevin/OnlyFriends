@@ -18,7 +18,7 @@ const generalMatch = async () => {
   const now = new Date();
 
   // 0 : 0
-  if (now.getHours() == 15 && now.getMinutes() == 0) {
+  if (now.getHours() == 15 && now.getMinutes() == 12) {
     const RE_MATCH_DELAY = 48 * 60 * 60 * 1000;
     const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
@@ -41,32 +41,32 @@ const generalMatch = async () => {
           console.log(e);
         });
 
-      // //處理尚未處理的過期訂閱試用
-      // const freeStub = await PromotionStub.find(
-      //   {
-      //     promotionType: "100",
-      //     ticketStubStatus: "1",
-      //     expiredDate: { $lt: new Date() }, // 小於現在時間
-      //   },
-      //   {
-      //     userID: 1,
-      //     _id: 0,
-      //   }
-      // );
+      //處理尚未處理的過期訂閱試用
+      const freeStub = await PromotionStub.find(
+        {
+          promotionType: "100",
+          ticketStubStatus: "1",
+          expiredDate: { $lt: new Date() }, // 小於現在時間
+        },
+        {
+          userID: 1,
+          _id: 0,
+        }
+      );
 
-      // const freeSubUsers = freeStub.map((item) => item.userID);
+      const freeSubUsers = freeStub.map((item) => item.userID);
 
-      // //取消試用者的訂閱
-      // await User.updateMany(
-      //   { userID: { $in: freeSubUsers } },
-      //   { $set: { isSubscription: false, isPromotionSub: false } }
-      // );
+      //取消試用者的訂閱
+      await User.updateMany(
+        { userID: { $in: freeSubUsers } },
+        { $set: { isSubscription: false, isPromotionSub: false } }
+      );
 
-      // //標記試用者的票根爲已過期
-      // await PromotionStub.updateMany(
-      //   { userID: { $in: freeSubUsers } },
-      //   { $set: { ticketStubStatus: "-1" } }
-      // );
+      //標記試用者的票根爲已過期
+      await PromotionStub.updateMany(
+        { userID: { $in: freeSubUsers } },
+        { $set: { ticketStubStatus: "-1" } }
+      );
 
       //當今天的一般配對執行完畢，才可以執行樹洞配對
       let {
@@ -128,11 +128,8 @@ const generalMatch = async () => {
       for (let i = 0; i < aliveUsers.length; i++) {
         const currentUser = aliveUsers[i];
 
-        console.log("輪到這位用戶:", currentUser.userID);
-
         //如果這個用戶已經用完配對次數，就換下一個用戶執行
         if (consumeUsers.has(currentUser.userID)) {
-          console.log("這位用戶:已經用完配對次數勒");
           continue;
         }
 
@@ -162,22 +159,22 @@ const generalMatch = async () => {
         //檢查訂閱用戶剩餘次數
         if (currentUser.isSubscription) {
           //如果到期日是今天,要判斷用戶是否有繼續續訂,如果沒有繼續續訂,那視為非訂閱配對用戶
-          if (
-            currentUser.subExpiresDate == dateUtil.getToday() &&
-            !currentUser.subAutoRenew
-          ) {
-            targetUserCount = 1;
-          } else {
-            const matchs = await MatchNewest.find({
-              $or: [
-                { user1ID: currentUser.userID },
-                { user2ID: currentUser.userID },
-              ],
-            });
+          // if (
+          //   currentUser.subExpiresDate == dateUtil.getToday() &&
+          //   !currentUser.subAutoRenew
+          // ) {
+          //   targetUserCount = 1;
+          // } else {
+          const matchs = await MatchNewest.find({
+            $or: [
+              { user1ID: currentUser.userID },
+              { user2ID: currentUser.userID },
+            ],
+          });
 
-            //剩下配對的次數
-            targetUserCount = 3 - matchs.length;
-          }
+          //剩下配對的次數
+          targetUserCount = 3 - matchs.length;
+          // }
         } else {
           targetUserCount = 1;
         }
