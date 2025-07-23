@@ -18,7 +18,7 @@ const generalMatch = async () => {
   const now = new Date();
 
   // 0 : 0
-  if (now.getHours() == 15 && now.getMinutes() == 12) {
+  if (now.getHours() == 0 && now.getMinutes() == 0) {
     const RE_MATCH_DELAY = 48 * 60 * 60 * 1000;
     const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
