@@ -11,6 +11,12 @@ const { v4: uuidv4 } = require("uuid");
 
 const { CircleTopicNames } = require("../config/enum");
 
+const dayjs = require("dayjs");
+const isSameOrAfter = require("dayjs/plugin/isSameOrAfter");
+const isoWeek = require("dayjs/plugin/isoWeek");
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isoWeek);
+
 router.use((req, res, next) => {
   console.log("正在接收一個跟 circle 有關的請求");
   passport.authenticate("jwt", { session: false }, (err, user, info) => {
@@ -42,7 +48,7 @@ router.use((req, res, next) => {
 //E-1 圈圈服務台
 router.post("/circle-npc", async (req, res) => {
   try {
-    const { userID } = req.user;
+    const { userID, isSubscription } = req.user;
 
     //目前圈圈報名系統狀態碼
     //0:尚未開放報名 1:開放報名 2:報名已截止 3:圈圈群聊中
@@ -78,6 +84,7 @@ router.post("/circle-npc", async (req, res) => {
       circleChannelID: "",
       everChoose: false,
       chooseCircleTopicID: "",
+      isSubscription,
     };
 
     if (ticket) {
@@ -229,7 +236,7 @@ router.post("/show-circles", async (req, res) => {
 //E-3 參加指定主題圈圈
 router.post("/join-circle", async (req, res) => {
   try {
-    const { userID, isSubscription } = req.user;
+    const { userID, isSubscription, subExpiresDate, subAutoRenew } = req.user;
     const { circleTopicID } = req.body;
 
     if (!isSubscription) {
@@ -251,34 +258,72 @@ router.post("/join-circle", async (req, res) => {
 
     if (ticket == null) {
       //用戶尚未擁有圈圈門票
-      await CircleTicket.create({
-        ticketID,
-        ticketOwnerID: userID,
-        circleTopicID,
-      });
+      //需先檢查用戶是否訂閱快要到期(假設今天是星期一～三,訂閱到期日必須至少是下星期一(含)以後)
 
-      //加入指定預備圈圈
-      const updateQuery = {
-        $addToSet: { circleReadyUsers: userID },
-      };
+      const today = dayjs();
+      const dayOfWeek = today.day(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
-      if (circleTopicID !== "random") {
-        updateQuery.$inc = { cumulativeCounts: 1 };
-      }
+      // 限定報名日：星期一(1)、星期二(2)、星期三(3)
+      if (dayOfWeek < 1 || dayOfWeek > 3 || dayOfWeek == 0) {
+        //下週一
+        const nextMonday = getNextMonday(today);
+        const userSubscriptionEnd = dayjs(subExpiresDate, "YYYY/MM/DD");
+        const isSubscriptionAllow = userSubscriptionEnd.isSameOrAfter(
+          nextMonday,
+          "day"
+        );
 
-      await ReadyCircle.updateOne({ circleTopicID }, updateQuery);
+        //如果訂閱快要到期 && 沒有續訂 => 提醒不可以報名小圈圈
+        if (!isSubscriptionAllow && !subAutoRenew) {
+          return res.status(200).send({
+            status: true,
+            message:
+              "😭 你的訂閱快到期啦！續訂一下，就能繼續報名你喜歡的小圈圈💫",
+            validCode: "1",
+            data: {
+              //無法加入小圈圈
+              joinStatusCode: "3",
+            },
+          });
+        }
 
-      return res.status(200).send({
-        status: true,
-        message: "成功加入指定主題圈圈",
-        validCode: "1",
-        data: {
-          //首次加入圈圈
-          joinStatusCode: "1",
+        //允許建立小圈圈門票
+        await CircleTicket.create({
           ticketID,
+          ticketOwnerID: userID,
           circleTopicID,
-        },
-      });
+        });
+
+        //加入指定預備圈圈
+        const updateQuery = {
+          $addToSet: { circleReadyUsers: userID },
+        };
+
+        if (circleTopicID !== "random") {
+          updateQuery.$inc = { cumulativeCounts: 1 };
+        }
+
+        await ReadyCircle.updateOne({ circleTopicID }, updateQuery);
+
+        return res.status(200).send({
+          status: true,
+          message: "成功加入指定主題圈圈",
+          validCode: "1",
+          data: {
+            //首次加入圈圈
+            joinStatusCode: "1",
+            ticketID,
+            circleTopicID,
+          },
+        });
+      } else {
+        return res.status(200).send({
+          status: true,
+          message: "本週報名時間已結束",
+          validCode: "1",
+          data: null,
+        });
+      }
     } else {
       return res.status(200).send({
         status: true,
@@ -293,7 +338,6 @@ router.post("/join-circle", async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error",
@@ -588,5 +632,12 @@ router.post("/cancel-vote-circle", async (req, res) => {
     });
   }
 });
+
+//取得下週一
+function getNextMonday(fromDate = dayjs()) {
+  const dayOfWeek = fromDate.day(); // 0 = Sunday
+  const daysUntilNextMonday = (8 - dayOfWeek) % 7 || 7;
+  return fromDate.add(daysUntilNextMonday, "day").startOf("day");
+}
 
 module.exports = router;

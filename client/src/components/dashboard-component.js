@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import AuthService from "../services/auth-service";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/dashboard.css";
-import AgeDistributionChart from "../components/testComponent";
+import AgeDistributionChart from "./testComponent";
 
+//Only Friends 首頁儀表板
 const DashboardComponent = ({ userToken, setUserToken }) => {
   let navigate = useNavigate();
 
@@ -48,7 +49,7 @@ const DashboardComponent = ({ userToken, setUserToken }) => {
         logoutBtn.removeEventListener("click", logoutEvent);
       }
     };
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (userToken) {
@@ -68,131 +69,130 @@ const DashboardComponent = ({ userToken, setUserToken }) => {
   }, [userToken]);
 
   return (
-    <div class="wrapper">
-      <aside id="sidebar">
-        <div class="d-flex">
-          <button class="toggle-btn" type="button">
-            <i class="lni lni-grid-alt"></i>
-          </button>
-          <div class="sidebar-logo">
-            <a href="#">OnlyFriends</a>
+    // 電腦儀表板
+    <div className="dashboard">
+      <div class="wrapper">
+        <aside id="sidebar">
+          <div class="d-flex">
+            <button class="toggle-btn" type="button">
+              <i class="lni lni-grid-alt"></i>
+            </button>
+            <div class="sidebar-logo">
+              <a href="#">OnlyFriends</a>
+            </div>
           </div>
-        </div>
-        <ul class="sidebar-nav">
-          <li class="sidebar-item">
+          <ul class="sidebar-nav">
+            <li class="sidebar-item">
+              <a href="#" class="sidebar-link">
+                <i class="lni lni-user"></i>
+                <span>個人資訊</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a href="#" class="sidebar-link">
+                <i class="lni lni-agenda"></i>
+                <span>Task</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a
+                href="#"
+                class="sidebar-link collapsed has-dropdown"
+                data-bs-toggle="collapse"
+                data-bs-target="#auth"
+                aria-expanded="false"
+                aria-controls="auth"
+              >
+                <i class="lni lni-protection"></i>
+                <span>Auth</span>
+              </a>
+              <ul
+                id="auth"
+                class="sidebar-dropdown list-unstyled collapse"
+                data-bs-parent="#sidebar"
+              >
+                <li class="sidebar-item">
+                  <a href="#" class="sidebar-link">
+                    Login
+                  </a>
+                </li>
+                <li class="sidebar-item">
+                  <a href="#" class="sidebar-link">
+                    Register
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="sidebar-item">
+              <a
+                href="#"
+                class="sidebar-link collapsed has-dropdown"
+                data-bs-toggle="collapse"
+                data-bs-target="#multi"
+                aria-expanded="false"
+                aria-controls="multi"
+              >
+                <i class="lni lni-layout"></i>
+                <span>Multi Level</span>
+              </a>
+              <ul
+                id="multi"
+                class="sidebar-dropdown list-unstyled collapse"
+                data-bs-parent="#sidebar"
+              >
+                <li class="sidebar-item">
+                  <a
+                    href="#"
+                    class="sidebar-link collapsed"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#multi-two"
+                    aria-expanded="false"
+                    aria-controls="multi-two"
+                  >
+                    Two Links
+                  </a>
+                  <ul
+                    id="multi-two"
+                    class="sidebar-dropdown list-unstyled collapse"
+                  >
+                    <li class="sidebar-item">
+                      <a href="#" class="sidebar-link">
+                        Link 1
+                      </a>
+                    </li>
+                    <li class="sidebar-item">
+                      <a href="#" class="sidebar-link">
+                        Link 2
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li class="sidebar-item">
+              <a href="#" class="sidebar-link">
+                <i class="lni lni-popup"></i>
+                <span>Notification</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a href="#" class="sidebar-link">
+                <i class="lni lni-cog"></i>
+                <span>Setting</span>
+              </a>
+            </li>
+          </ul>
+          <div class="sidebar-footer">
             <a href="#" class="sidebar-link">
-              <i class="lni lni-user"></i>
-              <span>Profile</span>
+              <i class="lni lni-exit"></i>
+              <span>Logout</span>
             </a>
-          </li>
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link">
-              <i class="lni lni-agenda"></i>
-              <span>Task</span>
-            </a>
-          </li>
-          <li class="sidebar-item">
-            <a
-              href="#"
-              class="sidebar-link collapsed has-dropdown"
-              data-bs-toggle="collapse"
-              data-bs-target="#auth"
-              aria-expanded="false"
-              aria-controls="auth"
-            >
-              <i class="lni lni-protection"></i>
-              <span>Auth</span>
-            </a>
-            <ul
-              id="auth"
-              class="sidebar-dropdown list-unstyled collapse"
-              data-bs-parent="#sidebar"
-            >
-              <li class="sidebar-item">
-                <a href="#" class="sidebar-link">
-                  Login
-                </a>
-              </li>
-              <li class="sidebar-item">
-                <a href="#" class="sidebar-link">
-                  Register
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li class="sidebar-item">
-            <a
-              href="#"
-              class="sidebar-link collapsed has-dropdown"
-              data-bs-toggle="collapse"
-              data-bs-target="#multi"
-              aria-expanded="false"
-              aria-controls="multi"
-            >
-              <i class="lni lni-layout"></i>
-              <span>Multi Level</span>
-            </a>
-            <ul
-              id="multi"
-              class="sidebar-dropdown list-unstyled collapse"
-              data-bs-parent="#sidebar"
-            >
-              <li class="sidebar-item">
-                <a
-                  href="#"
-                  class="sidebar-link collapsed"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#multi-two"
-                  aria-expanded="false"
-                  aria-controls="multi-two"
-                >
-                  Two Links
-                </a>
-                <ul
-                  id="multi-two"
-                  class="sidebar-dropdown list-unstyled collapse"
-                >
-                  <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                      Link 1
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                      Link 2
-                    </a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </li>
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link">
-              <i class="lni lni-popup"></i>
-              <span>Notification</span>
-            </a>
-          </li>
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link">
-              <i class="lni lni-cog"></i>
-              <span>Setting</span>
-            </a>
-          </li>
-        </ul>
-        <div class="sidebar-footer">
-          <a href="#" class="sidebar-link">
-            <i class="lni lni-exit"></i>
-            <span>Logout</span>
-          </a>
-        </div>
-      </aside>
-      <div class="main p-3">
-        <div class="chart" style={{ width: "300px", height: "450px" }}>
-          <AgeDistributionChart />
-        </div>
+          </div>
+        </aside>
+        <div class="main p-3"></div>
+        {/* 加入 ToastContainer 以显示 Toast */}
+        <ToastContainer />
       </div>
-      {/* 加入 ToastContainer 以显示 Toast */}
-      <ToastContainer />
     </div>
   );
 };

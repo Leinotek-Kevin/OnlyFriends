@@ -47,7 +47,7 @@ body {
 }
 
 #sidebar.expand {
-  width: 200px;
+  width: 300px;
   min-width: 200px;
 }
 
@@ -84,18 +84,20 @@ body {
 }
 
 a.sidebar-link {
-  padding: 0.625rem 1.325rem;
   color: #fff;
   display: flex;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   white-space: nowrap;
   align-items: center;
   border-left: 3px solid transparent;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 1.5rem;
 }
 
 .sidebar-link i {
-  font-size: 1.1rem;
-  margin-right: 0.75rem;
+  font-size: 1.5rem;
+  margin-right: 1rem;
 }
 
 a.sidebar-link:hover {
@@ -141,3 +143,11 @@ a.sidebar-link:hover {
   transform: rotate(45deg);
   transition: all 0.2s ease-out;
 }
+
+// div.dashboard {
+//   div.wrapper {
+//     aside#sidebar {
+//       //width: 300px;
+//     }
+//   }
+// }
