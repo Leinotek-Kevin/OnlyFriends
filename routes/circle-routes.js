@@ -392,7 +392,7 @@ router.post("/quit-circle", async (req, res) => {
 //E-5 查詢指定主題小圈圈資訊
 router.post("/query-circle-info", async (req, res) => {
   try {
-    const { userID } = req.user;
+    const { userID, isSubscription } = req.user;
     //圈圈標題,聊天室色系,背景,用戶列表
     const { language, circleChannelID } = req.body;
 
@@ -415,6 +415,7 @@ router.post("/query-circle-info", async (req, res) => {
       agreeExtendCount: 0,
       rejectExtendCount: 0,
       voteExtendState: "",
+      isSubscription,
     };
 
     const circleUsers = await User.find(
