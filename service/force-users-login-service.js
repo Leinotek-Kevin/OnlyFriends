@@ -5,6 +5,7 @@ dotenv.config();
 
 //設定每天 06:00 執行一次 強制讓假人和官方人員登入
 const startForceUserLogin = async () => {
+  //台灣時間
   const now = new Date();
 
   //06:00

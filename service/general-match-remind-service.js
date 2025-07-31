@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 
 //提醒用戶查看今天的配對(每天 08:00 發送)
 const generalMatchRemind = async () => {
+  //台灣時間
   const now = new Date();
 
   if (now.getHours() == 8 && now.getMinutes() == 0) {

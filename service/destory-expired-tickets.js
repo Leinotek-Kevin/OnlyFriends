@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 //星期六 00:00 刪掉沒有要延長的圈圈票券
 //星期一 00:00 刪掉剩餘所有的圈圈票券
 const startSchedule = async () => {
+  //台灣時間
   const day = new Date(Date.now()).getDay();
   const now = new Date();
 

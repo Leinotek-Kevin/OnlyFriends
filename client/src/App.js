@@ -4,10 +4,11 @@ import AuthService from "./services/auth-service";
 import LoginComponent from "./components/login-component";
 import LandingComponent from "./components/landing-component";
 import UsersComponent from "./components/users-component";
-import ReportsComponent from "./components/reports-component";
+import JoinPartherComponent from "./components/join-parther-component";
+import PartherDataComponent from "./components/parther-data-component";
+import DashboardComponent from "./components/dashboard-component";
 import DeleteComponent from "./components/delete-component";
 import DrinkQuizComponent from "./components/quiz/drink-quiz-component";
-import Layout from "./components/layout";
 
 function App() {
   let [userToken, setUserToken] = useState(AuthService.getUserToken());
@@ -36,12 +37,16 @@ function App() {
           <Route
             path="dashboard"
             element={
-              <Layout userToken={userToken} setUserToken={setUserToken} />
+              <DashboardComponent
+                userToken={userToken}
+                setUserToken={setUserToken}
+              />
             }
           >
             {/*用戶列表*/}
             <Route
               path="users"
+              index
               element={
                 <UsersComponent
                   userToken={userToken}
@@ -49,14 +54,26 @@ function App() {
                 ></UsersComponent>
               }
             ></Route>
-            {/*檢舉列表*/}
+            {/*加入聯盟行銷夥伴*/}
             <Route
-              path="reports"
+              path="join-parther"
+              index
               element={
-                <ReportsComponent
+                <JoinPartherComponent
                   userToken={userToken}
                   setUserToken={setUserToken}
-                ></ReportsComponent>
+                ></JoinPartherComponent>
+              }
+            ></Route>
+            {/*聯盟行銷夥伴數據頁*/}
+            <Route
+              path="parther-data"
+              index
+              element={
+                <PartherDataComponent
+                  userToken={userToken}
+                  setUserToken={setUserToken}
+                ></PartherDataComponent>
               }
             ></Route>
           </Route>

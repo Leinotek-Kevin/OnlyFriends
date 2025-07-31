@@ -12,6 +12,8 @@ const passport = require("passport");
 const path = require("path");
 require("./config/passport")();
 
+//存進資料庫一律採用 UNIX 時間 , 排程可酌情使用 HeroKu 系統台灣時間
+
 //連結 mongoDB
 mongoose
   .connect(process.env.MONGODB_CONNECTION)

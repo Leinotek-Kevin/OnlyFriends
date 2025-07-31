@@ -1,0 +1,99 @@
+::after,
+::before {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+div.join-parther {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+div.join-parther div.join-steps {
+  display: flex;
+  width: 100%;
+  height: auto;
+  flex-direction: column;
+  padding-left: 2rem;
+}
+div.join-parther div.join-steps p {
+  font-size: 1.5rem;
+  text-align: start;
+  padding: 0;
+  margin: 0;
+  margin-top: 1.5rem;
+}
+div.join-parther div.join-steps img {
+  width: 75%;
+  height: auto;
+  margin-top: 1.5rem;
+}
+div.join-parther div.parther-enter {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 10rem;
+  margin-top: 3rem;
+}
+div.join-parther div.parther-enter div.des {
+  width: 48%;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  margin-top: 3rem;
+}
+div.join-parther div.parther-enter div.des p.title {
+  font-size: 1.8rem;
+  line-height: 2;
+  font-weight: bold;
+}
+div.join-parther div.parther-enter div.des p.sub-title {
+  width: 80%;
+  font-size: 1.1rem;
+  line-height: 2.5;
+  margin-left: 2rem;
+  margin-top: 2rem;
+}
+div.join-parther div.parther-enter div.apply {
+  display: flex;
+  width: 20%;
+  flex-direction: column;
+  justify-content: start;
+}
+div.join-parther div.parther-enter div.apply p {
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 3px;
+  margin: 0;
+}
+div.join-parther div.parther-enter div.apply input {
+  width: 100%;
+  margin-top: 2rem;
+  font-size: large;
+  padding: 0.5rem;
+  border: none;
+  background-color: lightgrey;
+  border-radius: 5px;
+}
+div.join-parther div.parther-enter div.apply button {
+  background: none;
+  border: none;
+  background-color: #0096b1;
+  color: white;
+  border-radius: 5px;
+  font-size: large;
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+  margin-top: 2rem;
+}
+div.join-parther div.parther-enter div.apply button:hover {
+  transform: scale(1.05);
+}/*# sourceMappingURL=join-parther.css.map */

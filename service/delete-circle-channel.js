@@ -10,6 +10,7 @@ const Bottleneck = require("bottleneck");
 //星期一～星期三 05:00 執行刪除渠道作業
 //其中一和二批量刪除一半,三則全部刪除
 const startSchedule = async () => {
+  //台灣時間
   let day = new Date(Date.now()).getDay();
   const now = new Date();
 

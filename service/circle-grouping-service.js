@@ -28,9 +28,10 @@ const Bottleneck = require("bottleneck");
 
 //主題圈圈分群排程 , 每週四 凌晨4點
 const startSchedule = async () => {
+  //根據執行環境來取得日期時間
   const day = new Date(Date.now()).getDay();
-
   const now = new Date();
+
   //現在是週四凌晨4點
   if (day == 4 && now.getHours() == 4 && now.getMinutes() == 0) {
     try {

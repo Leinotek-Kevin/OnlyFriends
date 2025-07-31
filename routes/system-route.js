@@ -14,6 +14,7 @@ const ReadyCircle = require("../models").readyCircle;
 const CircleTicket = require("../models").circleTicket;
 const PromotionCode = require("../models").promotionCode;
 const PromotionStub = require("../models").promotionStub;
+const PromotionActivity = require("../models").promotionActivity;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
@@ -1259,7 +1260,7 @@ router.post("/random-circle-user", async (req, res) => {
 
     // 取得所有用戶的 userID 和 userRegion
     const users = await User.find(
-      { identity: 0 },
+      { identity: { $in: [0, 2] } },
       { _id: 0, userID: 1, userRegion: 1 }
     );
 
@@ -1419,6 +1420,38 @@ router.post("/create-promotion-code", async (req, res) => {
           agentName: user.userName,
           agentEmail: user.userEmail,
         },
+      },
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
+    });
+  }
+});
+
+//建立限時促銷活動
+router.post("/create-promotion-activity", async (req, res) => {
+  try {
+    let { activityID, activityStartDate, activityEndDate } = req.body;
+
+    const startTime = new Date(activityStartDate).getTime();
+    const endTime = new Date(activityEndDate).getTime();
+
+    await PromotionActivity.findOneAndUpdate(
+      { activityID },
+      { activityID, activityStartTime: startTime, activityEndTime: endTime },
+      { upsert: true }
+    );
+
+    return res.status(200).send({
+      status: true,
+      message: "成功建立或修改促銷活動",
+      data: {
+        activityID,
+        startTime: activityStartDate,
+        endTime: activityEndDate,
       },
     });
   } catch (e) {

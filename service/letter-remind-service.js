@@ -2,6 +2,7 @@ const cloudMsgService = require("../utils/cloudmsg-util");
 
 //提醒用戶發送紙飛機(每天 12:00 發送)
 const letterRemind = async () => {
+  //台灣時間
   const now = new Date();
 
   if (now.getHours() == 12 && now.getMinutes() == 0) {

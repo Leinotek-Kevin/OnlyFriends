@@ -115,6 +115,8 @@ router.post("/circle-npc", async (req, res) => {
       result.canJoin = ticket != null;
     }
 
+    result.canJoin = true;
+
     return res.status(200).send({
       status: true,
       message: "以下是您的查詢結果",

@@ -1502,6 +1502,7 @@ router.post("/use-promotion-code", async (req, res) => {
     const { userID, isSubscription } = req.user;
     const { promotionCode } = req.body;
 
+    //每一個推廣碼都有對應的推廣類型
     const code = await PromotionCode.findOne({ promotionCode });
 
     if (code) {
@@ -1548,7 +1549,6 @@ router.post("/use-promotion-code", async (req, res) => {
             }
 
             future.setDate(now.getDate() + 14); // 加上 14 天
-            //future.setDate(now.getDate() + 1); // 加上 14 天
             future.setHours(23, 59, 59, 999);
 
             // 輸出成 "YYYY/MM/DD" 格式
@@ -1629,5 +1629,7 @@ router.post("/use-promotion-code", async (req, res) => {
     });
   }
 });
+
+//B-15-1 使用兌換碼
 
 module.exports = router;

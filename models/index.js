@@ -15,4 +15,7 @@ module.exports = {
   activityCircle: require("./activity-circle-model"),
   promotionCode: require("./promotion-code-model"),
   promotionStub: require("./promotion-stub-model"),
+
+  //活動促銷活動
+  promotionActivity: require("./promotion-activity-model"),
 };

@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 
 //提醒還沒上線的用戶上線(每天 19:00 發送)
 const userBackRemind = async () => {
+  //台灣時間
   const now = new Date();
 
   if (now.getHours() == 19 && now.getMinutes() == 0) {

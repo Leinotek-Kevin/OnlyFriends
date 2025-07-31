@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 
 //提醒用戶主題小圈圈已開放(星期五凌晨00:00)
 const startSchedule = async () => {
+  //Date.now() => 輸出的是 UNIX 時間 ,
+  //new Date() => 則是系統時間 , HeroKu 設置 Asia/Taipei
   const day = new Date(Date.now()).getDay();
   const now = new Date();
 

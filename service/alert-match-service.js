@@ -2,6 +2,7 @@ const cloudAnnou = require("../utils/cloudAnnou-util");
 
 //設定每天 23:30 執行一次 提醒用戶午夜配對快要到勒
 const startSchedule = async () => {
+  //台灣時間
   const now = new Date();
 
   if (now.getHours() == 23 && now.getMinutes() == 30) {

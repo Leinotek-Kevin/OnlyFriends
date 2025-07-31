@@ -291,6 +291,11 @@ router.post("/read-store-msg", async (req, res) => {
 router.post("/test-time", async (req, res) => {
   try {
     const now = new Date();
+    const timestamp = Date.now();
+    const date = new Date(timestamp);
+    const day = new Date(Date.now()).getDay();
+    const hourUTC = date.getUTCHours(); // UTC 時
+    const minuteUTC = date.getUTCMinutes(); // UTC 分
 
     return res.status(200).send({
       status: true,

@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 
 //檢查 Firebase Device Token 是否存活
 const checkDeviceSchedule = async () => {
+  //台灣時間
   const now = new Date();
 
   if (now.getHours() == 5 && now.getMinutes() == 0) {

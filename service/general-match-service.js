@@ -15,11 +15,13 @@ const Bottleneck = require("bottleneck");
 
 //一般配對 00:00 執行
 const generalMatch = async () => {
+  //台灣時間
   const now = new Date();
 
   // 0 : 0
   if (now.getHours() == 0 && now.getMinutes() == 0) {
     const RE_MATCH_DELAY = 48 * 60 * 60 * 1000;
+    //UNIX 時間
     const time48HoursAgo = Date.now() - RE_MATCH_DELAY; // 計算48小時前的時間點
     const lastNightTimeStamp = dateUtil.getYesterdayNight();
 

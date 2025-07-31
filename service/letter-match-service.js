@@ -10,6 +10,7 @@ dotenv.config();
 
 //心情樹洞配對 03:00 執行
 const letterMatch = async () => {
+  //台灣時間
   const now = new Date();
 
   if (now.getHours() == 3 && now.getMinutes() == 0) {
