@@ -1,15 +1,14 @@
 const mongoose = require("mongoose");
-const { promotionCode } = require(".");
 const { Schema } = mongoose;
 
 //製作被推廣者用戶 Schema
 const referalUserSchema = new Schema({
   //推廣者ID
-  partherUserID: {
+  promoterID: {
     type: String,
   },
 
-  //用戶 ID
+  //被推廣者 ID
   referalUserID: {
     type: String,
   },
@@ -46,13 +45,13 @@ const referalUserSchema = new Schema({
   },
 
   //用戶系統設備
-  referalosType: {
+  referalosOSType: {
     type: String,
     enum: ["0", "1"], //0:Android / 1: iOS
   },
 
-  //該用戶是否有訂閱
-  isSubscription: {
+  //該用戶是否有實際訂閱
+  isRealSubscription: {
     type: Boolean,
     default: false,
   },
@@ -72,4 +71,4 @@ referalUserSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("ReferalUserSchema", referalUserSchema);
+module.exports = mongoose.model("ReferalUser", referalUserSchema);

@@ -24,7 +24,7 @@ const promotionActivitySchema = new Schema({
       promoterID: {
         type: String,
       },
-      code: {
+      promotionCode: {
         type: String,
       },
     },
@@ -40,7 +40,4 @@ promotionActivitySchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model(
-  "PromotionActivitySchema",
-  promotionActivitySchema
-);
+module.exports = mongoose.model("PromotionActivity", promotionActivitySchema);

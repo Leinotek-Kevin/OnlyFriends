@@ -18,4 +18,8 @@ module.exports = {
 
   //活動促銷活動
   promotionActivity: require("./promotion-activity-model"),
+  //推廣者
+  promoterUser: require("./promoter-user-model"),
+  //被推廣者
+  referalUser: require("./referral-user-model"),
 };

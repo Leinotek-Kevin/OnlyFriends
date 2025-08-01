@@ -8,15 +8,26 @@ const promoterUserSchema = new Schema({
     type: String,
   },
 
+  //促銷活動 ID
+  activityID: {
+    type: String,
+  },
+
   //聯盟推廣碼
   promotionCode: {
     type: String,
   },
 
+  //聯盟分潤百分比
+  shareProfitPercent: {
+    type: Number,
+    default: 2,
+  },
+
   //推廣的用戶們
   referralUsers: [
     {
-      userID: {
+      referralUserID: {
         type: String,
       },
     },

@@ -8,9 +8,15 @@ const Config = require("../models").config;
 const Report = require("../models").report;
 const Sticker = require("../models").sticker;
 const Topic = require("../models").topic;
-const { TopicNames } = require("../config/enum");
 const PromotionCode = require("../models").promotionCode;
 const PromotionStub = require("../models").promotionStub;
+
+//推廣者
+const PromoterUser = require("../models").promoterUser;
+//被推廣者
+const ReferalUser = require("../models").referalUser;
+//聯盟行銷活動
+const PromotionActivity = require("../models").promotionActivity;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
@@ -21,6 +27,8 @@ const visionUtil = require("../utils/google-vision-util");
 const passport = require("passport");
 const dotenv = require("dotenv");
 dotenv.config();
+
+const { TopicNames } = require("../config/enum");
 
 const {
   ReportReasons,
@@ -1498,126 +1506,142 @@ router.post("/query-match-object", async (req, res) => {
 //B-15 使用兌換碼
 router.post("/use-promotion-code", async (req, res) => {
   try {
-    //兌換有以下狀態 : 查無此兌換碼(-1) / 已兌換完畢(2) / 已超過兌換期限(3) / 兌換成功(1) / 您已經訂閱(4)
+    //兌換有以下狀態 : 查無此兌換碼(-1) / 兌換成功(1) / 已兌換完畢(2) / 已超過兌換期限(3) / 您已經訂閱(4)
     const { userID, isSubscription } = req.user;
     const { promotionCode } = req.body;
 
-    //每一個推廣碼都有對應的推廣類型
-    const code = await PromotionCode.findOne({ promotionCode });
+    //確認用戶給的兌換碼是否存在且沒有過期
+    //找出這個兌換碼的 ID
+    const promoterUser = await PromoterUser.findOne(
+      { promotionCode },
+      { activityID: 1, promoterID: 1, _id: 0 }
+    );
 
-    if (code) {
-      // 確認有這個兌換碼
-      // 已兌換完畢
-      const stub = await PromotionStub.findOne({
-        userID,
-        promotionType: code.promotionType,
+    //抓出這個活動的截止資訊
+    const promoteActivity = await PromotionActivity.findOne(
+      {
+        activityID: promoterUser.activityID,
+      },
+      { activityEndTime: 1, activityID: 1, _id: 0 }
+    );
+
+    //是否過期
+    const isExpired = Date.now() >= promoteActivity.activityEndTime;
+    //是否活動存在
+    const isActivityExist = promoteActivity != null;
+
+    if (!isActivityExist || isExpired) {
+      return res.status(200).send({
+        status: true,
+        message: isExpired
+          ? "很抱歉！該推廣活動兌換碼已過期！"
+          : "很抱歉！查無此推廣活動",
+        validCode: "1",
+        data: {
+          queryCode: isExpired ? "3" : "-1",
+          //promotionType 就是 activityID => 這是當初設計的殘黨
+          promotionType: promoteActivity.activityID,
+        },
+      });
+    }
+
+    //檢查是否兌換完畢
+    //activityID = 100 => 聯盟行銷活動  | activitID =? => ?
+    if (promoteActivity.activityID == "100") {
+      //查詢該用戶是不是已經是推廣者,如果是,表示他已經兌換過勒
+      const findReferal = await ReferalUser.findOne({
+        referalUserID: userID,
       });
 
-      if (stub) {
+      //已經兌換過勒
+      if (findReferal) {
         return res.status(200).send({
           status: true,
-          message: "您已經兌換過了",
+          message: "該推廣活動兌換碼已兌換過嚕！",
           validCode: "1",
           data: {
             queryCode: "2",
-            promotionType: code.promotionType,
+            promotionType: promoteActivity.activityID,
           },
         });
       } else {
-        // 確認是否在兌換期限
-        const now = new Date();
-        const start = new Date(code.promotionStart);
-        const end = new Date(code.promotionExpired);
-
-        if (now >= start && now <= end) {
-          //允許兌換
-          //確定兌換項目
-          let future = new Date(); // 未來截止時間
-
-          if (code.promotionType == "100") {
-            //免費試用兩週
-            if (isSubscription) {
-              return res.status(200).send({
-                status: true,
-                message: "兌換失敗！您已經是訂閱會員了！",
-                validCode: "1",
-                data: {
-                  queryCode: "4",
-                  promotionType: code.promotionType,
-                },
-              });
-            }
-
-            future.setDate(now.getDate() + 14); // 加上 14 天
-            future.setHours(23, 59, 59, 999);
-
-            // 輸出成 "YYYY/MM/DD" 格式
-            const formattedExpireDate = `${future.getFullYear()}/${String(
-              future.getMonth() + 1
-            ).padStart(2, "0")}/${String(future.getDate()).padStart(2, "0")}`;
-
-            //標記指定用戶已經訂閱
-            await User.updateOne(
-              {
-                userID,
-              },
-              {
-                isSubscription: true,
-                isPromotionSub: true,
-                subExpiresDate: formattedExpireDate,
-              }
-            );
-          }
-
-          await PromotionStub.create({
-            agentUserID: code.agentUserID,
-            userID,
-            promotionType: code.promotionType,
-            expiredDate: future,
-            ticketStubStatus: "1",
-          });
-
+        //尚未兌換
+        //如果是訂閱用戶,就不能兌換兩週適用
+        if (isSubscription) {
           return res.status(200).send({
             status: true,
-            message: "兌換成功！免費試用兩週",
+            message: "兌換失敗！您已經是訂閱會員了！",
             validCode: "1",
             data: {
-              queryCode: "1",
-              promotionType: code.promotionType,
+              queryCode: "4",
+              promotionType: promoteActivity.activityID,
             },
           });
-        } else {
-          //尚未開放兌換
-          if (now < start) {
-            return res.status(200).send({
-              status: true,
-              message: "目前促銷活動尚未開放",
-            });
-          } else if (now > end) {
-            //已超過兌換期限
-            return res.status(200).send({
-              status: true,
-              message: "已超過兌換期限",
-              validCode: "1",
-              data: {
-                queryCode: "3",
-                promotionType: code.promotionType,
-              },
-            });
-          }
         }
+
+        //在這個活動兌換就會變成被推廣者=>如果後續有訂閱,部分訂閱收益就會算給推廣者
+        //允許用戶試用兩週,直接通知前端結果
+        let future = new Date(); // 未來截止台灣時間
+
+        future.setDate(new Date().getDate() + 14); // 加上 14 天
+        future.setHours(23, 59, 59, 999);
+
+        // 輸出成 "YYYY/MM/DD" 格式
+        const formattedExpireDate = `${future.getFullYear()}/${String(
+          future.getMonth() + 1
+        ).padStart(2, "0")}/${String(future.getDate()).padStart(2, "0")}`;
+
+        //標記指定用戶已經訂閱
+        await User.updateOne(
+          {
+            userID,
+          },
+          {
+            isSubscription: true,
+            isPromotionSub: true,
+            subExpiresDate: formattedExpireDate,
+          }
+        );
+
+        res.status(200).send({
+          status: true,
+          message: "兌換成功！獲得免費試用兩週",
+          validCode: "1",
+          data: {
+            queryCode: "1",
+            promotionType: promoteActivity.activityID,
+          },
+        });
+
+        //建立推廣者
+        let { userName, userGender, userAge, userZodiac, userRegion, osType } =
+          req.user;
+
+        await ReferalUser.create({
+          promoterID: promoterUser.promoterID,
+          referalUserID: userID,
+          referalUserName: userName,
+          referalUserGender: userGender,
+          referalUserAge: userAge,
+          referalUserZodiac: userZodiac,
+          referalUserRegion: userRegion,
+          referalosOSType: osType,
+          freeSubExpiresDate: formattedExpireDate,
+        });
+
+        //將 被推廣者 歸入 推廣者 旗下
+        await PromoterUser.findOneAndUpdate(
+          { promoterID: promoterUser.promoterID },
+          {
+            $addToSet: {
+              referralUsers: {
+                referralUserID: userID,
+              },
+            },
+          },
+          { new: true }
+        );
       }
-    } else {
-      // 查無此兌換碼
-      return res.status(200).send({
-        status: true,
-        message: "查無此兌換碼",
-        validCode: "1",
-        data: {
-          queryCode: "-1",
-          promotionType: null,
-        },
-      });
     }
   } catch (e) {
     console.log(e);
@@ -1630,6 +1654,246 @@ router.post("/use-promotion-code", async (req, res) => {
   }
 });
 
-//B-15-1 使用兌換碼
+//B-100 申請加入推廣者
+router.post("/apply-promoter", async (req, res) => {
+  try {
+    let { identity } = req.user;
+    let { activityID, userID } = req.body;
 
+    if (identity != 1) {
+      return res.status(200).send({
+        status: true,
+        message: "很抱歉！僅有官方人員才可以遞交申請文件！",
+        validCode: "1",
+        data: {
+          queryCode: "-3",
+        },
+      });
+    }
+
+    const findUser = await User.findOne({ userID });
+
+    if (findUser == null) {
+      return res.status(200).send({
+        status: true,
+        message: "查無指定用戶！請先註冊 OnlyFriends",
+        validCode: "1",
+        data: {
+          queryCode: "-1",
+        },
+      });
+    }
+
+    const findActivity = await promotionActivity.findOne({
+      activityID,
+    });
+
+    if (!findActivity) {
+      return res.status(200).send({
+        status: true,
+        message: "很抱歉！您想申請的促銷活動不存在！",
+        validCode: "1",
+        data: {
+          queryCode: "-2",
+        },
+      });
+    }
+
+    //查詢是否已經是這個活動的贊助者
+    const findPromoter = await PromoterUser.findOne({
+      promoterID: userID,
+      activityID,
+    });
+
+    if (findPromoter) {
+      return res.status(200).send({
+        status: true,
+        message: "你已經是推廣者！不用再申請勒！",
+        validCode: "1",
+        data: {
+          queryCode: "1",
+          activityID,
+          promotionCode: findPromoter.promotionCode,
+          promoterID: findPromoter.promoterID,
+        },
+      });
+    } else {
+      //建立推廣碼
+      const code = uuidv4().replace(/-/g, "").toUpperCase().slice(0, 10);
+      //建立推廣者
+      await PromoterUser.create({
+        activityID,
+        promoterID: userID,
+        promotionCode: code,
+        referralUsers: [],
+      });
+
+      //將新建立的推廣者加入這個促銷活動項目
+      await PromotionActivity.findOneAndUpdate(
+        { activityID },
+        {
+          $addToSet: {
+            promoters: {
+              promoterID: userID,
+              promotionCode: code,
+            },
+          },
+        },
+        { new: true }
+      );
+
+      return res.status(200).send({
+        status: true,
+        message: "恭喜您！成功申請成為 OnlyFriends 推廣者",
+        validCode: "1",
+        data: {
+          queryCode: "2",
+          promoterID: userID,
+          promotionCode: code,
+        },
+      });
+    }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      validCode: "-1",
+      e,
+    });
+  }
+});
+
+//B-15 使用兌換碼
+// router.post("/use-promotion-code", async (req, res) => {
+//   try {
+//     //兌換有以下狀態 : 查無此兌換碼(-1) / 已兌換完畢(2) / 已超過兌換期限(3) / 兌換成功(1) / 您已經訂閱(4)
+//     const { userID, isSubscription } = req.user;
+//     const { promotionCode } = req.body;
+
+//     //每一個推廣碼都有對應的推廣類型
+//     const code = await PromotionCode.findOne({ promotionCode });
+
+//     if (code) {
+//       // 確認有這個兌換碼
+//       // 已兌換完畢
+//       const stub = await PromotionStub.findOne({
+//         userID,
+//         promotionType: code.promotionType,
+//       });
+
+//       if (stub) {
+//         return res.status(200).send({
+//           status: true,
+//           message: "您已經兌換過了",
+//           validCode: "1",
+//           data: {
+//             queryCode: "2",
+//             promotionType: code.promotionType,
+//           },
+//         });
+//       } else {
+//         // 確認是否在兌換期限
+//         const now = new Date();
+//         const start = new Date(code.promotionStart);
+//         const end = new Date(code.promotionExpired);
+
+//         if (now >= start && now <= end) {
+//           //允許兌換
+//           //確定兌換項目
+//           let future = new Date(); // 未來截止時間
+
+//           if (code.promotionType == "100") {
+//             //免費試用兩週
+//             if (isSubscription) {
+//               return res.status(200).send({
+//                 status: true,
+//                 message: "兌換失敗！您已經是訂閱會員了！",
+//                 validCode: "1",
+//                 data: {
+//                   queryCode: "4",
+//                   promotionType: code.promotionType,
+//                 },
+//               });
+//             }
+
+//             future.setDate(now.getDate() + 14); // 加上 14 天
+//             future.setHours(23, 59, 59, 999);
+
+//             // 輸出成 "YYYY/MM/DD" 格式
+//             const formattedExpireDate = `${future.getFullYear()}/${String(
+//               future.getMonth() + 1
+//             ).padStart(2, "0")}/${String(future.getDate()).padStart(2, "0")}`;
+
+//             //標記指定用戶已經訂閱
+//             await User.updateOne(
+//               {
+//                 userID,
+//               },
+//               {
+//                 isSubscription: true,
+//                 isPromotionSub: true,
+//                 subExpiresDate: formattedExpireDate,
+//               }
+//             );
+//           }
+
+//           await PromotionStub.create({
+//             agentUserID: code.agentUserID,
+//             userID,
+//             promotionType: code.promotionType,
+//             expiredDate: future,
+//             ticketStubStatus: "1",
+//           });
+
+//           return res.status(200).send({
+//             status: true,
+//             message: "兌換成功！免費試用兩週",
+//             validCode: "1",
+//             data: {
+//               queryCode: "1",
+//               promotionType: code.promotionType,
+//             },
+//           });
+//         } else {
+//           //尚未開放兌換
+//           if (now < start) {
+//             return res.status(200).send({
+//               status: true,
+//               message: "目前促銷活動尚未開放",
+//             });
+//           } else if (now > end) {
+//             //已超過兌換期限
+//             return res.status(200).send({
+//               status: true,
+//               message: "已超過兌換期限",
+//               validCode: "1",
+//               data: {
+//                 queryCode: "3",
+//                 promotionType: code.promotionType,
+//               },
+//             });
+//           }
+//         }
+//       }
+//     } else {
+//       // 查無此兌換碼
+//       return res.status(200).send({
+//         status: true,
+//         message: "查無此兌換碼",
+//         validCode: "1",
+//         data: {
+//           queryCode: "-1",
+//           promotionType: null,
+//         },
+//       });
+//     }
+//   } catch (e) {
+//     return res.status(500).send({
+//       status: false,
+//       message: "Server Error!",
+//       validCode: "-1",
+//       e,
+//     });
+//   }
+// });
 module.exports = router;
