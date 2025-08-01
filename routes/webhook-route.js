@@ -226,10 +226,10 @@ router.post("/iOS-purchase", async (req, res) => {
       const { notificationType, subtype, data } = notificationInfo;
       const { transactionInfo, renewalInfo } = data;
 
-      // console.log(
-      //   "通知類型:",
-      //   `notificationType : ${notificationType} , subtype : ${subtype} transactionId : ${transactionInfo.transactionId}`
-      // );
+      console.log(
+        "通知類型:",
+        `notificationType : ${notificationType} , subtype : ${subtype} transactionId : ${transactionInfo.transactionId}`
+      );
 
       const transactionID = transactionInfo.transactionId;
       const originalTransactionID = transactionInfo.originalTransactionId;
