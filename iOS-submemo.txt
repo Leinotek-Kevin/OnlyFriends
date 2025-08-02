@@ -1,0 +1,15 @@
+//自動續訂
+通知類型: notificationType : DID_RENEW ,
+subtype : undefined 
+transactionId : 2000000974575597
+ 
+//取消續訂
+通知類型: notificationType : 
+DID_CHANGE_RENEWAL_STATUS ,
+ subtype : AUTO_RENEW_DISABLED 
+ transactionId : 2000000974571821
+
+//恢復續訂 
+通知類型: notificationType : DID_CHANGE_RENEWAL_STATUS ,
+subtype : AUTO_RENEW_ENABLED 
+transactionId : 2000000974571821

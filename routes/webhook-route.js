@@ -5,6 +5,7 @@ const datelUtil = require("../utils/date-util");
 const User = require("../models").user;
 const Transcation = require("../models").transcation;
 
+//Google
 router.post("/google-purchase", async (req, res) => {
   try {
     const { message } = req.body;
@@ -15,6 +16,8 @@ router.post("/google-purchase", async (req, res) => {
     }
 
     let notification = JSON.parse(decodeMsg);
+
+    console.log("Google 訂單通知類型:", notification);
 
     //確認是否是現在用戶的訂閱訂單
     const { subscriptionNotification, voidedPurchaseNotification } =
@@ -227,7 +230,7 @@ router.post("/iOS-purchase", async (req, res) => {
       const { transactionInfo, renewalInfo } = data;
 
       console.log(
-        "通知類型:",
+        "iOS 訂單通知類型:",
         `notificationType : ${notificationType} , subtype : ${subtype} transactionId : ${transactionInfo.transactionId}`
       );
 
