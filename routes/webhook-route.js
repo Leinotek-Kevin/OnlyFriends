@@ -350,20 +350,21 @@ router.post("/iOS-purchase", async (req, res) => {
         if (oriTranscation) {
           //建立新的訂閱訂單資料
           await Transcation.create({
-            userID: oriTranscation.userID,
-            userEmail: oriTranscation.userEmail,
-            osType: "1",
-            transactionID: subscription.transactionID,
             originalTransactionID: oriTranscation.originalTransactionID,
-            productID: subscription.transactionID,
+            transactionID: subscription.transactionID,
+            productID: subscription.productID,
             productType: oriTranscation.productType,
-            expiresDate: subscription.expiresDate,
             price: oriTranscation.price,
             currency: oriTranscation.currency,
             transcationMemo: subscription.transcationMemo,
             purchaseDate: oriTranscation.purchaseDate,
             autoRenewStatus: subscription.autoRenewStatus,
+            expiresDate: subscription.expiresDate,
+            userID: oriTranscation.userID,
+            userEmail: oriTranscation.userEmail,
+            osType: "1",
             isAllow: subscription.isAllow,
+            status: subscription.status,
             statusUpdateTime: subscription.statusUpdateTime,
           });
         }
