@@ -370,17 +370,6 @@ router.post("/iOS-purchase", async (req, res) => {
         }
       }
 
-      console.log(
-        "訂單資訊：",
-        subscription.transactionID +
-          " " +
-          subscription.expiresDate +
-          " " +
-          subscription.autoRenewStatus +
-          " " +
-          subscription.isAllow +
-          " "
-      );
       // 檢查並更新用戶的訂閱狀態
       checkAndUpdateUserSub(currentUserID, {
         subTranscationID: subscription.transactionID,
@@ -406,29 +395,15 @@ router.post("/iOS-purchase", async (req, res) => {
 });
 //檢查用戶是否有訂閱權
 async function checkAndUpdateUserSub(userID, transactionInfo) {
-  console.log(
-    "檢查用戶是否有訂閱權",
-    "用戶ID:" +
-      userID +
-      " " +
-      transactionInfo.transactionID +
-      " " +
-      transactionInfo.expiresDate +
-      " " +
-      transactionInfo.autoRenewStatus +
-      " " +
-      transactionInfo.isAllow +
-      " "
-  );
   if (userID) {
     let updateData = {
-      subTranscationID: transactionInfo.transactionID,
-      subExpiresDate: datelUtil.formatTimestamp(transactionInfo.expiresDate),
-      subAutoRenew: transactionInfo.autoRenewStatus,
-      isSubscription: transactionInfo.isAllow,
+      subTranscationID: transactionInfo.subTranscationID,
+      subExpiresDate: datelUtil.formatTimestamp(transactionInfo.subExpiresDate),
+      subAutoRenew: transactionInfo.subAutoRenew,
+      isSubscription: transactionInfo.isSubscription,
     };
 
-    if (!transactionInfo.isAllow) {
+    if (!transactionInfo.isSubscription) {
       // 如果用戶沒有訂閱，將期望對象地區改為預設
       updateData["objectCondition.objectRegion"] = "";
       // 如果用戶沒有訂閱，將期望共同興趣改為 false
