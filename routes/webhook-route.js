@@ -370,6 +370,17 @@ router.post("/iOS-purchase", async (req, res) => {
         }
       }
 
+      console.log(
+        "訂單資訊：",
+        subscription.transactionID +
+          " " +
+          subscription.expiresDate +
+          " " +
+          subscription.autoRenewStatus +
+          " " +
+          subscription.isAllow +
+          " "
+      );
       // 檢查並更新用戶的訂閱狀態
       checkAndUpdateUserSub(currentUserID, {
         subTranscationID: subscription.transactionID,
