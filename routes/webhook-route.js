@@ -395,6 +395,10 @@ router.post("/iOS-purchase", async (req, res) => {
 });
 //檢查用戶是否有訂閱權
 async function checkAndUpdateUserSub(userID, transactionInfo) {
+  console.log(
+    "檢查用戶是否有訂閱權",
+    "用戶ID:" + userID + " " + transactionInfo
+  );
   if (userID) {
     let updateData = {
       subTranscationID: transactionInfo.transactionID,
