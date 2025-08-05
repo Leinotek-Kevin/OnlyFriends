@@ -138,48 +138,78 @@ router.post("/google-purchase", async (req, res) => {
       //是否允許存取訂閱項目
       let isAllow = isSubscriptionActive(orderStatus);
 
-      //真正的訂單id
-      const realOrderID = orderInfo.orderId.split("..")[0];
-      paymentState = orderInfo.paymentState ? orderInfo.paymentState : "";
-
-      //找尋資料庫用戶的訂單
-      const currentOrder = await Transcation.findOne({
-        transactionID: realOrderID,
+      //更新或建立這筆訂閱訂單
+      //查詢這筆訂單
+      const transcation = await Transcation.findOne({
+        transactionID: orderInfo.orderId,
       });
 
-      let userID = currentOrder ? currentOrder.userID : "";
-      let userEmail = currentOrder ? currentOrder.userEmail : "";
+      let currentUserID;
 
-      //更新該筆訂單的狀態
-      const data = await Transcation.findOneAndUpdate(
-        { transactionID: realOrderID },
-        {
-          osType: "0",
-          userID,
-          userEmail,
-          productID: subscriptionId,
-          productType: "0",
-          price: Number(orderInfo.priceAmountMicros) / 1000000,
-          currency: orderInfo.priceCurrencyCode,
-          expiresDate: orderInfo.expiryTimeMillis,
-          autoRenewStatus: orderInfo.autoRenewing,
-          paymentState: orderInfo.paymentState,
-          acknowledgementState: orderInfo.acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
-          status: orderStatus,
-          transcationMemo,
-          isAllow,
-          statusUpdateTime: Date.now(),
-        },
-        {
-          upsert: true,
-          new: true,
+      if (transcation) {
+        //如果該筆訂單存在,則更新目前訂單資訊
+        const { userID } = transcation;
+        currentUserID = userID;
+
+        //如果該筆訂單存在,則更新目前訂單資訊
+        await Transcation.updateOne(
+          { transactionID: orderInfo.orderId },
+          {
+            expiresDate: orderInfo.expiryTimeMillis,
+            autoRenewStatus: orderInfo.autoRenewing,
+            paymentState: orderInfo.paymentState,
+            acknowledgementState: orderInfo.acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
+            status: orderStatus,
+            transcationMemo,
+            isAllow,
+            statusUpdateTime: Date.now(),
+          }
+        );
+      } else {
+        //這筆動態訂單的 originalTransactionID
+        const originalTransactionID = orderInfo.orderId.split("..")[0];
+
+        //如果該筆訂單不存在,則查找這筆訂單的 originalTransactionID , 將資料轉給要建立的訂單資料
+        const oriTranscation = await Transcation.findOne({
+          originalTransactionID,
+        });
+
+        const { userID } = oriTranscation;
+        currentUserID = userID;
+
+        if (oriTranscation) {
+          //建立新的訂閱訂單資料
+          await Transcation.create({
+            originalTransactionID,
+            transactionID: orderInfo.orderId,
+            osType: "0",
+            userID: oriTranscation.userID,
+            userEmail: oriTranscation.userEmail,
+            productID: subscriptionId,
+            productType: "0",
+            price: Number(orderInfo.priceAmountMicros) / 1000000,
+            currency: orderInfo.priceCurrencyCode,
+            expiresDate: orderInfo.expiryTimeMillis,
+            autoRenewStatus: orderInfo.autoRenewing,
+            paymentState: orderInfo.paymentState,
+            acknowledgementState: orderInfo.acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
+            status: orderStatus,
+            transcationMemo,
+            isAllow,
+            statusUpdateTime: Date.now(),
+          });
         }
-      );
+      }
 
-      //檢查用戶訂閱狀態
-      checkAllowSubscription(data.userID);
+      //檢查並更新用戶的訂閱狀態
+      checkAndUpdateUserSub(currentUserID, {
+        subTranscationID: orderInfo.orderId,
+        subExpiresDate: orderInfo.expiryTimeMillis,
+        subAutoRenew: orderInfo.autoRenewing,
+        isSubscription: isAllow,
+      });
     } else if (voidedPurchaseNotification) {
-      // 根據 refundType來判斷退款的原因及處理
+      //根據 refundType來判斷退款的原因及處理
       let {
         voidedPurchaseNotification: { orderId, refundType },
       } = notification;
@@ -189,22 +219,37 @@ router.post("/google-purchase", async (req, res) => {
           ? "REFUND_TYPE_FULL_REFUND (2) 交易已完全作廢"
           : "REFUND_TYPE_QUANTITY_BASED_PARTIAL_REFUND 購買的商品遭到部分商品退款";
 
-      //更新訂單狀態
-      const data = await Transcation.findOneAndUpdate(
-        { transactionID: orderId },
-        {
-          status: "refund",
-          transcationMemo,
-          isAllow: false,
-          statusUpdateTime: Date.now(),
-        },
-        {
-          new: true,
-        }
-      );
+      const transcation = await Transcation.findOne({
+        transactionID: orderId,
+      });
 
-      //檢查用戶訂閱狀態
-      checkAllowSubscription(data.userID);
+      if (transcation) {
+        //目前使用者的ID
+        let currentUserID;
+
+        //如果該筆訂單存在,則更新目前訂單資訊
+        const { userID } = transcation;
+        currentUserID = userID;
+
+        //如果該筆訂單存在,則更新目前訂單資訊
+        await Transcation.updateOne(
+          { transactionID: orderId },
+          {
+            status: "refund",
+            transcationMemo,
+            isAllow: false,
+            statusUpdateTime: Date.now(),
+          }
+        );
+
+        // 檢查並更新用戶的訂閱狀態
+        checkAndUpdateUserSub(currentUserID, {
+          subTranscationID: transcation.transactionID,
+          subExpiresDate: transcation.expiresDate,
+          subAutoRenew: transcation.autoRenewStatus,
+          isSubscription: transcation.isAllow,
+        });
+      }
     }
 
     return res.status(200).send({
@@ -396,6 +441,7 @@ router.post("/iOS-purchase", async (req, res) => {
     });
   }
 });
+
 //檢查用戶是否有訂閱權
 async function checkAndUpdateUserSub(userID, transactionInfo) {
   if (userID) {
@@ -573,6 +619,222 @@ module.exports = router;
 //     return res.status(200).send({
 //       status: false,
 //       message: "Server Error!",
+//       e,
+//     });
+//   }
+// });
+
+//Google-past
+// router.post("/google-purchase", async (req, res) => {
+//   try {
+//     const { message } = req.body;
+//     let decodeMsg = "";
+
+//     if (message && message.data) {
+//       decodeMsg = Buffer.from(message.data, "base64").toString("utf-8");
+//     }
+
+//     let notification = JSON.parse(decodeMsg);
+
+//     console.log("Google 訂單通知類型:", notification);
+
+//     //確認是否是現在用戶的訂閱訂單
+//     const { subscriptionNotification, voidedPurchaseNotification } =
+//       notification;
+
+//     //訂閱訂單狀態變化通知
+//     if (subscriptionNotification) {
+//       let {
+//         packageName,
+//         subscriptionNotification: {
+//           purchaseToken,
+//           subscriptionId,
+//           notificationType,
+//         },
+//       } = notification;
+
+//       //驗證 Google 訂單
+//       const orderInfo = await googleUtil.validSubscriptionOrder(
+//         packageName,
+//         subscriptionId,
+//         purchaseToken
+//       );
+
+//       console.log("Google 訂單資訊:", JSON.stringify(orderInfo));
+
+//       //訂單備註追蹤
+//       let transcationMemo;
+//       let orderStatus;
+
+//       // 追蹤目前訂單狀態
+//       switch (notificationType) {
+//         case 1:
+//           transcationMemo =
+//             "訂閱項目已從帳戶保留狀態恢復 :SUBSCRIPTION_RECOVERED (1)";
+//           //訂閱可存取
+//           orderStatus = "active";
+//           break;
+//         case 2:
+//           transcationMemo = "訂閱已續訂:SUBSCRIPTION_RENEWED (2)";
+//           //訂閱可存取
+//           orderStatus = "active";
+//           break;
+//         case 3:
+//           transcationMemo = "自願或非自願取消訂閱: SUBSCRIPTION_CANCELED  (3)";
+//           //訂閱可存取
+//           orderStatus = "active";
+//           break;
+//         case 4:
+//           transcationMemo =
+//             "使用者已購買新的訂閱項目:SUBSCRIPTION_PURCHASED (4)";
+//           orderStatus = "active";
+//           break;
+//         case 5:
+//           transcationMemo =
+//             "訂閱項目已進入帳戶保留狀態: SUBSCRIPTION_ON_HOLD (5)";
+//           //訂閱不可存取
+//           orderStatus = "account_hold";
+//           break;
+//         case 6:
+//           //訂閱可存取 paymentState = 0
+//           transcationMemo =
+//             "訂閱項目已進入寬限期:SUBSCRIPTION_IN_GRACE_PERIOD (6)";
+//           orderStatus = "grace_period";
+//           break;
+//         case 7:
+//           transcationMemo =
+//             "使用者已從「Play」>「帳戶」>「訂閱」還原訂閱項目。訂閱項目已取消，但在使用者還原時尚未到期: SUBSCRIPTION_RESTARTED (7)";
+//           //訂閱可存取
+//           orderStatus = "active";
+//           break;
+//         case 8:
+//           transcationMemo =
+//             "使用者已成功確認訂閱項目價格異動:  SUBSCRIPTION_PRICE_CHANGE_CONFIRMED (8)";
+//           //訂閱可存取
+//           orderStatus = "active";
+//           break;
+//         case 9:
+//           transcationMemo =
+//             "訂閱項目的週期時間已延長:SUBSCRIPTION_DEFERRED (9)";
+//           //訂閱可存取
+//           orderStatus = "active";
+//           break;
+//         case 10:
+//           transcationMemo = "訂閱項目已暫停: SUBSCRIPTION_PAUSED (10) ";
+//           //訂閱不可存取
+//           orderStatus = "paused";
+//           break;
+//         case 11:
+//           transcationMemo =
+//             "訂閱暫停時間表已變更 : SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED (11)";
+//           //訂閱可存取
+//           orderStatus = "active";
+//           break;
+//         case 12:
+//           transcationMemo =
+//             "使用者在訂閱到期前已取消訂閱項目:SUBSCRIPTION_REVOKED (12)";
+//           //訂閱可存取
+//           orderStatus = "active";
+//           break;
+//         case 13:
+//           transcationMemo = "訂閱項目已到期:SUBSCRIPTION_EXPIRED (13)";
+//           //訂閱不可存取
+//           orderStatus = "expired";
+//           break;
+//         case 20:
+//           transcationMemo =
+//             "未完成交易被取消 : SUBSCRIPTION_PENDING_PURCHASE_CANCELED (20)";
+//           //訂閱不可存取
+//           orderStatus = "canceled";
+//           break;
+
+//         default:
+//           transcationMemo = `其他類型的通知${notificationType}`;
+//           orderStatus = "other";
+//           break;
+//       }
+
+//       //是否允許存取訂閱項目
+//       let isAllow = isSubscriptionActive(orderStatus);
+
+//       //真正的訂單id
+//       const realOrderID = orderInfo.orderId.split("..")[0];
+//       paymentState = orderInfo.paymentState ? orderInfo.paymentState : "";
+
+//       //找尋資料庫用戶的訂單
+//       const currentOrder = await Transcation.findOne({
+//         transactionID: realOrderID,
+//       });
+
+//       let userID = currentOrder ? currentOrder.userID : "";
+//       let userEmail = currentOrder ? currentOrder.userEmail : "";
+
+//       //更新該筆訂單的狀態
+//       const data = await Transcation.findOneAndUpdate(
+//         { transactionID: realOrderID },
+//         {
+//           osType: "0",
+//           userID,
+//           userEmail,
+//           productID: subscriptionId,
+//           productType: "0",
+//           price: Number(orderInfo.priceAmountMicros) / 1000000,
+//           currency: orderInfo.priceCurrencyCode,
+//           expiresDate: orderInfo.expiryTimeMillis,
+//           autoRenewStatus: orderInfo.autoRenewing,
+//           paymentState: orderInfo.paymentState,
+//           acknowledgementState: orderInfo.acknowledgementState, //訂閱是否已被確認 0: 訂閱未被確認。 1: 訂閱已被確認,
+//           status: orderStatus,
+//           transcationMemo,
+//           isAllow,
+//           statusUpdateTime: Date.now(),
+//         },
+//         {
+//           upsert: true,
+//           new: true,
+//         }
+//       );
+
+//       //檢查用戶訂閱狀態
+//       checkAllowSubscription(data.userID);
+//     } else if (voidedPurchaseNotification) {
+//       // 根據 refundType來判斷退款的原因及處理
+//       let {
+//         voidedPurchaseNotification: { orderId, refundType },
+//       } = notification;
+
+//       let transcationMemo =
+//         refundType == "2"
+//           ? "REFUND_TYPE_FULL_REFUND (2) 交易已完全作廢"
+//           : "REFUND_TYPE_QUANTITY_BASED_PARTIAL_REFUND 購買的商品遭到部分商品退款";
+
+//       //更新訂單狀態
+//       const data = await Transcation.findOneAndUpdate(
+//         { transactionID: orderId },
+//         {
+//           status: "refund",
+//           transcationMemo,
+//           isAllow: false,
+//           statusUpdateTime: Date.now(),
+//         },
+//         {
+//           new: true,
+//         }
+//       );
+
+//       //檢查用戶訂閱狀態
+//       checkAllowSubscription(data.userID);
+//     }
+
+//     return res.status(200).send({
+//       status: true,
+//       message: "處理完畢",
+//     });
+//   } catch (e) {
+//     console.log(e);
+//     return res.status(500).send({
+//       status: false,
+//       message: "訂單驗證出現異常！",
 //       e,
 //     });
 //   }

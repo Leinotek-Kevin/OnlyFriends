@@ -94,13 +94,14 @@ router.post("/google-verify", async (req, res) => {
 
         //建立交易購買紀錄
         const result = await Transcation.findOneAndUpdate(
-          { transactionID: realID },
+          { originalTransactionID: realID, osType: "0" },
           {
             $set: {
+              originalTransactionID: realID,
+              transactionID: realID,
               userID,
               userEmail,
               osType: "0",
-              transactionID: realID,
               productID: productId,
               productType,
               expiresDate: expiryTimeMillis,
@@ -182,7 +183,10 @@ router.post("/iOS-verify", async (req, res) => {
           transaction.inAppOwnershipType == "PURCHASED";
 
         const result = await Transcation.findOneAndUpdate(
-          { originalTransactionID: transaction.originalTransactionId },
+          {
+            originalTransactionID: transaction.originalTransactionId,
+            osType: "1",
+          },
           {
             $set: {
               userID,
@@ -253,19 +257,23 @@ router.post("/verify-owner", async (req, res) => {
     let { userEmail, isSubscription } = req.user;
     let { verifyTransactionID, osType } = req.body;
 
-    let oriData;
+    // let oriData;
 
-    if (osType == "1") {
-      //iOS
-      oriData = await Transcation.findOne({
-        originalTransactionID: verifyTransactionID,
-      });
-    } else {
-      //Android
-      oriData = await Transcation.findOne({
-        transactionID: verifyTransactionID,
-      });
-    }
+    // if (osType == "1") {
+    //   //iOS
+    //   oriData = await Transcation.findOne({
+    //     originalTransactionID: verifyTransactionID,
+    //   });
+    // } else {
+    //   //Android
+    //   oriData = await Transcation.findOne({
+    //     originalTransactionID: verifyTransactionID,
+    //   });
+    // }
+
+    const oriData = await Transcation.findOne({
+      originalTransactionID: verifyTransactionID,
+    });
 
     if (oriData && oriData.userEmail) {
       let isYourTranscation = userEmail == oriData.userEmail;
