@@ -579,38 +579,38 @@ module.exports = router;
 // });
 
 //檢查用戶是否有訂閱權
-// async function checkAllowSubscription(userID) {
-//   if (userID) {
-//     //按照過期時間降冪排序->新到舊
-//     const lastSubscription = await Transcation.findOne({
-//       userID,
-//     })
-//       .sort({ expiresDate: -1 })
-//       .limit(1);
+async function checkAllowSubscription(userID) {
+  if (userID) {
+    //按照過期時間降冪排序->新到舊
+    const lastSubscription = await Transcation.findOne({
+      userID,
+    })
+      .sort({ expiresDate: -1 })
+      .limit(1);
 
-//     let updateData = {
-//       subTranscationID: lastSubscription.transactionID,
-//       subExpiresDate: datelUtil.formatTimestamp(lastSubscription.expiresDate),
-//       subAutoRenew: lastSubscription.autoRenewStatus,
-//       isSubscription: lastSubscription.isAllow,
-//     };
+    let updateData = {
+      subTranscationID: lastSubscription.transactionID,
+      subExpiresDate: datelUtil.formatTimestamp(lastSubscription.expiresDate),
+      subAutoRenew: lastSubscription.autoRenewStatus,
+      isSubscription: lastSubscription.isAllow,
+    };
 
-//     if (!lastSubscription.isAllow) {
-//       // 如果用戶沒有訂閱，將期望對象地區改為預設
-//       updateData["objectCondition.objectRegion"] = "";
-//       // 如果用戶沒有訂閱，將期望共同興趣改為 false
-//       updateData["objectCondition.needSameInterested"] = false;
-//     }
+    if (!lastSubscription.isAllow) {
+      // 如果用戶沒有訂閱，將期望對象地區改為預設
+      updateData["objectCondition.objectRegion"] = "";
+      // 如果用戶沒有訂閱，將期望共同興趣改為 false
+      updateData["objectCondition.needSameInterested"] = false;
+    }
 
-//     //更改用戶訂閱狀態
-//     await User.updateOne(
-//       { userID },
-//       {
-//         $set: updateData,
-//       }
-//     );
-//   }
-// }
+    //更改用戶訂閱狀態
+    await User.updateOne(
+      { userID },
+      {
+        $set: updateData,
+      }
+    );
+  }
+}
 
 //Google Sub/Pub 回傳格式
 //參考文獻 ：https://developer.android.com/google/play/billing/rtdn-reference?hl=zh-tw#encoding
