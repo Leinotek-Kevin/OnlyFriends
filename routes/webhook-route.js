@@ -174,10 +174,10 @@ router.post("/google-purchase", async (req, res) => {
           originalTransactionID,
         });
 
-        const { userID } = oriTranscation;
-        currentUserID = userID;
-
         if (oriTranscation) {
+          const { userID } = oriTranscation;
+          currentUserID = userID;
+
           //建立新的訂閱訂單資料
           await Transcation.create({
             originalTransactionID,
@@ -392,10 +392,10 @@ router.post("/iOS-purchase", async (req, res) => {
           originalTransactionID,
         });
 
-        const { userID } = oriTranscation;
-        currentUserID = userID;
-
         if (oriTranscation) {
+          const { userID } = oriTranscation;
+          currentUserID = userID;
+
           //建立新的訂閱訂單資料
           await Transcation.create({
             originalTransactionID: oriTranscation.originalTransactionID,
