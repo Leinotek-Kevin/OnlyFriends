@@ -41,6 +41,8 @@ router.post("/google-purchase", async (req, res) => {
         purchaseToken
       );
 
+      console.log("Google 訂單資訊:", JSON.stringify(orderInfo));
+
       //訂單備註追蹤
       let transcationMemo;
       let orderStatus;
@@ -229,10 +231,10 @@ router.post("/iOS-purchase", async (req, res) => {
       const { notificationType, subtype, data } = notificationInfo;
       const { transactionInfo, renewalInfo } = data;
 
-      console.log(
-        "iOS 訂單通知類型:",
-        `notificationType : ${notificationType} , subtype : ${subtype} transactionId : ${transactionInfo.transactionId}`
-      );
+      // console.log(
+      //   "iOS 訂單通知類型:",
+      //   `notificationType : ${notificationType} , subtype : ${subtype} transactionId : ${transactionInfo.transactionId}`
+      // );
 
       const transactionID = transactionInfo.transactionId;
       const originalTransactionID = transactionInfo.originalTransactionId;
