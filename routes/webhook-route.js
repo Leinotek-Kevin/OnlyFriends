@@ -17,7 +17,7 @@ router.post("/google-purchase", async (req, res) => {
 
     let notification = JSON.parse(decodeMsg);
 
-    console.log("Google 訂單通知類型:", notification);
+    //console.log("Google 訂單通知類型:", notification);
 
     //確認是否是現在用戶的訂閱訂單
     const { subscriptionNotification, voidedPurchaseNotification } =
@@ -41,7 +41,7 @@ router.post("/google-purchase", async (req, res) => {
         purchaseToken
       );
 
-      console.log("Google 訂單資訊:", JSON.stringify(orderInfo));
+      // console.log("Google 訂單資訊:", JSON.stringify(orderInfo));
 
       //訂單備註追蹤
       let transcationMemo;
@@ -139,11 +139,11 @@ router.post("/google-purchase", async (req, res) => {
       let isAllow = isSubscriptionActive(orderStatus);
 
       //更新或建立這筆訂閱訂單
-      //查詢這筆訂單
       const transcation = await Transcation.findOne({
         transactionID: orderInfo.orderId,
       });
 
+      //目前使用者的 ID
       let currentUserID;
 
       if (transcation) {
