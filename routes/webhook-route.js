@@ -212,6 +212,7 @@ router.post("/google-purchase", async (req, res) => {
       message: "處理完畢",
     });
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "訂單驗證出現異常！",
