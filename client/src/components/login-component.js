@@ -32,7 +32,6 @@ const LoginComponent = ({ userToken, setUserToken }) => {
         setMessage("尚未輸入您的信箱！");
       }
     } catch (e) {
-      console.log(e);
       setMessage(e.response.data.message);
     }
   };

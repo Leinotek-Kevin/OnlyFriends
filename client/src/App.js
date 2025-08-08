@@ -12,6 +12,7 @@ import DrinkQuizComponent from "./components/quiz/drink-quiz-component";
 
 function App() {
   let [userToken, setUserToken] = useState(AuthService.getUserToken());
+
   return (
     <BrowserRouter>
       <Routes>

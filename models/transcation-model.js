@@ -42,7 +42,12 @@ const transcationSchema = new Schema({
     enum: ["0", "1"],
   },
 
-  //到期時間
+  //訂閱生效時間
+  startDate: {
+    type: Number,
+  },
+
+  //訂閱到期時間
   expiresDate: {
     type: Number,
   },

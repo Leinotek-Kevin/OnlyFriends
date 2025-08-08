@@ -1506,7 +1506,8 @@ router.post("/query-match-object", async (req, res) => {
 //B-15 使用兌換碼
 router.post("/use-promotion-code", async (req, res) => {
   try {
-    //兌換有以下狀態 : 查無此兌換碼(-1) / 兌換成功(1) / 已兌換完畢(2) / 已超過兌換期限(3) / 您已經訂閱(4)
+    //兌換有以下狀態 : 查無此兌換碼(-1) / 兌換成功(1) / 已兌換完畢(2) / 已超過兌換期限(3) / 您已經訂閱(4) /
+    //兌換失敗！(0)
     const { userID, isSubscription } = req.user;
     const { promotionCode } = req.body;
 
@@ -1548,7 +1549,26 @@ router.post("/use-promotion-code", async (req, res) => {
     //檢查是否兌換完畢
     //activityID = 100 => 聯盟行銷活動  | activitID =? => ?
     if (promoteActivity.activityID == "100") {
-      //查詢該用戶是不是已經是推廣者,如果是,表示他已經兌換過勒
+      //這個活動的推廣者不能再是被推廣者=> 推廣者不能兌換這個活動
+      const isCurrentIsPromoter = await PromoterUser.findOne({
+        promoterID: userID,
+        activityID: promoteActivity.activityID,
+      });
+
+      if (isCurrentIsPromoter) {
+        return res.status(200).send({
+          status: true,
+          message: "兌換失敗！活動推廣者不能兌換！",
+          validCode: "1",
+          data: {
+            //先用 -1 , 以後改為 5 ==> 因為 iOS 會爆炸
+            queryCode: "-1",
+            promotionType: promoteActivity.activityID,
+          },
+        });
+      }
+
+      //查詢該用戶是不是已經是被推廣者,如果是,表示他已經兌換過勒
       const findReferal = await ReferalUser.findOne({
         referalUserID: userID,
       });
@@ -1613,7 +1633,7 @@ router.post("/use-promotion-code", async (req, res) => {
           },
         });
 
-        //建立推廣者
+        //建立被推廣者
         let { userName, userGender, userAge, userZodiac, userRegion, osType } =
           req.user;
 
@@ -1673,6 +1693,7 @@ router.post("/apply-promoter", async (req, res) => {
 
     const findUser = await User.findOne({ userID });
 
+    //查無該名使用者
     if (findUser == null) {
       return res.status(200).send({
         status: true,
@@ -1684,10 +1705,11 @@ router.post("/apply-promoter", async (req, res) => {
       });
     }
 
-    const findActivity = await promotionActivity.findOne({
+    const findActivity = await PromotionActivity.findOne({
       activityID,
     });
 
+    //查無推廣促銷活動
     if (!findActivity) {
       return res.status(200).send({
         status: true,
@@ -1699,13 +1721,14 @@ router.post("/apply-promoter", async (req, res) => {
       });
     }
 
-    //查詢是否已經是這個活動的贊助者
+    //查詢是否已經是這個活動的推廣者
     const findPromoter = await PromoterUser.findOne({
       promoterID: userID,
       activityID,
     });
 
     if (findPromoter) {
+      //已經是推廣者
       return res.status(200).send({
         status: true,
         message: "你已經是推廣者！不用再申請勒！",
@@ -1720,6 +1743,7 @@ router.post("/apply-promoter", async (req, res) => {
     } else {
       //建立推廣碼
       const code = uuidv4().replace(/-/g, "").toUpperCase().slice(0, 10);
+
       //建立推廣者
       await PromoterUser.create({
         activityID,
@@ -1742,6 +1766,33 @@ router.post("/apply-promoter", async (req, res) => {
         { new: true }
       );
 
+      //成功成為推廣者,可以獲得一個月的免費試用,如果已經訂閱則不提供
+      const isSubscription = findUser.isSubscription;
+
+      if (!isSubscription) {
+        let future = new Date(); // 未來截止台灣時間
+
+        future.setDate(new Date().getDate() + 30); // 加上 30 天
+        future.setHours(23, 59, 59, 999);
+
+        // 輸出成 "YYYY/MM/DD" 格式
+        const formattedExpireDate = `${future.getFullYear()}/${String(
+          future.getMonth() + 1
+        ).padStart(2, "0")}/${String(future.getDate()).padStart(2, "0")}`;
+
+        //標記指定用戶已經訂閱
+        await User.updateOne(
+          {
+            userID,
+          },
+          {
+            isSubscription: true,
+            isPromotionSub: true,
+            subExpiresDate: formattedExpireDate,
+          }
+        );
+      }
+
       return res.status(200).send({
         status: true,
         message: "恭喜您！成功申請成為 OnlyFriends 推廣者",
@@ -1753,6 +1804,47 @@ router.post("/apply-promoter", async (req, res) => {
         },
       });
     }
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      validCode: "-1",
+      e,
+    });
+  }
+});
+
+//B-101 分析推廣數據
+router.post("/ana-promter-data", async (req, res) => {
+  try {
+    const { activityID, userID, startDate, endDate, isPromterMode } = req.body;
+
+    if (isPromterMode) {
+      //指定推廣者數據模式
+      const findPromter = await PromoterUser.findOne({
+        activityID,
+        promoterID: userID,
+      });
+
+      //查無指定推廣者
+      if (findPromter) {
+        return res.status(200).send({
+          status: true,
+          message: "數據分析失敗",
+          validCode: "1",
+          data: {
+            resultCode: -1,
+          },
+        });
+      }
+    } else {
+    }
+
+    return res.status(200).send({
+      status: true,
+      message: "數據分析完成",
+      validCode: "1",
+    });
   } catch (e) {
     return res.status(500).send({
       status: false,

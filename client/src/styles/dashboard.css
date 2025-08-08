@@ -24,15 +24,15 @@ body {
 }
 
 .wrapper {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  min-height: 100vh;
 }
 
 .main {
-  min-height: 100vh;
-  width: 100%;
-  overflow: hidden;
+  overflow: auto;
   transition: all 0.35s ease-in-out;
-  background-color: #fafbfe;
+  background-color: whitesmoke;
 }
 
 #sidebar {

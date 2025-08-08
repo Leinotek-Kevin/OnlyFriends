@@ -10,11 +10,12 @@
 }
 
 div.join-parther {
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
+  background-color: whitesmoke;
 
   div.join-steps {
     display: flex;
@@ -32,7 +33,7 @@ div.join-parther {
     }
 
     img {
-      width: 75%; // ← 關鍵！讓它填滿父容器
+      width: 85%; // ← 關鍵！讓它填滿父容器
       height: auto;
       margin-top: 1.5rem;
     }
@@ -47,7 +48,7 @@ div.join-parther {
     margin-top: 3rem;
 
     div.des {
-      width: 48%;
+      width: 60%;
       display: flex;
       flex-direction: column;
       justify-content: start;

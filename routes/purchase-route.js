@@ -58,6 +58,7 @@ router.post("/google-verify", async (req, res) => {
         //分析驗證訂閱的資料
         const {
           orderId, // 訂單ＩＤ GPA.3357-5076-3532-61828..5 標示該筆訂單續訂5次
+          startTimeMillis, //這是訂閱生效時間
           expiryTimeMillis, // 這是訂閱結束的時間
           autoRenewing, //是否自動訂閱
           priceCurrencyCode, //幣別
@@ -104,6 +105,7 @@ router.post("/google-verify", async (req, res) => {
               osType: "0",
               productID: productId,
               productType,
+              startDate: startTimeMillis,
               expiresDate: expiryTimeMillis,
               autoRenewStatus: autoRenewing,
               price: Number(priceAmountMicros) / 1000000,
@@ -196,6 +198,7 @@ router.post("/iOS-verify", async (req, res) => {
               originalTransactionID: transaction.originalTransactionId,
               productID: transaction.productId,
               productType,
+              startDate: transaction.purchaseDate,
               expiresDate: transaction.expiresDate,
               price: transaction.price / 1000,
               currency: transaction.currency,

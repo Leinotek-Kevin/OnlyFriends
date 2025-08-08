@@ -155,6 +155,7 @@ router.post("/google-purchase", async (req, res) => {
         await Transcation.updateOne(
           { transactionID: orderInfo.orderId },
           {
+            startDate: orderInfo.startTimeMillis,
             expiresDate: orderInfo.expiryTimeMillis,
             autoRenewStatus: orderInfo.autoRenewing,
             paymentState: orderInfo.paymentState,
@@ -189,6 +190,7 @@ router.post("/google-purchase", async (req, res) => {
             productType: "0",
             price: Number(orderInfo.priceAmountMicros) / 1000000,
             currency: orderInfo.priceCurrencyCode,
+            startDate: orderInfo.startTimeMillis,
             expiresDate: orderInfo.expiryTimeMillis,
             autoRenewStatus: orderInfo.autoRenewing,
             paymentState: orderInfo.paymentState,
@@ -285,6 +287,7 @@ router.post("/iOS-purchase", async (req, res) => {
       const transactionID = transactionInfo.transactionId;
       const originalTransactionID = transactionInfo.originalTransactionId;
       const productID = transactionInfo.productId;
+      const startDate = transactionInfo.purchaseDate;
       const expiresDate = transactionInfo.expiresDate;
       const autoRenewStatus = renewalInfo.autoRenewStatus === 1;
       const transcationMemo = `notificationType : ${notificationType} , subtype : ${subtype}`;
@@ -294,6 +297,7 @@ router.post("/iOS-purchase", async (req, res) => {
       let subscription = {
         transactionID,
         productID,
+        startDate,
         expiresDate,
         autoRenewStatus,
         transcationMemo,
@@ -407,6 +411,7 @@ router.post("/iOS-purchase", async (req, res) => {
             transcationMemo: subscription.transcationMemo,
             purchaseDate: oriTranscation.purchaseDate,
             autoRenewStatus: subscription.autoRenewStatus,
+            startDate: subscription.startDate,
             expiresDate: subscription.expiresDate,
             userID: oriTranscation.userID,
             userEmail: oriTranscation.userEmail,

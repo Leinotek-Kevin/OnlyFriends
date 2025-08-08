@@ -1,8 +1,76 @@
 import React, { useState } from "react";
 import "../styles/join-parther.css";
+import UserService from "../services/user-service";
+import FullScreenLoading from "./widget/full-screen-loading";
+import { showModalMessage } from "./widget/modeal-msg-dialog";
+
 const JoinPartherComponent = ({ userToken, setUserToken }) => {
+  const [loading, setLoading] = useState(false);
+  let [applyID, setApplyID] = useState("");
+
+  const handleChangeApplyID = (e) => {
+    setApplyID(e.target.value);
+  };
+
+  //申請加入推廣者
+  const handleJoin = async (e) => {
+    try {
+      setLoading(true);
+      const response = await UserService.joinParther(userToken, applyID);
+      let status = response.data.status;
+
+      setLoading(false);
+
+      if (status) {
+        //API 成功回應
+        if (response.data.data) {
+          const { queryCode, activityID, promotionCode, promoterID } =
+            response.data.data;
+
+          if (queryCode == "2") {
+            showModalMessage({
+              type: "success",
+              title: "申請成功",
+              content: (
+                <>
+                  <br />
+                  恭喜您！歡迎您加入 Only Friends 推廣者
+                  <br />
+                  <strong>這是您的推廣碼：{promotionCode}</strong>
+                  <br />
+                  <br />
+                  😆小提醒：如果您忘記推廣碼，可透過系統再次查詢！
+                </>
+              ),
+            });
+          } else {
+            showModalMessage({
+              type: "error",
+              title: "申請失敗",
+              content: response.data.message,
+            });
+          }
+        }
+      } else {
+        showModalMessage({
+          type: "error",
+          title: "系統錯誤",
+          content: response.data.message,
+        });
+      }
+    } catch (e) {
+      showModalMessage({
+        type: "error",
+        title: "系統錯誤",
+        content: e,
+      });
+    }
+  };
+
   return (
     <div className="join-parther">
+      <FullScreenLoading loading={loading} />
+
       <div className="join-steps">
         <p>歡迎加入 👉 OnlyFriends 推廣計劃</p>
 
@@ -27,8 +95,9 @@ const JoinPartherComponent = ({ userToken, setUserToken }) => {
             type="text"
             placeholder="請輸入您的用戶ID"
             oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')"
+            onChange={handleChangeApplyID}
           />
-          <button>送出申請</button>
+          <button onClick={handleJoin}>送出申請</button>
         </div>
       </div>
     </div>
