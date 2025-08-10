@@ -8,9 +8,20 @@ const referalUserSchema = new Schema({
     type: String,
   },
 
+  //活動ID
+  activityID: {
+    type: String,
+  },
+
   //被推廣者 ID
   referalUserID: {
     type: String,
+  },
+
+  //被推廣的時間,也就是使用兌換的時間
+  referalTime: {
+    type: Number,
+    default: Date.now(),
   },
 
   //用戶暱稱

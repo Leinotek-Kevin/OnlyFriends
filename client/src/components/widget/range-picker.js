@@ -7,6 +7,9 @@ const { RangePicker } = DatePicker;
 export default function DateRangeSelector({ onChange }) {
   const [dates, setDates] = useState([]);
 
+  const fixedStart = dayjs("2025-08-01");
+  const fixedEnd = dayjs("2025-08-31");
+
   const handleChange = (values) => {
     setDates(values);
     if (onChange) {
@@ -18,16 +21,29 @@ export default function DateRangeSelector({ onChange }) {
   };
 
   return (
+    //暫時鎖定活動區間日期
     <div style={{ padding: "1rem" }}>
       <RangePicker
-        value={dates}
-        onChange={handleChange}
+        value={[fixedStart, fixedEnd]}
         format="YYYY-MM-DD"
-        allowClear
+        disabled // 整個元件鎖死，不能改動
         style={{ width: 300, height: 35 }}
-        disabledDate={(current) => current && current > dayjs().endOf("day")}
         placeholder={["開始日期", "結束日期"]}
       />
     </div>
   );
+
+  // return (
+  //   <div style={{ padding: "1rem" }}>
+  //     <RangePicker
+  //       value={dates}
+  //       onChange={handleChange}
+  //       format="YYYY-MM-DD"
+  //       allowClear
+  //       style={{ width: 300, height: 35 }}
+  //       disabledDate={(current) => current && current > dayjs().endOf("day")}
+  //       placeholder={["開始日期", "結束日期"]}
+  //     />
+  //   </div>
+  // );
 }

@@ -17,6 +17,8 @@ const PromoterUser = require("../models").promoterUser;
 const ReferalUser = require("../models").referalUser;
 //聯盟行銷活動
 const PromotionActivity = require("../models").promotionActivity;
+//交易紀錄
+const Transcation = require("../models").transcation;
 
 const dateUtil = require("../utils/date-util");
 const storageUtil = require("../utils/cloudStorage-util");
@@ -37,6 +39,7 @@ const {
   FriendMotives,
   Values,
 } = require("../config/enum");
+const { referalUser } = require("../models");
 
 //先驗證 user 是不是存在，並獲取 user info
 router.use((req, res, next) => {
@@ -1639,6 +1642,7 @@ router.post("/use-promotion-code", async (req, res) => {
 
         await ReferalUser.create({
           promoterID: promoterUser.promoterID,
+          activityID: promoteActivity.activityID,
           referalUserID: userID,
           referalUserName: userName,
           referalUserGender: userGender,
@@ -1815,44 +1819,174 @@ router.post("/apply-promoter", async (req, res) => {
 });
 
 //B-101 分析推廣數據
-router.post("/ana-promter-data", async (req, res) => {
+router.post("/ana-promoter-data", async (req, res) => {
   try {
-    const { activityID, promoterID, startDate, endDate, isPromterMode } =
-      req.body;
+    const {
+      activityID,
+      promoterID,
+      startDateTime,
+      endDateTime,
+      isPromoterMode,
+    } = req.body;
 
-    //找出推廣者底下的被推廣者ID
-    const referralUsers = await PromoterUser.find(promoterID, {
-      referralUsers: 1,
-      _id: -1,
-    });
+    //分析結果
+    const result = {
+      promoterID: "",
+      promotionCode: "",
+      referalCounts: 0, //推廣兌換數=>就是被推廣者總數
+      referalSubCounts: 0, //推廣訂閱數=>就是被推廣者試用後,訂閱的數量
+      referalSubRate: 0, //兌換訂閱轉換率
+      totalIncome: 0, //推廣預估總收益
+      shareIncome: 0, //推廣分潤收益
+      shareRate: 2, //聯盟分潤
+      monthlyRate: 0, //月訂閱比例
+      quarterlyRate: 0, //季訂閱比例
+      annualRate: 0, //年訂閱比例
+      referalGenderArea: {},
+      referalAgeArea: {},
+      subGenderArea: {},
+      subAgeArea: {},
+    };
 
-    // if (isPromterMode) {
-    //   //指定推廣者數據模式
-    //   const findPromter = await PromoterUser.findOne({
-    //     activityID,
-    //     promoterID: userID,
-    //   });
+    //目標被推廣者們
+    let referralUserIDsArr = [];
 
-    //   //查無指定推廣者
-    //   if (findPromter) {
-    //     return res.status(200).send({
-    //       status: true,
-    //       message: "數據分析失敗",
-    //       validCode: "1",
-    //       data: {
-    //         resultCode: -1,
-    //       },
-    //     });
-    //   }
-    // } else {
-    // }
+    if (isPromoterMode == "1") {
+      //指定推廣者數據模式
+      //找出推廣者底下的被推廣者ID
+      const findPromoter = await PromoterUser.findOne({
+        activityID,
+        promoterID,
+      });
+
+      if (!findPromoter) {
+        return res.status(200).send({
+          status: true,
+          message: "數據分析失敗",
+          validCode: "1",
+          data: {
+            resultCode: -1,
+          },
+        });
+      }
+
+      //輸出推廣者資訊
+      result.promoterID = findPromoter.promoterID;
+      result.promotionCode = findPromoter.promotionCode;
+
+      const referralUserIDs = findPromoter.referralUsers;
+      //取出被推廣者的IDs
+      referralUserIDsArr = referralUserIDs.map((item) => item.referralUserID);
+    } else {
+      //非指定推廣者數據模式
+      const referralUsers = await ReferalUser.find(
+        {
+          activityID,
+        },
+        { referalUserID: 1 }
+      );
+
+      referralUserIDsArr = referralUsers.map((item) => item.referalUserID);
+    }
+
+    //找出這些被推廣者的訂閱訂單,以利後續分析
+    const transactions = await Transcation.find(
+      {
+        userID: { $in: referralUserIDsArr },
+        startDate: { $gte: startDateTime, $lte: endDateTime },
+        status: { $in: ["active", "expired"] },
+      },
+      {
+        userID: 1,
+        userEmail: 1,
+        osType: 1,
+        startDate: 1,
+        expiresDate: 1,
+        price: 1,
+        status: 1,
+      }
+    );
+
+    //計算推廣兌換總數
+    result.referalCounts = referralUserIDsArr ? referralUserIDsArr.length : 0;
+
+    //計算推廣訂閱總數
+    result.referalSubCounts = transactions ? transactions.length : 0;
+
+    //計算兌換訂閱轉換率
+    let tmpRate =
+      result.referalCounts > 0
+        ? result.referalSubCounts / result.referalCounts
+        : 0;
+
+    result.referalSubRate = Math.round(tmpRate * 100);
+
+    //計算總收益及訂閱項目比例
+    if (transactions && transactions.length > 0) {
+      let total = 0;
+      let annual = 0,
+        quarterly = 0,
+        monthly = 0;
+
+      for (let transaction of transactions) {
+        total += transaction.price;
+
+        if (transaction.price == 550) {
+          monthly += 1;
+        } else if (price == 350) {
+          quarterly += 1;
+        } else {
+          annual += 1;
+        }
+      }
+
+      result.totalIncome = total;
+      result.monthlyRate = monthly / transactions.length;
+      result.quarterlyRate = quarterly / transactions.length;
+      result.annualRate = annual / transactions.length;
+    }
+
+    //計算聯盟分潤比例
+    let subs = result.referalSubCounts;
+    result.shareRate = subs >= 300 ? 5 : subs >= 150 ? 4 : subs >= 50 ? 3 : 2;
+
+    //計算聯盟分潤
+    result.shareIncome = (result.totalIncome * result.shareRate) / 100;
+
+    //取出推廣者的用戶資料(輸出年齡和性別)
+    const referalUserInfos = await User.find(
+      {
+        userID: { $in: referralUserIDsArr },
+      },
+      { userGender: 1, userAge: 1 }
+    );
+
+    //計算被推廣者性別比例
+    const referalAummary = summarizeGenderAndAge(referalUserInfos);
+    result.referalGenderArea = referalAummary.genderArea;
+    result.referalAgeArea = referalAummary.ageGroups;
+
+    //取出訂閱者的用戶資料(輸出年齡和性別)
+    const subUserIDs = [...new Set(transactions.map((t) => t.userID))];
+    const subUserInfos = await User.find(
+      {
+        userID: { $in: subUserIDs },
+      },
+      { userGender: 1, userAge: 1 }
+    );
+
+    //計算訂閱者性別比例
+    const subSummary = summarizeGenderAndAge(subUserInfos);
+    result.subGenderArea = subSummary.genderArea;
+    result.subAgeArea = subSummary.ageGroups;
 
     return res.status(200).send({
       status: true,
       message: "數據分析完成",
       validCode: "1",
       data: {
-        referralUsers,
+        resultCode: 1,
+        result,
       },
     });
   } catch (e) {
@@ -1864,6 +1998,44 @@ router.post("/ana-promter-data", async (req, res) => {
     });
   }
 });
+
+//計算用戶們的性別和年齡分佈
+function summarizeGenderAndAge(users) {
+  const genderArea = { female: 0, male: 0, special: 0 };
+
+  // 先建立 0-9, 10-19, ..., 90-99, 100+ 的區間，初始數量都設為 0
+  const ageGroups = {};
+  for (let start = 0; start <= 90; start += 10) {
+    const end = start + 9;
+    const key = `${start}-${end}`;
+    ageGroups[key] = 0;
+  }
+  ageGroups["100+"] = 0; // 100 歲以上區間
+
+  users.forEach((user) => {
+    // 性別計數
+    if (user.userGender === "1") {
+      genderArea.male += 1;
+    } else if (user.userGender === "0") {
+      genderArea.female += 1;
+    } else if (user.userGender === "2") {
+      genderArea.special += 1;
+    }
+
+    // 年齡區間計數
+    if (typeof user.userAge === "number" && user.userAge >= 0) {
+      if (user.userAge >= 100) {
+        ageGroups["100+"] += 1;
+      } else {
+        const start = Math.floor(user.userAge / 10) * 10;
+        const key = `${start}-${start + 9}`;
+        ageGroups[key] += 1;
+      }
+    }
+  });
+
+  return { genderArea, ageGroups };
+}
 
 //B-15 使用兌換碼
 // router.post("/use-promotion-code", async (req, res) => {
