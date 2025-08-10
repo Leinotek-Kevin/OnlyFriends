@@ -1817,33 +1817,43 @@ router.post("/apply-promoter", async (req, res) => {
 //B-101 分析推廣數據
 router.post("/ana-promter-data", async (req, res) => {
   try {
-    const { activityID, userID, startDate, endDate, isPromterMode } = req.body;
+    const { activityID, promoterID, startDate, endDate, isPromterMode } =
+      req.body;
 
-    if (isPromterMode) {
-      //指定推廣者數據模式
-      const findPromter = await PromoterUser.findOne({
-        activityID,
-        promoterID: userID,
-      });
+    //找出推廣者底下的被推廣者ID
+    const referralUsers = await PromoterUser.find(promoterID, {
+      referralUsers: 1,
+      _id: -1,
+    });
 
-      //查無指定推廣者
-      if (findPromter) {
-        return res.status(200).send({
-          status: true,
-          message: "數據分析失敗",
-          validCode: "1",
-          data: {
-            resultCode: -1,
-          },
-        });
-      }
-    } else {
-    }
+    // if (isPromterMode) {
+    //   //指定推廣者數據模式
+    //   const findPromter = await PromoterUser.findOne({
+    //     activityID,
+    //     promoterID: userID,
+    //   });
+
+    //   //查無指定推廣者
+    //   if (findPromter) {
+    //     return res.status(200).send({
+    //       status: true,
+    //       message: "數據分析失敗",
+    //       validCode: "1",
+    //       data: {
+    //         resultCode: -1,
+    //       },
+    //     });
+    //   }
+    // } else {
+    // }
 
     return res.status(200).send({
       status: true,
       message: "數據分析完成",
       validCode: "1",
+      data: {
+        referralUsers,
+      },
     });
   } catch (e) {
     return res.status(500).send({

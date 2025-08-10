@@ -50,7 +50,22 @@ async function validSubscriptionOrder(
       token: purchaseToken,
     });
 
-    return response.data;
+    const data = response.data;
+
+    // 2. 如果尚未 acknowledge，就自動執行 acknowledge
+    if (data.acknowledgementState === 0) {
+      await androidpublisher.purchases.subscriptions.acknowledge({
+        packageName,
+        subscriptionId,
+        token: purchaseToken,
+        requestBody: {
+          developerPayload: "auto_acknowledged_by_server",
+        },
+      });
+      data.acknowledgementState = 1; // 更新回傳狀態
+    }
+
+    return data;
   } catch (error) {
     return null;
   }
