@@ -141,14 +141,26 @@ div.parther-data div.dashboard div.simple-board div.simple-data {
   height: 150px;
   background-color: white;
   border-radius: 2px 2px 0px 0px;
+  display: flex;
+  flex-direction: column;
 }
-div.parther-data div.dashboard div.simple-board div.simple-data p {
+div.parther-data div.dashboard div.simple-board div.simple-data p.title {
   margin: 0;
   padding-top: 10px;
   padding-bottom: 10px;
   font-size: 1.2rem;
   font-weight: 400;
   text-align: center;
+}
+div.parther-data div.dashboard div.simple-board div.simple-data p.data {
+  margin: 0;
+  flex: 1;
+  font-size: 2rem;
+  font-weight: 400;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 div.parther-data div.dashboard div.simple-board div.simple-data div.div-line {
   width: 100%;
@@ -162,8 +174,18 @@ div.parther-data div.dashboard div.complex-board {
 }
 div.parther-data div.dashboard div.complex-board div.complex-chart {
   flex: 1;
-  background-color: #0096b1;
+  background-color: white;
   height: 400px;
+}
+div.parther-data div.dashboard div.complex-board div.complex-chart div.promo-chart {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+div.parther-data div.dashboard div.complex-board div.complex-chart div.promo-chart p {
+  font-size: 1.1rem;
 }
 div.parther-data div.dashboard div.h-space {
   width: 20px;

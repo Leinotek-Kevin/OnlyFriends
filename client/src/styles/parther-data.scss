@@ -157,14 +157,27 @@ div.parther-data {
         height: 150px;
         background-color: white;
         border-radius: 2px 2px 0px 0px;
+        display: flex;
+        flex-direction: column;
 
-        p {
+        p.title {
           margin: 0;
           padding-top: 10px;
           padding-bottom: 10px;
           font-size: 1.2rem;
           font-weight: 400;
           text-align: center;
+        }
+
+        p.data {
+          margin: 0;
+          flex: 1;
+          font-size: 2rem;
+          font-weight: 400;
+          text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         div.div-line {
@@ -182,8 +195,20 @@ div.parther-data {
 
       div.complex-chart {
         flex: 1;
-        background-color: #0096b1;
+        background-color: white;
         height: 400px;
+
+        div.promo-chart {
+          display: flex;
+          height: 100%;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+
+          p {
+            font-size: 1.1rem;
+          }
+        }
       }
     }
 

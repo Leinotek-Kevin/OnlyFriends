@@ -23,13 +23,19 @@ class UserService {
   }
 
   //獲取指定區間推廣數據資料
-  getPromterData(userToken, userID, startDate, endDate) {
+  getPromterData(userToken, userID, startDate, endDate, isPromoterMode) {
     // 轉成 UTC 的 timestamp（毫秒）
     const { utcStart, utcEnd } = toUTCTimestampRange(startDate, endDate);
 
     return axios.post(
-      BASE_URL + "/ana-promter-data",
-      { activityID: "100", userID, startDate: utcStart, endDate: utcEnd },
+      BASE_URL + "/ana-promoter-data",
+      {
+        activityID: "100",
+        promoterID: userID,
+        startDateTime: utcStart,
+        endDateTime: utcEnd,
+        isPromoterMode,
+      },
       {
         headers: {
           Authorization: userToken,
@@ -41,8 +47,8 @@ class UserService {
 
 //轉換成UTC時間區間
 const toUTCTimestampRange = (startDateStr, endDateStr) => {
-  const [sy, sm, sd] = startDateStr.split("/").map(Number);
-  const [ey, em, ed] = endDateStr.split("/").map(Number);
+  const [sy, sm, sd] = startDateStr.split("-").map(Number);
+  const [ey, em, ed] = endDateStr.split("-").map(Number);
 
   // start: 台灣時間 00:00
   const start = new Date(sy, sm - 1, sd, 0, 0, 0);

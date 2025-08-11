@@ -1839,13 +1839,13 @@ router.post("/ana-promoter-data", async (req, res) => {
       totalIncome: 0, //推廣預估總收益
       shareIncome: 0, //推廣分潤收益
       shareRate: 2, //聯盟分潤
-      monthlyRate: 0, //月訂閱比例
-      quarterlyRate: 0, //季訂閱比例
-      annualRate: 0, //年訂閱比例
-      referalGenderArea: {},
-      referalAgeArea: {},
-      subGenderArea: {},
-      subAgeArea: {},
+      monthlyCounts: 0, //月訂閱比例
+      quarterlyCounts: 0, //季訂閱比例
+      annualCounts: 0, //年訂閱比例
+      referalGenderAgeArea: {},
+      // referalAgeArea: {},
+      subGenderAgeArea: {},
+      // subAgeArea: {},
     };
 
     //目標被推廣者們
@@ -1908,10 +1908,14 @@ router.post("/ana-promoter-data", async (req, res) => {
     );
 
     //計算推廣兌換總數
-    result.referalCounts = referralUserIDsArr ? referralUserIDsArr.length : 0;
+    result.referalCounts = referralUserIDsArr
+      ? referralUserIDsArr.length.toLocaleString()
+      : 0;
 
     //計算推廣訂閱總數
-    result.referalSubCounts = transactions ? transactions.length : 0;
+    result.referalSubCounts = transactions
+      ? transactions.length.toLocaleString()
+      : 0;
 
     //計算兌換訂閱轉換率
     let tmpRate =
@@ -1941,9 +1945,9 @@ router.post("/ana-promoter-data", async (req, res) => {
       }
 
       result.totalIncome = total;
-      result.monthlyRate = monthly / transactions.length;
-      result.quarterlyRate = quarterly / transactions.length;
-      result.annualRate = annual / transactions.length;
+      result.monthlyCounts = monthly;
+      result.quarterlyCounts = quarterly;
+      result.annualCounts = annual;
     }
 
     //計算聯盟分潤比例
@@ -1951,7 +1955,10 @@ router.post("/ana-promoter-data", async (req, res) => {
     result.shareRate = subs >= 300 ? 5 : subs >= 150 ? 4 : subs >= 50 ? 3 : 2;
 
     //計算聯盟分潤
-    result.shareIncome = (result.totalIncome * result.shareRate) / 100;
+    result.shareIncome = Math.round(
+      (result.totalIncome * result.shareRate) / 100
+    ).toLocaleString();
+    result.totalIncome = result.totalIncome.toLocaleString();
 
     //取出推廣者的用戶資料(輸出年齡和性別)
     const referalUserInfos = await User.find(
@@ -1963,8 +1970,9 @@ router.post("/ana-promoter-data", async (req, res) => {
 
     //計算被推廣者性別比例
     const referalAummary = summarizeGenderAndAge(referalUserInfos);
-    result.referalGenderArea = referalAummary.genderArea;
-    result.referalAgeArea = referalAummary.ageGroups;
+    // result.referalGenderArea = referalAummary.genderArea;
+    // result.referalAgeArea = referalAummary.ageGroups;
+    result.referalGenderAgeArea = referalAummary;
 
     //取出訂閱者的用戶資料(輸出年齡和性別)
     const subUserIDs = [...new Set(transactions.map((t) => t.userID))];
@@ -1977,8 +1985,9 @@ router.post("/ana-promoter-data", async (req, res) => {
 
     //計算訂閱者性別比例
     const subSummary = summarizeGenderAndAge(subUserInfos);
-    result.subGenderArea = subSummary.genderArea;
-    result.subAgeArea = subSummary.ageGroups;
+    result.subGenderAgeArea = subSummary;
+    // result.subGenderArea = subSummary.genderArea;
+    // result.subAgeArea = subSummary.ageGroups;
 
     return res.status(200).send({
       status: true,
@@ -1990,6 +1999,7 @@ router.post("/ana-promoter-data", async (req, res) => {
       },
     });
   } catch (e) {
+    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
@@ -2000,17 +2010,57 @@ router.post("/ana-promoter-data", async (req, res) => {
 });
 
 //計算用戶們的性別和年齡分佈
+// function summarizeGenderAndAge(users) {
+//   const genderArea = { female: 0, male: 0, special: 0 };
+
+//   // 先建立 0-9, 10-19, ..., 90-99, 100+ 的區間，初始數量都設為 0
+//   const ageGroups = {};
+//   for (let start = 0; start <= 90; start += 10) {
+//     const end = start + 9;
+//     const key = `${start}-${end}`;
+//     ageGroups[key] = 0;
+//   }
+//   ageGroups["100+"] = 0; // 100 歲以上區間
+
+//   users.forEach((user) => {
+//     // 性別計數
+//     if (user.userGender === "1") {
+//       genderArea.male += 1;
+//     } else if (user.userGender === "0") {
+//       genderArea.female += 1;
+//     } else if (user.userGender === "2") {
+//       genderArea.special += 1;
+//     }
+
+//     // 年齡區間計數
+//     if (typeof user.userAge === "number" && user.userAge >= 0) {
+//       if (user.userAge >= 100) {
+//         ageGroups["100+"] += 1;
+//       } else {
+//         const start = Math.floor(user.userAge / 10) * 10;
+//         const key = `${start}-${start + 9}`;
+//         ageGroups[key] += 1;
+//       }
+//     }
+//   });
+
+//   return { genderArea, ageGroups };
+// }
+
 function summarizeGenderAndAge(users) {
   const genderArea = { female: 0, male: 0, special: 0 };
 
-  // 先建立 0-9, 10-19, ..., 90-99, 100+ 的區間，初始數量都設為 0
-  const ageGroups = {};
+  // 建立年齡區間標籤（0-9、10-19、...、90-99、100+）
+  const ageLabels = [];
   for (let start = 0; start <= 90; start += 10) {
-    const end = start + 9;
-    const key = `${start}-${end}`;
-    ageGroups[key] = 0;
+    ageLabels.push(`${start}-${start + 9}`);
   }
-  ageGroups["100+"] = 0; // 100 歲以上區間
+  ageLabels.push("100+");
+
+  // 初始化三組陣列，長度與 ageLabels 一樣，初始都為 0
+  const maleData = new Array(ageLabels.length).fill(0);
+  const femaleData = new Array(ageLabels.length).fill(0);
+  const specialData = new Array(ageLabels.length).fill(0);
 
   users.forEach((user) => {
     // 性別計數
@@ -2024,17 +2074,45 @@ function summarizeGenderAndAge(users) {
 
     // 年齡區間計數
     if (typeof user.userAge === "number" && user.userAge >= 0) {
+      let idx;
       if (user.userAge >= 100) {
-        ageGroups["100+"] += 1;
+        idx = ageLabels.indexOf("100+");
       } else {
         const start = Math.floor(user.userAge / 10) * 10;
-        const key = `${start}-${start + 9}`;
-        ageGroups[key] += 1;
+        idx = ageLabels.indexOf(`${start}-${start + 9}`);
+      }
+
+      if (idx !== -1) {
+        if (user.userGender === "1") {
+          maleData[idx]++;
+        } else if (user.userGender === "0") {
+          femaleData[idx]++;
+        } else if (user.userGender === "2") {
+          specialData[idx]++;
+        }
       }
     }
   });
 
-  return { genderArea, ageGroups };
+  return { genderArea, maleData, femaleData, specialData, ageLabels };
+}
+
+//計算用戶的性別分佈
+function summarizeGender(users) {
+  const genderArea = { female: 0, male: 0, special: 0 };
+
+  users.forEach((user) => {
+    // 性別計數
+    if (user.userGender === "1") {
+      genderArea.male += 1;
+    } else if (user.userGender === "0") {
+      genderArea.female += 1;
+    } else if (user.userGender === "2") {
+      genderArea.special += 1;
+    }
+  });
+
+  return { genderArea };
 }
 
 //B-15 使用兌換碼
