@@ -9,6 +9,8 @@ import PartherDataComponent from "./components/parther-data-component";
 import DashboardComponent from "./components/dashboard-component";
 import DeleteComponent from "./components/delete-component";
 import DrinkQuizComponent from "./components/quiz/drink-quiz-component";
+import PartherAdminComponent from "./components/other/parther-admin-component";
+import PartherDashboardComponent from "./components/other/parther-dashboard-component";
 
 function App() {
   let [userToken, setUserToken] = useState(AuthService.getUserToken());
@@ -69,7 +71,6 @@ function App() {
             {/*聯盟行銷夥伴數據頁*/}
             <Route
               path="parther-data"
-              index
               element={
                 <PartherDataComponent
                   userToken={userToken}
@@ -80,6 +81,25 @@ function App() {
           </Route>
           {/*飲料小測驗*/}
           <Route path="drink-quiz" element={<DrinkQuizComponent />}></Route>
+          {/*聯盟夥伴數據儀表板入口*/}
+          <Route
+            path="parther-admin"
+            element={
+              <PartherAdminComponent
+                userToken={userToken}
+                setUserToken={setUserToken}
+              />
+            }
+          ></Route>
+          <Route
+            path="parther-dashboard"
+            element={
+              <PartherDashboardComponent
+                userToken={userToken}
+                setUserToken={setUserToken}
+              />
+            }
+          ></Route>
         </Route>
       </Routes>
     </BrowserRouter>

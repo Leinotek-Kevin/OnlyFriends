@@ -38,6 +38,11 @@ class AuthService {
   getUserToken() {
     return localStorage.getItem("userToken");
   }
+
+  //推廣者系統登入
+  loginPromoter(promoterID) {
+    return axios.post(BASE_URL + "/promoter-login", { promoterID });
+  }
 }
 
 export default new AuthService();

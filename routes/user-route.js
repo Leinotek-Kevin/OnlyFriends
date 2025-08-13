@@ -2097,24 +2097,6 @@ function summarizeGenderAndAge(users) {
   return { genderArea, maleData, femaleData, specialData, ageLabels };
 }
 
-//計算用戶的性別分佈
-function summarizeGender(users) {
-  const genderArea = { female: 0, male: 0, special: 0 };
-
-  users.forEach((user) => {
-    // 性別計數
-    if (user.userGender === "1") {
-      genderArea.male += 1;
-    } else if (user.userGender === "0") {
-      genderArea.female += 1;
-    } else if (user.userGender === "2") {
-      genderArea.special += 1;
-    }
-  });
-
-  return { genderArea };
-}
-
 //B-15 使用兌換碼
 // router.post("/use-promotion-code", async (req, res) => {
 //   try {

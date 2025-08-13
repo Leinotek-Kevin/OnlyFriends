@@ -143,6 +143,7 @@ div.parther-data div.dashboard div.simple-board div.simple-data {
   border-radius: 2px 2px 0px 0px;
   display: flex;
   flex-direction: column;
+  border-radius: 10px;
 }
 div.parther-data div.dashboard div.simple-board div.simple-data p.title {
   margin: 0;
@@ -175,6 +176,7 @@ div.parther-data div.dashboard div.complex-board {
 div.parther-data div.dashboard div.complex-board div.complex-chart {
   flex: 1;
   background-color: white;
+  border-radius: 10px;
   height: 400px;
 }
 div.parther-data div.dashboard div.complex-board div.complex-chart div.promo-chart {
@@ -186,6 +188,15 @@ div.parther-data div.dashboard div.complex-board div.complex-chart div.promo-cha
 }
 div.parther-data div.dashboard div.complex-board div.complex-chart div.promo-chart p {
   font-size: 1.1rem;
+}
+div.parther-data div.dashboard div.complex-board div.complex-chart div.promo-chart div.chart {
+  width: 90%;
+  height: 70%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
 }
 div.parther-data div.dashboard div.h-space {
   width: 20px;

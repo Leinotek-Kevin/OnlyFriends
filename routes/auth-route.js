@@ -2,6 +2,7 @@ const router = require("express").Router();
 
 const User = require("../models").user;
 const EmotionLetter = require("../models").letter;
+const PromoterUser = require("../models").promoterUser;
 const Error = require("../models").error;
 
 const { v4: uuidv4 } = require("uuid");
@@ -13,6 +14,7 @@ const generalUtil = require("../utils/general-util");
 const dateUtil = require("../utils/date-util");
 const sendbirdUtil = require("../utils/sendbird-util");
 const cloudStorage = require("../utils/cloudStorage-util");
+const { promotionCode } = require("../models");
 
 router.use((req, res, next) => {
   console.log("正在接收一個跟 auth 有關的請求");
@@ -446,6 +448,65 @@ router.post("/delete-all", async (req, res) => {
       status: true,
       message: "成功刪除全部用戶",
     });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error",
+      e,
+    });
+  }
+});
+
+//A-100 登入聯盟夥伴數據系統
+router.post("/promoter-login", async (req, res) => {
+  try {
+    const { promoterID } = req.body;
+
+    const findUser = await User.findOne({ userID: promoterID });
+
+    if (findUser) {
+      const findPromoter = await PromoterUser.findOne({ promoterID });
+
+      if (findPromoter) {
+        //製作 json web token
+        const tokenObject = {
+          userID: findUser.userID,
+          userEmail: findUser.userEmail,
+        };
+        const token = jwt.sign(tokenObject, process.env.PASSPORT_SECRET);
+
+        return res.status(200).send({
+          status: true,
+          message: "登入成功",
+          data: {
+            resultCode: 1,
+            token: "JWT " + token,
+            userID: findUser.userID,
+            userName: findUser.userName,
+            userPhoto: findUser.userPhotos[0],
+            activityID: findPromoter.activityID,
+            promoterID: findPromoter.promoterID,
+            promotionCode: findPromoter.promotionCode,
+          },
+        });
+      } else {
+        return res.status(200).send({
+          status: true,
+          message: "登入失敗！您尚未申請成爲聯盟夥伴！",
+          data: {
+            resultCode: -2,
+          },
+        });
+      }
+    } else {
+      return res.status(200).send({
+        status: true,
+        message: "登入失敗！查無該用戶 ID",
+        data: {
+          resultCode: -1,
+        },
+      });
+    }
   } catch (e) {
     return res.status(500).send({
       status: false,

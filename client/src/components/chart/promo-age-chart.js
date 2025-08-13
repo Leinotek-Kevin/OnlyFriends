@@ -8,10 +8,25 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend,
+  ChartDataLabels
+);
 
-const AgeGenderBarChart = ({ labels, maleData, femaleData, specialData }) => {
+const AgeGenderBarChart = ({
+  labels,
+  maleData,
+  femaleData,
+  specialData,
+  left,
+  position,
+}) => {
   const data = {
     labels,
     datasets: [
@@ -41,12 +56,30 @@ const AgeGenderBarChart = ({ labels, maleData, femaleData, specialData }) => {
     responsive: true,
     plugins: {
       legend: {
-        position: "right",
+        position,
       },
       tooltip: {
         enabled: true,
+        callbacks: {
+          label: (context) => context.parsed.x.toLocaleString(),
+        },
+      },
+      datalabels: {
+        anchor: "end",
+        align: "top",
+        color: "#000",
+        font: {
+          weight: "normal",
+          size: 14,
+        },
+        formatter: (value) => {
+          return value === 0 ? null : value.toLocaleString();
+        },
       },
     },
+    responsive: true,
+    maintainAspectRatio: false,
+
     scales: {
       x: {
         stacked: false,
@@ -62,8 +95,17 @@ const AgeGenderBarChart = ({ labels, maleData, femaleData, specialData }) => {
   };
 
   return (
-    <div style={{ width: "90%", height: "300px" }}>
-      <Bar data={data} options={options} />
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column", // 方向 column
+        justifyContent: "center", // 垂直置中
+        alignItems: "center", // 水平置中
+      }}
+    >
+      <Bar data={data} options={options} plugins={[ChartDataLabels]} />
     </div>
   );
 };

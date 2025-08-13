@@ -159,6 +159,7 @@ div.parther-data {
         border-radius: 2px 2px 0px 0px;
         display: flex;
         flex-direction: column;
+        border-radius: 10px;
 
         p.title {
           margin: 0;
@@ -196,6 +197,7 @@ div.parther-data {
       div.complex-chart {
         flex: 1;
         background-color: white;
+        border-radius: 10px;
         height: 400px;
 
         div.promo-chart {
@@ -207,6 +209,16 @@ div.parther-data {
 
           p {
             font-size: 1.1rem;
+          }
+
+          div.chart {
+            width: 90%;
+            height: 70%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0.5rem;
           }
         }
       }

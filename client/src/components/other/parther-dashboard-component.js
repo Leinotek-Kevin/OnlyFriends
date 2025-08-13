@@ -1,19 +1,24 @@
-import React, { useState } from "react";
-import "../styles/parther-data.css";
-import UserService from "../services/user-service";
-import FullScreenLoading from "./widget/full-screen-loading";
-import { showModalMessage } from "./widget/modeal-msg-dialog";
-import DateRangeSelector from "../components/widget/range-picker";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import "../../styles/parther-dashboard.css";
+import UserService from "../../services/user-service";
+import FullScreenLoading from "../widget/full-screen-loading";
+import { showModalMessage } from "../widget/modeal-msg-dialog";
+import DateRangeSelector from "../../components/widget/range-picker";
 import { Checkbox } from "antd";
-import PromoSubscribeBarChart from "./chart/promo-sub-barchart";
-import ProductPieChart from "./chart/product-piechart";
-import PromoGenderPieChart from "./chart/promo-gender-piechart";
-import PromoAgeChart from "./chart/promo-age-chart";
+import PromoSubscribeBarChart from "../chart/promo-sub-barchart";
+import ProductPieChart from "../chart/product-piechart";
+import PromoGenderPieChart from "../chart/promo-gender-piechart";
+import PromoAgeChart from "../chart/promo-age-chart";
+
+import logo from "../../images/ic-logo-black.png";
 
 const PartherDataComponent = ({ userToken, setUserToken }) => {
+  const [toastMsg, setToastMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const { promoterId } = location.state || {};
   const [isPromoterMode, setIsPromoterMode] = useState(false);
-  const [promoterId, setPromoterId] = useState("");
   const [dateRange, setDateRange] = useState({
     startDate: null,
     endDate: null,
@@ -21,116 +26,128 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
 
   const [result, setResult] = useState(null);
 
-  const handleQueryData = async (e) => {
-    // if (!dateRange.startDate || !dateRange.endDate) {
-    //   showModalMessage({
-    //     type: "error",
-    //     title: "錯誤！",
-    //     content: "請選擇要查詢的日期區間",
-    //   });
-    // }
+  async function getPromterData() {
+    try {
+      setLoading(true);
+      const response = await UserService.getPromterData(
+        userToken,
+        promoterId,
+        "2025-08-01",
+        "2025-08-31",
+        "1"
+      );
+      if (response.status == 200 && response.data.data) {
+        if (response.data.data.resultCode == -1) {
+          showModalMessage({
+            type: "error",
+            title: "錯誤！",
+            content: "推廣數據分析有誤！查無指定推廣者！",
+          });
+        }
 
-    if (isPromoterMode) {
-      if (promoterId == "" || !promoterId) {
-        return showModalMessage({
-          type: "error",
-          title: "錯誤！",
-          content: "請輸入正確的推廣者ID",
-        });
-      }
-    }
-
-    setLoading(true);
-
-    const response = await UserService.getPromterData(
-      userToken,
-      isPromoterMode ? promoterId : "",
-      "2025-08-01",
-      "2025-08-31",
-      isPromoterMode ? "1" : "0"
-    );
-    setLoading(false);
-
-    if (response.status == 200 && response.data.data) {
-      if (response.data.data.resultCode == -1) {
+        if (response.data.data.resultCode == 1) {
+          const result = response.data.data.result;
+          setResult(result);
+        }
+      } else {
         showModalMessage({
           type: "error",
           title: "錯誤！",
-          content: "推廣數據分析有誤！查無指定推廣者！",
+          content: "推廣數據分析有誤！請聯絡官方人員！",
         });
       }
 
-      if (response.data.data.resultCode == 1) {
-        const result = response.data.data.result;
-        setResult(result);
-      }
-    } else {
-      showModalMessage({
-        type: "error",
-        title: "錯誤！",
-        content: "推廣數據分析有誤！請聯絡官方人員！",
-      });
+      setLoading(false);
+    } catch (error) {
+      console.error("API呼叫失敗", error);
+      setLoading(false);
     }
-  };
+  }
 
-  const handleBoxChange = (e) => {
-    setIsPromoterMode(e.target.checked);
-    if (!e.target.checked) {
-      setPromoterId(""); // 取消勾選時清空輸入框
-    }
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getPromterData();
+    }, 300); // 延遲300毫秒
 
-  // 限制輸入最大 10 個字
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    if (value.length <= 10) {
-      setPromoterId(value);
+    return () => clearTimeout(timer); // 組件卸載時清除定時器，避免內存洩漏
+  }, [userToken, isPromoterMode, promoterId]);
+
+  // toast 消失控制
+  useEffect(() => {
+    if (toastMsg) {
+      const timer = setTimeout(() => setToastMsg(""), 2000);
+      return () => clearTimeout(timer);
     }
-  };
+  }, [toastMsg]);
+
+  function copyPromotionCode() {
+    if (result?.promotionCode) {
+      navigator.clipboard
+        .writeText(result.promotionCode)
+        .then(() => {
+          setToastMsg("推廣碼已複製！");
+        })
+        .catch((err) => {
+          setToastMsg("複製失敗，請手動複製");
+        });
+    }
+  }
+
+  function copyPromotionLink() {
+    if (result?.promotionCode) {
+      navigator.clipboard
+        .writeText("https://onlyfriends.onelink.me/vWTM/e1mlodow")
+        .then(() => {
+          setToastMsg("分享連結已複製！");
+        })
+        .catch((err) => {
+          setToastMsg("複製失敗，請手動複製");
+        });
+    }
+  }
 
   return (
-    <div className="parther-data">
+    <div className="parther-dashboard">
       <FullScreenLoading loading={loading} />
 
-      {/* <div className="admin-header">
-        <p>😀 Kevin 您好！</p>
-      </div> */}
+      <div className="admin-header">
+        <img src={logo} alt="logo" className="logo" />
+        <i onClick={getPromterData} class="bi bi-arrow-clockwise"></i>
+      </div>
 
       <div className="top-board">
-        <p className="title">推廣數據</p>
-
-        <div className="inner">
-          <div className="input">
-            <Checkbox onChange={handleBoxChange}></Checkbox>
-
-            <div className="promter-id">
-              <input
-                type="text"
-                placeholder="請輸入推廣者ID"
-                value={promoterId}
-                onChange={handleInputChange}
-                disabled={!isPromoterMode}
-              />
-            </div>
-
-            <DateRangeSelector onChange={setDateRange} />
-
-            <button onClick={handleQueryData}>查看數據</button>
+        <div className="left">
+          <div className="item-info">
+            <i class="bi bi-qr-code-scan"></i>
+            <p>
+              推廣碼：{result && <strong>{result.promotionCode}</strong>}
+              <i onClick={copyPromotionCode} class="bi bi-clipboard"></i>
+            </p>
           </div>
+          <div className="item-info">
+            <i class="bi bi-calendar-week"></i>
 
-          {isPromoterMode && result && (
-            <div className="promoter-info">
-              <div className="item-info">
-                <i class="bi bi-person-badge"></i>
-                <p>用戶ID：{result.promoterID} /</p>
-              </div>
-
-              <div className="item-info">
-                <i class="bi bi-qr-code-scan"></i>
-                <p>推廣碼：{result.promotionCode}</p>
-              </div>
-            </div>
-          )}
+            <p>
+              活動期間： <br></br> <strong>2025/08/01 ~ 2025/08/31</strong>
+            </p>
+          </div>
+          <div className="item-info">
+            <i class="bi bi-share-fill"></i>
+            <p>
+              分享連結： <br></br>{" "}
+              <strong>https://onlyfriends.onelink.me/vWTM/e1mlodow</strong>
+              <i onClick={copyPromotionLink} class="bi bi-clipboard"></i>
+            </p>
+          </div>
+        </div>
+        <div className="v-line"></div>
+        <div className="right">
+          <img
+            className="photo"
+            src="https://firebasestorage.googleapis.com:443/v0/b/onlyfriends-20295.appspot.com/o/develop%2Fpersonal%2Fpersonal_1747118857730.jpg?alt=media&token=04733ffc-7b9e-42ea-9449-7444b499ba16"
+            alt="用戶大頭貼"
+          />
+          <p>ID：{result && result.promoterID}</p>
         </div>
       </div>
 
@@ -153,7 +170,9 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
             <div className="div-line"></div>
             <p className="data">{result ? result.referalSubRate : 0} %</p>
           </div>
-          <div className="h-space"></div>
+        </div>
+        <div className="v-space"></div>
+        <div className="simple-board">
           <div className="simple-data">
             <p className="title">預估總收益</p>
             <div className="div-line"></div>
@@ -172,10 +191,11 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
             <p className="data">{result ? result.shareRate : 2} %</p>
           </div>
         </div>
-
+        <div className="v-space"></div>
         <div className="v-space"></div>
 
         <div className="complex-board">
+          {/* 推廣訂閱轉化率 */}
           <div className="complex-chart">
             {result && (
               <div className="promo-chart">
@@ -189,48 +209,44 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
               </div>
             )}
           </div>
-          <div className="h-space"></div>
+          {/* 用戶訂閱項目分佈 */}
           <div className="complex-chart">
             {result && (
               <div className="promo-chart">
                 <p>用戶訂閱項目分佈</p>
                 <div className="chart">
-                  {" "}
                   <ProductPieChart
                     monthlyCounts={result.monthlyCounts}
                     quarterlyCounts={result.quarterlyCounts}
                     annualCounts={result.annualCounts}
-                    left={80}
-                    position={"right"}
+                    left={0}
+                    position={"bottom"}
                   />
                 </div>
               </div>
             )}
           </div>
-        </div>
-
-        <div className="v-space"></div>
-
-        <div className="complex-board">
+          {/* 兌換數性別比例 */}
           <div className="complex-chart">
             {result && (
               <div className="promo-chart">
                 <p>兌換數性別比例</p>
                 <div className="chart">
+                  {" "}
                   <PromoGenderPieChart
                     maleCount={result.referalGenderAgeArea.genderArea.male}
                     femaleCount={result.referalGenderAgeArea.genderArea.female}
                     specialCount={
                       result.referalGenderAgeArea.genderArea.special
                     }
-                    left={80}
-                    position={"right"}
+                    left={0}
+                    position={"bottom"}
                   />
                 </div>
               </div>
             )}
           </div>
-          <div className="h-space"></div>
+          {/* 訂閱數性別比例 */}
           <div className="complex-chart">
             {result && (
               <div className="promo-chart">
@@ -240,24 +256,19 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
                     maleCount={result.subGenderAgeArea.genderArea.male}
                     femaleCount={result.subGenderAgeArea.genderArea.female}
                     specialCount={result.subGenderAgeArea.genderArea.special}
-                    left={80}
-                    position={"right"}
+                    left={0}
+                    position={"bottom"}
                   />
                 </div>
               </div>
             )}
           </div>
-        </div>
-
-        <div className="v-space"></div>
-
-        <div className="complex-board">
+          {/* 兌換數年齡Ｘ性別分佈 */}
           <div className="complex-chart">
             {result && (
               <div className="promo-chart">
                 <p>兌換數年齡Ｘ性別分佈</p>
                 <div className="chart">
-                  {" "}
                   <PromoAgeChart
                     labels={result.referalGenderAgeArea.ageLabels}
                     maleData={result.referalGenderAgeArea.maleData}
@@ -270,7 +281,7 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
               </div>
             )}
           </div>
-          <div className="h-space"></div>
+          {/* 訂閱數年齡Ｘ性別分佈 */}
           <div className="complex-chart">
             {result && (
               <div className="promo-chart">
@@ -290,22 +301,30 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
           </div>
         </div>
       </div>
+      {/* Toast 訊息 */}
+      {toastMsg && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "30px", // 距離螢幕底部 30px
+            left: "50%",
+            transform: "translateX(-50%)",
+            backgroundColor: "rgba(0,0,0,0.75)",
+            color: "white",
+            padding: "0.5rem 1rem",
+            borderRadius: "4px",
+            fontSize: "0.9rem",
+            zIndex: 9999,
+            pointerEvents: "none",
+            userSelect: "none",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {toastMsg}
+        </div>
+      )}
     </div>
   );
 };
-
-// * 匯款資訊（前提是有需要領錢，不一定要顯示在儀表板上）
-// * 名稱
-// * 信箱
-// * 使用者 id
-// * 目前推薦碼兌換數量
-// * 目前該兌換碼之使用者訂閱數量
-// * 訂閱轉換率
-// * 訂閱項目比例
-// * 回饋級距
-// * 活動期限
-// * 預估收益（因為可能會有退款的使用者）
-// * 使用推薦碼性別比例
-// * 訂閱者性別比例
 
 export default PartherDataComponent;

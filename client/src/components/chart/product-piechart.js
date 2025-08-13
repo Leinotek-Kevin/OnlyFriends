@@ -9,6 +9,8 @@ const SubscriptionPieChart = ({
   monthlyCounts,
   quarterlyCounts,
   annualCounts,
+  left,
+  position,
 }) => {
   const data = {
     labels: ["月訂閱", "季訂閱", "年訂閱"],
@@ -24,13 +26,13 @@ const SubscriptionPieChart = ({
   const options = {
     layout: {
       padding: {
-        left: 80, // 往右推
+        left, // 往右推
         right: 0,
       },
     },
     plugins: {
       legend: {
-        position: "right",
+        position,
       },
       tooltip: {
         enabled: false, // ❌ 關掉游標提示
@@ -55,7 +57,7 @@ const SubscriptionPieChart = ({
   };
 
   return (
-    <div style={{ width: "90%", height: "300px" }}>
+    <div style={{ width: "100%", height: "100%" }}>
       <Pie data={data} options={options} plugins={[ChartDataLabels]} />
     </div>
   );

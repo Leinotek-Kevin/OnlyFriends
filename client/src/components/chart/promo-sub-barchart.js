@@ -64,7 +64,7 @@ const PromoSubscribeBarChart = ({ referalCounts, referalSubCounts }) => {
   };
 
   return (
-    <div style={{ width: "90%", height: "300px" }}>
+    <div style={{ width: "100%", height: "100%" }}>
       <Bar data={data} options={options} plugins={[ChartDataLabels]} />
     </div>
   );

@@ -5,7 +5,13 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const GenderPieChart = ({ maleCount, femaleCount, specialCount }) => {
+const GenderPieChart = ({
+  maleCount,
+  femaleCount,
+  specialCount,
+  left,
+  position,
+}) => {
   const data = {
     labels: ["男性", "女性", "特別"],
     datasets: [
@@ -20,13 +26,14 @@ const GenderPieChart = ({ maleCount, femaleCount, specialCount }) => {
   const options = {
     layout: {
       padding: {
-        left: 80,
+        // left: 80,"right"
+        left,
         right: 0,
       },
     },
     plugins: {
       legend: {
-        position: "right",
+        position,
       },
       tooltip: {
         enabled: false, // ❌ 關掉游標提示
@@ -52,7 +59,7 @@ const GenderPieChart = ({ maleCount, femaleCount, specialCount }) => {
   };
 
   return (
-    <div style={{ width: "90%", height: "300px" }}>
+    <div style={{ width: "100%", height: "100%" }}>
       <Pie data={data} options={options} plugins={[ChartDataLabels]} />
     </div>
   );
