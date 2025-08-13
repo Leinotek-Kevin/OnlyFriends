@@ -37,10 +37,16 @@ div.parther-dashboard div.admin-header img.logo {
   height: auto; /* 根據原圖比例自動算高 */
   align-items: center;
 }
-div.parther-dashboard div.admin-header i {
+div.parther-dashboard div.admin-header i.refresh {
   position: absolute;
   right: 0;
   margin-right: 1rem;
+  font-size: 1.3rem;
+}
+div.parther-dashboard div.admin-header i.logout {
+  position: absolute;
+  left: 0;
+  margin-left: 1rem;
   font-size: 1.3rem;
 }
 div.parther-dashboard div.top-board {

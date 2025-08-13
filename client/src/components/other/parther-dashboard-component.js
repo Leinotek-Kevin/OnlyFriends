@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../styles/parther-dashboard.css";
 import UserService from "../../services/user-service";
+import AuthService from "../../services/auth-service";
 import FullScreenLoading from "../widget/full-screen-loading";
 import { showModalMessage } from "../widget/modeal-msg-dialog";
 import DateRangeSelector from "../../components/widget/range-picker";
@@ -113,13 +114,23 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
     }
   }
 
+  const handleLogout = (e) => {
+    e.preventDefault();
+    const confirmed = window.confirm("你確定要登出嗎？");
+    if (confirmed) {
+      AuthService.logout();
+      navigate("/parther-admin");
+    }
+  };
+
   return (
     <div className="parther-dashboard">
       <FullScreenLoading loading={loading} />
 
       <div className="admin-header">
+        <i onClick={handleLogout} class="bi bi-box-arrow-left logout"></i>
         <img src={logo} alt="logo" className="logo" />
-        <i onClick={getPromterData} class="bi bi-arrow-clockwise"></i>
+        <i onClick={getPromterData} class="bi bi-arrow-clockwise refresh"></i>
       </div>
 
       <div className="top-board">

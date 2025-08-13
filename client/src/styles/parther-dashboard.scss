@@ -37,10 +37,17 @@ div.parther-dashboard {
       align-items: center;
     }
 
-    i {
+    i.refresh {
       position: absolute;
       right: 0;
       margin-right: 1rem;
+      font-size: 1.3rem;
+    }
+
+    i.logout {
+      position: absolute;
+      left: 0;
+      margin-left: 1rem;
       font-size: 1.3rem;
     }
   }
