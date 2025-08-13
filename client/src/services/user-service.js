@@ -2,9 +2,9 @@ import axios from "axios";
 import dayjs from "dayjs";
 
 //Web 本地
-const BASE_URL = "http://localhost:8080/api/user";
+//const BASE_URL = "http://localhost:8080/api/user";
 //開發環境
-//const BASE_URL = "https://dev.ofs.leinotek.com/api/user";
+const BASE_URL = "https://dev.ofs.leinotek.com/api/user";
 //正式環境
 //const BASE_URL = "https://ofs.leinotek.com/api/user";
 
