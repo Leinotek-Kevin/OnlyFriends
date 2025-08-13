@@ -48,6 +48,7 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
         }
 
         if (response.data.data.resultCode == 1) {
+          window.scrollTo(0, 0);
           const result = response.data.data.result;
           setResult(result);
         }
