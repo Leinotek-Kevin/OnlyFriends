@@ -42,7 +42,7 @@ const PartherAdminComponent = ({ userToken, setUserToken }) => {
         state: { promoterId: response.data.data.promoterID },
       });
     } else {
-      return showModalMessage({
+      showModalMessage({
         type: "error",
         title: "錯誤！",
         content: "請檢查您的 ID 是否輸入正確！",
