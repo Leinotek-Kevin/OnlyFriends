@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../../styles/parther-dashboard.css";
 import UserService from "../../services/user-service";
 import FullScreenLoading from "../widget/full-screen-loading";
@@ -14,6 +14,7 @@ import PromoAgeChart from "../chart/promo-age-chart";
 import logo from "../../images/ic-logo-black.png";
 
 const PartherDataComponent = ({ userToken, setUserToken }) => {
+  const navigate = useNavigate();
   const [toastMsg, setToastMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const location = useLocation();
@@ -79,6 +80,12 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
       return () => clearTimeout(timer);
     }
   }, [toastMsg]);
+
+  useEffect(() => {
+    if (!userToken || !promoterId) {
+      navigate("/parther-admin");
+    }
+  }, [userToken]);
 
   function copyPromotionCode() {
     if (result?.promotionCode) {
