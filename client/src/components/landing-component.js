@@ -6,6 +6,7 @@ import displayRule from "../images/bg-display-rule.png";
 import display1 from "../images/bg-display-1.png";
 import display2 from "../images/bg-display-2.png";
 import display3 from "../images/bg-display-3.png";
+import display4 from "../images/bg-display-4.png";
 import appLogo from "../images/bg-logo.png";
 import iOSButton from "../images/ic-iOS-btn.png";
 import googleButton from "../images/ic-google-btn.png";
@@ -66,22 +67,22 @@ const LandingComponent = () => {
       <main className="sub-main">
         <div>
           <p className="intro-title">限定時間內認識彼此</p>
-          <p className="intro-sub-title">-尋找合拍的遊戲夥伴-</p>
+          <p className="intro-sub-title">-尋找合拍的遊戲朋友-</p>
 
           <div className="display">
             <img src={display1} alt="OnlyFirends Rule 1" />
           </div>
         </div>
-        <p className="space"></p>
-        {/* <div>
+        {/* <p className="space"></p>
+        <div>
           <p className="intro-title">告別看臉交友時代</p>
           <p className="intro-sub-title">-聊天解鎖照片 好感度機制-</p>
 
           <div className="display">
             <img src={display2} alt="OnlyFirends Rule 2" />
           </div>
-        </div>
-        <p className="space"></p> */}
+        </div> */}
+        <p className="space"></p>
         <div>
           <p className="intro-title">還能擁抱你的心情</p>
           <p className="intro-sub-title">-分享心情的匿名配對機會-</p>
@@ -89,8 +90,19 @@ const LandingComponent = () => {
           <div className="display">
             <img src={display3} alt="OnlyFirends Rule 3" />
           </div>
-          <p className="space"></p>
         </div>
+
+        <p className="space"></p>
+        <div>
+          <p className="intro-title">周末主題小圈圈</p>
+          <p className="intro-sub-title">-讓共同興趣的人聚在一起-</p>
+
+          <div className="display">
+            <img src={display4} alt="OnlyFirends Rule 4" />
+          </div>
+        </div>
+
+        <p className="space"></p>
       </main>
 
       <div className="footer-logo">
