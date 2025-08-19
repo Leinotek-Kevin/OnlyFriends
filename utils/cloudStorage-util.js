@@ -125,7 +125,9 @@ const uploadImages = async (folderName, limitSize, srcFiles) => {
 //讀取 Firebase Storage Images 檔案路徑格式 : cat-01-1
 const getImagesByFolder = async (folderName) => {
   try {
-    const bucket = admin.storage().bucket();
+    // const bucket = admin.storage().bucket();
+    // 指定 bucket 名稱
+    const bucket = admin.storage().bucket("onlyfriends-20295");
 
     // 指定要讀取的資料夾 (P0-Cat)
     const [files] = await bucket.getFiles({
