@@ -195,7 +195,7 @@ router.post("/check-user-real", async (req, res) => {
       .map((result) => result.userId);
 
     const warningImageUrl =
-      "https://firebasestorage.googleapis.com/v0/b/onlyfriends-20295.appspot.com/o/system%2Frobot-photo%2Fother%2Fuser-photo-warning.png?alt=media&token=adccf915-3f13-410d-ba7e-27760240a5b7";
+      "https://firebasestorage.googleapis.com/v0/b/onlyfriends-20295/o/system%2Frobot-photo%2Fother%2Fuser-photo-warning.png?alt=media&token=5be1b2e5-b8d9-4f41-823f-ed2a6796c595";
 
     //user-photo-warning 警告要換大頭貼
     await User.updateMany(
