@@ -7,8 +7,8 @@ const bucketName = "onlyfriends-20295";
 //刪除 Firebase Storage Images
 const deleteImages = async (imageUrls) => {
   try {
-    const bucket = admin.storage().bucket();
-    //const bucket = admin.storage().bucket(bucketName);
+    //const bucket = admin.storage().bucket();
+    const bucket = admin.storage().bucket(bucketName);
 
     // 檢查是否有圖片 URLs , -1 表示沒有圖片
     if (!imageUrls || imageUrls.length === 0) {
@@ -50,8 +50,8 @@ const deleteImages = async (imageUrls) => {
 //上傳 Firebase Storage Images
 const uploadImages = async (folderName, limitSize, srcFiles) => {
   try {
-    const bucket = admin.storage().bucket();
-    //const bucket = admin.storage().bucket(bucketName);
+    //const bucket = admin.storage().bucket();
+    const bucket = admin.storage().bucket(bucketName);
 
     // 檢查是否有檔案 , [] 表示沒有檔案
     if (!srcFiles || srcFiles.length === 0) {
@@ -129,9 +129,9 @@ const uploadImages = async (folderName, limitSize, srcFiles) => {
 //讀取 Firebase Storage Images 檔案路徑格式 : cat-01-1
 const getImagesByFolder = async (folderName) => {
   try {
-    const bucket = admin.storage().bucket();
+    //const bucket = admin.storage().bucket();
     // 指定 bucket 名稱
-    //const bucket = admin.storage().bucket(bucketName);
+    const bucket = admin.storage().bucket(bucketName);
 
     // 指定要讀取的資料夾 (P0-Cat)
     const [files] = await bucket.getFiles({
@@ -210,8 +210,8 @@ const compressImageToSize = (imageBuffer, targetSizeKB) => {
 // 刪除資料夾檔案的方法
 const deleteFolderFiles = async (folderPath) => {
   try {
-    const bucket = admin.storage().bucket();
-    //const bucket = admin.storage().bucket(bucketName);
+    //const bucket = admin.storage().bucket();
+    const bucket = admin.storage().bucket(bucketName);
 
     // 使用 deleteFiles 方法一次性刪除資料夾中的所有檔案
     await bucket.deleteFiles({
