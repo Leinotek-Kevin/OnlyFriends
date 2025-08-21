@@ -264,12 +264,7 @@ router.post("/join-circle", async (req, res) => {
       const dayOfWeek = today.day(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
       // 限定報名日：星期一(1)、星期二(2)、星期三(3)
-      if (
-        dayOfWeek == 1 ||
-        dayOfWeek == 2 ||
-        dayOfWeek == 3 ||
-        dayOfWeek == 4
-      ) {
+      if (dayOfWeek == 1 || dayOfWeek == 2 || dayOfWeek == 3) {
         //下週一
         const nextMonday = getNextMonday(today);
         const userSubscriptionEnd = dayjs(subExpiresDate, "YYYY/MM/DD");
