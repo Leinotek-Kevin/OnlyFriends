@@ -1,5 +1,13 @@
 import axios from "axios";
-import dayjs from "dayjs";
+
+const isDebug = process.env.REACT_APP_ENV === "DEBUG";
+const isLocal = process.env.REACT_APP_ENV === "LOCAL";
+
+const BASE_API_URL = isLocal
+  ? "http://localhost:8080/api/user"
+  : isDebug
+  ? "https://dev.ofs.leinotek.com/api/user"
+  : "https://ofs.leinotek.com/api/user";
 
 //Web 本地
 //const BASE_URL = "http://localhost:8080/api/user";
@@ -12,7 +20,7 @@ class UserService {
   //加入聯盟行銷夥伴
   joinParther(userToken, userID) {
     return axios.post(
-      BASE_URL + "/apply-promoter",
+      BASE_API_URL + "/apply-promoter",
       { activityID: "100", userID }, // 把 userID 放到 body
       {
         headers: {
@@ -28,7 +36,7 @@ class UserService {
     const { utcStart, utcEnd } = toUTCTimestampRange(startDate, endDate);
 
     return axios.post(
-      BASE_URL + "/ana-promoter-data",
+      BASE_API_URL + "/ana-promoter-data",
       {
         activityID: "100",
         promoterID: userID,
