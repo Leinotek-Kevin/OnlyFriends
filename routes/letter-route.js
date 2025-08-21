@@ -115,8 +115,16 @@ router.post("/show-all", async (req, res) => {
 //D-2 發送心情樹洞信封
 router.post("/send-letter", async (req, res) => {
   try {
-    let { _id, userID, lastSendLetterTime } = req.user;
+    let { _id, userID, lastSendLetterTime, identity } = req.user;
     let { content, pic } = req.body;
+
+    if (identity == 1) {
+      return res.status(200).send({
+        status: true,
+        message: "發送失敗！官方人員無發送機會！",
+        validCode: "1",
+      });
+    }
 
     //如果今天已經發過就不能再發
     const everSendToday = dateUtil.isToday(lastSendLetterTime);
@@ -181,7 +189,6 @@ router.post("/send-letter", async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
     return res
       .status(500)
       .send({ status: false, message: "Server Error", e, validCode: "-1" });

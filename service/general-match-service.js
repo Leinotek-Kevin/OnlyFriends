@@ -213,7 +213,7 @@ const generalMatch = async () => {
         };
 
         if (!isDevelop) {
-          matchCondition.identity = { $ne: 3 }; // 非開發才排除 identity=3
+          matchCondition.identity = { $nin: [1, 3] }; // 正式環境排除 identity=3
         }
 
         // 放入 aggregate pipeline
