@@ -214,6 +214,11 @@ const userSchema = new Schema({
     required: true,
   },
 
+  //標記用戶刪除時間
+  deleteAccountTime: {
+    type: Number,
+  },
+
   //用戶帳號狀態代碼
   userValidCode: {
     type: String,

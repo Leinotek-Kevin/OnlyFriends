@@ -311,9 +311,10 @@ router.post("/delete", (req, res) => {
       await sendbirdUtil.deleteUser(userID);
 
       //刪除用戶所有大頭貼
-      if (userPhotos && userPhotos.length > 0) {
-        await cloudStorage.deleteImages(userPhotos);
-      }
+      //改由排程刪除,避免已經配到的用戶沒辦法看到對象是誰
+      // if (userPhotos && userPhotos.length > 0) {
+      //   await cloudStorage.deleteImages(userPhotos);
+      // }
 
       //複製人email
       const copyMail =
@@ -329,6 +330,7 @@ router.post("/delete", (req, res) => {
         {
           deviceTokens: [],
           userEmail: copyMail,
+          deleteAccountTime: Date.now(),
           userValidCode: "3",
         }
       );

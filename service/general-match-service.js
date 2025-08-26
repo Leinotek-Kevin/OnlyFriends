@@ -100,7 +100,7 @@ const generalMatch = async () => {
       }
 
       //刪掉已經被標記刪除帳號的用戶
-      await User.deleteMany({ userValidCode: "3" });
+      // await User.deleteMany({ userValidCode: "3" });
 
       //儲存昨天的配對列表
       const pastMatches = await MatchNewest.find({});

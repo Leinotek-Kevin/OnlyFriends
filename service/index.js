@@ -25,6 +25,8 @@ const destoryTickets = require("./destory-expired-tickets");
 const deleteCircleChannels = require("./delete-circle-channel");
 //提醒用戶查看已開放的主題圈圈
 const circleOpeningRemind = require("./circle-opening-remind");
+//刪除已被標記的帳號
+const deleteUnvalidUser = require("./delete-unvalid-user");
 
 //設定每天執行
 const startFetching = () => {
@@ -32,6 +34,7 @@ const startFetching = () => {
   circleGrouping();
   destoryTickets();
   deleteCircleChannels();
+  deleteUnvalidUser();
   generalMatch();
   letterMatch();
   checkDevice();
