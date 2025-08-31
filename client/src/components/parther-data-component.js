@@ -45,8 +45,8 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
     const response = await UserService.getPromterData(
       userToken,
       isPromoterMode ? promoterId : "",
-      "2025-08-01",
-      "2025-08-31",
+      "2025-09-01",
+      "2025-11-30",
       isPromoterMode ? "1" : "0"
     );
     setLoading(false);
