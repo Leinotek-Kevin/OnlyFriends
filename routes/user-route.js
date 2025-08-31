@@ -1937,7 +1937,7 @@ router.post("/ana-promoter-data", async (req, res) => {
 
         if (transaction.price == 550) {
           monthly += 1;
-        } else if (price == 350) {
+        } else if (transaction.price == 1050) {
           quarterly += 1;
         } else {
           annual += 1;

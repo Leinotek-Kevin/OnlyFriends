@@ -19,7 +19,7 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
   const [toastMsg, setToastMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const location = useLocation();
-  const { promoterId } = location.state || {};
+  const { promoterId, userPhoto } = location.state || {};
   const [isPromoterMode, setIsPromoterMode] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: null,
@@ -34,8 +34,8 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
       const response = await UserService.getPromterData(
         userToken,
         promoterId,
-        "2025-08-01",
-        "2025-08-31",
+        "2025-09-01",
+        "2025-11-30",
         "1"
       );
       if (response.status == 200 && response.data.data) {
@@ -50,6 +50,7 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
         if (response.data.data.resultCode == 1) {
           window.scrollTo(0, 0);
           const result = response.data.data.result;
+
           setResult(result);
         }
       } else {
@@ -147,7 +148,7 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
             <i class="bi bi-calendar-week"></i>
 
             <p>
-              活動期間： <br></br> <strong>2025/08/01 ~ 2025/08/31</strong>
+              活動期間： <br></br> <strong>2025/09/01 ~ 2025/11/30</strong>
             </p>
           </div>
           <div className="item-info">
@@ -161,11 +162,7 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
         </div>
         <div className="v-line"></div>
         <div className="right">
-          <img
-            className="photo"
-            src="https://firebasestorage.googleapis.com:443/v0/b/onlyfriends-20295.appspot.com/o/develop%2Fpersonal%2Fpersonal_1747118857730.jpg?alt=media&token=04733ffc-7b9e-42ea-9449-7444b499ba16"
-            alt="用戶大頭貼"
-          />
+          <img className="photo" src={userPhoto} alt="用戶大頭貼" />
           <p>ID：{result && result.promoterID}</p>
         </div>
       </div>

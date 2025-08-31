@@ -106,8 +106,6 @@ router.post("/register", async (req, res) => {
         createData.userMBTI = userMBTI;
       }
 
-      console.log(createData);
-
       // 連接並設置 Sendbird 用戶ID,暱稱,大頭貼
       const tmpPhotos = createData.userPhotos;
       const userPhoto =

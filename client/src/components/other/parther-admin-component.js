@@ -39,7 +39,10 @@ const PartherAdminComponent = ({ userToken, setUserToken }) => {
       localStorage.setItem("userToken", response.data.data.token);
       setUserToken(AuthService.getUserToken());
       navigate("/parther-dashboard", {
-        state: { promoterId: response.data.data.promoterID },
+        state: {
+          promoterId: response.data.data.promoterID,
+          userPhoto: response.data.data.userPhoto,
+        },
       });
     } else {
       showModalMessage({
