@@ -367,6 +367,37 @@ const removeRegisterToken = async (osType, userID, deviceToken) => {
     });
 };
 
+const addRegisterToken = async (osType, userID, deviceToken) => {
+  const tokenType = osType == "1" ? "apns" : "gcm";
+
+  const url = `https://api-${process.env.SENDBIRD_APP_ID}.sendbird.com/v3/users/${userID}/push/${tokenType}`;
+
+  const apiToken = process.env.SENDBIRD_API_TOKEN;
+
+  const headers = {
+    "Content-Type": "application/json, charset=utf8",
+    "Api-Token": apiToken,
+  };
+
+  const body = {
+    push_token: deviceToken,
+    unique: true, // 避免同一個 token 重複註冊
+  };
+
+  return axios
+    .post(url, body, { headers })
+    .then((res) => {
+      if (res.status === 200) return true;
+    })
+    .catch((err) => {
+      console.error(
+        "Add push token failed:",
+        err.response?.data || err.message
+      );
+      return false;
+    });
+};
+
 // openChannel
 const sendMsgOpenChannel = async (msg, link, image, customType) => {
   // SendBird API URL
@@ -519,5 +550,6 @@ module.exports = {
   sendMsgOpenChannel,
   createAndUpdateUser,
   removeRegisterToken,
+  addRegisterToken,
   updateExistUser,
 };

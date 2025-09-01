@@ -219,6 +219,12 @@ const userSchema = new Schema({
     type: Number,
   },
 
+  //iOS APNS
+  apnsToken: {
+    type: String,
+    default: "",
+  },
+
   //用戶帳號狀態代碼
   userValidCode: {
     type: String,

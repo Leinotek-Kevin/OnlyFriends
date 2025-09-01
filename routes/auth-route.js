@@ -141,7 +141,7 @@ router.post("/register", async (req, res) => {
 //A-2 帳號驗證登入
 //暱稱 年齡 性別 頭貼 email 必填
 router.post("/login", async (req, res) => {
-  let { userEmail, deviceToken, osType } = req.body;
+  let { userEmail, deviceToken, osType, apnsToken } = req.body;
   let userID = "";
 
   try {
@@ -178,6 +178,11 @@ router.post("/login", async (req, res) => {
       // 如果有提供 osType，才將其加入更新資料中
       if (generalUtil.isNotNUllEmpty(osType)) {
         updateData.osType = osType;
+
+        //如果是 iOS , 新增加入 apnsToken
+        if (osType == "1" && generalUtil.isNotNUllEmpty(apnsToken)) {
+          updateData.apnsToken = apnsToken;
+        }
       }
 
       await User.updateOne({ userID }, { $set: updateData });

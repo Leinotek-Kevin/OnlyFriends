@@ -250,7 +250,7 @@ router.post("/send-omsg", async (req, res) => {
   }
 });
 
-//測試SB刪除使用者
+//測試SB刪除使用者的 Push Token
 router.post("/remove-token", async (req, res) => {
   try {
     let { userID } = req.body;
@@ -267,6 +267,29 @@ router.post("/remove-token", async (req, res) => {
     return res.status(200).send({
       status: true,
       message: result ? "成功解除token綁定" : "解除token綁定",
+    });
+  } catch (e) {
+    return res.status(500).send({
+      status: false,
+      message: "Server Error!",
+      e,
+    });
+  }
+});
+
+//測試SB新增使用者的 Push Token
+router.post("/add-token", async (req, res) => {
+  try {
+    let { userID, deviceToken } = req.body;
+
+    const userInfo = await User.findOne({ userID });
+    const { osType } = userInfo;
+
+    const result = await sbUtil.addRegisterToken(osType, userID, deviceToken);
+
+    return res.status(200).send({
+      status: true,
+      message: result ? "成功新增 token" : "新增失敗",
     });
   } catch (e) {
     return res.status(500).send({
