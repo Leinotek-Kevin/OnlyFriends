@@ -24,6 +24,12 @@ const promoterUserSchema = new Schema({
     default: 2,
   },
 
+  //引薦的官方人員ID
+  introOfficialID: {
+    type: String,
+    default: "",
+  },
+
   //推廣的用戶們
   referralUsers: [
     {

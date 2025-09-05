@@ -1681,7 +1681,7 @@ router.post("/use-promotion-code", async (req, res) => {
 //B-100 申請加入推廣者
 router.post("/apply-promoter", async (req, res) => {
   try {
-    let { identity } = req.user;
+    let { identity, userEmail } = req.user;
     let { activityID, userID } = req.body;
 
     if (identity != 1) {
@@ -1753,6 +1753,7 @@ router.post("/apply-promoter", async (req, res) => {
         activityID,
         promoterID: userID,
         promotionCode: code,
+        introOfficialID: userEmail,
         referralUsers: [],
       });
 
