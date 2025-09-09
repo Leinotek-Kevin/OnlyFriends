@@ -1953,7 +1953,16 @@ router.post("/ana-promoter-data", async (req, res) => {
 
     //計算聯盟分潤比例
     let subs = result.referalSubCounts;
-    result.shareRate = subs >= 300 ? 5 : subs >= 150 ? 4 : subs >= 50 ? 3 : 2;
+    result.shareRate =
+      subs >= 500
+        ? 20
+        : subs >= 300
+        ? 16
+        : subs >= 150
+        ? 14
+        : subs >= 50
+        ? 12
+        : 10;
 
     //計算聯盟分潤
     result.shareIncome = Math.round(
