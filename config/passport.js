@@ -12,7 +12,7 @@ module.exports = () => {
   passport.use(
     new JwtStrategy(opts, async function (jwt_payload, done) {
       try {
-        console.log("用戶權證：", jwt_payload);
+        //console.log("用戶權證：", jwt_payload);
         let foundUser = await User.findOne({
           userID: jwt_payload.userID,
           userEmail: jwt_payload.userEmail,

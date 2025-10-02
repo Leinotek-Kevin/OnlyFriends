@@ -1665,10 +1665,17 @@ router.post("/use-promotion-code", async (req, res) => {
           },
           { new: true }
         );
+
+        await PromotionStub.create({
+          agentUserID: promoterUser.promoterID,
+          userID,
+          promotionType: promoterUser.activityID,
+          expiredDate: future,
+          ticketStubStatus: "1",
+        });
       }
     }
   } catch (e) {
-    console.log(e);
     return res.status(500).send({
       status: false,
       message: "Server Error!",
