@@ -4,6 +4,7 @@ import AuthService from "./services/auth-service";
 import LoginComponent from "./components/login-component";
 import LandingComponent from "./components/landing-component";
 import UsersComponent from "./components/users-component";
+import DataCenterComponent from "./components/data-center-component";
 import JoinPartherComponent from "./components/join-parther-component";
 import PartherDataComponent from "./components/parther-data-component";
 import DashboardComponent from "./components/dashboard-component";
@@ -46,6 +47,17 @@ function App() {
               />
             }
           >
+            {/*數據中心*/}
+            <Route
+              path="data-center"
+              index
+              element={
+                <DataCenterComponent
+                  userToken={userToken}
+                  setUserToken={setUserToken}
+                ></DataCenterComponent>
+              }
+            ></Route>
             {/*用戶列表*/}
             <Route
               path="users"

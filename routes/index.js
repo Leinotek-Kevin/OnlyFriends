@@ -1,5 +1,6 @@
 module.exports = {
   test: require("./test-route"),
+  center: require("./data-center-route"),
   sendbird: require("./sendbird-route"),
   auth: require("./auth-route"),
   user: require("./user-route"),

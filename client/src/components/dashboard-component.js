@@ -25,6 +25,8 @@ const DashboardComponent = ({ userToken, setUserToken }) => {
 
   useEffect(() => {
     if (userToken) {
+      navigate("data-center", { replace: true });
+
       toast.success("歡迎使用 OnlyFriends 系統！", {
         position: "top-right",
         autoClose: 2000,
@@ -56,6 +58,12 @@ const DashboardComponent = ({ userToken, setUserToken }) => {
             </div>
           </div>
           <ul className="sidebar-nav">
+            <li className="sidebar-item">
+              <Link className="sidebar-link" to="data-center">
+                <i className="lni lni-user"></i>
+                <span>數據中心</span>
+              </Link>
+            </li>
             <li className="sidebar-item">
               <Link className="sidebar-link" to="users">
                 <i className="lni lni-user"></i>

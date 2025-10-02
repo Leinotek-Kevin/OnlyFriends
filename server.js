@@ -34,7 +34,7 @@ app.use(express.static(path.join(__dirname, "client", "build")));
 app.use("/api/test", routes.test);
 app.use("/api/sendbird", routes.sendbird);
 app.use("/api/webhook", routes.webhook);
-
+app.use("/api/center", routes.center);
 app.use("/api/auth", routes.auth);
 app.use("/api/user", routes.user);
 app.use("/api/letter", routes.letter);
