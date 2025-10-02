@@ -98,7 +98,7 @@ router.post("/circle-npc", async (req, res) => {
       result.content =
         ticket == null ? "尚未開放報名" : "請把握保留的圈圈聊天喔！";
       result.contentID = ticket == null ? "0" : "3";
-      result.canJoin = ticket != null;
+      result.canJoin = ticket != null && ticket.circleChannelID != "";
     } else if (circleStatusCode.statusCode == 1) {
       //開放報名(一,二,三)
       result.contentID = "1";
@@ -112,7 +112,7 @@ router.post("/circle-npc", async (req, res) => {
       result.content =
         ticket == null ? "尚未開放報名" : "圈圈聊天已開始！請好好把握喔！";
       result.contentID = ticket == null ? "0" : "3";
-      result.canJoin = ticket != null;
+      result.canJoin = ticket != null && ticket.circleChannelID != "";
     }
 
     return res.status(200).send({
