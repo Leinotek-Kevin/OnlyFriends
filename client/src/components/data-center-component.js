@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DataService from "../services/data-service";
+import FullScreenLoading from "./widget/full-screen-loading";
 
 const DataCenterComponent = ({ userToken, setUserToken }) => {
   let navigate = useNavigate();
@@ -36,6 +37,7 @@ const DataCenterComponent = ({ userToken, setUserToken }) => {
 
   return (
     <div>
+      <FullScreenLoading loading={loading} />
       <h1>昨日註冊人數：{result && result.lastRegisters}</h1>
       <h1>今天註冊人數：{result && result.todayRegisters}</h1>
       <h1>註冊總人數：{result && result.allRegisters}</h1>
