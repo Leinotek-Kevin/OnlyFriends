@@ -4,6 +4,7 @@ const iOSUtil = require("../utils/iOS-util");
 const datelUtil = require("../utils/date-util");
 const User = require("../models").user;
 const Transcation = require("../models").transcation;
+const PromotionStub = require("../models").promotionStub;
 
 //Google
 router.post("/google-purchase", async (req, res) => {
@@ -462,6 +463,14 @@ async function checkAndUpdateUserSub(userID, transactionInfo) {
       updateData["objectCondition.objectRegion"] = "";
       // 如果用戶沒有訂閱，將期望共同興趣改為 false
       updateData["objectCondition.needSameInterested"] = false;
+    } else {
+      //如果有訂閱狀態正常,檢查是否有兌換，如果有兌換則覆蓋過去，以訂閱為主
+      const findStub = await PromotionStub.findOne({ userID });
+
+      if (findStub) {
+        await PromotionStub.updateOne({ userID }, { ticketStubStatus: "-1" });
+        updateData.isPromotionSub = false;
+      }
     }
 
     //更改用戶訂閱狀態
