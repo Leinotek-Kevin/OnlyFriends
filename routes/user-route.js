@@ -1952,7 +1952,7 @@ router.post("/ana-promoter-data", async (req, res) => {
           annual += 1;
         }
 
-        orders.push(transaction.transactionID);
+        result.orders.push(transaction.transactionID);
       }
 
       result.totalIncome = total;
