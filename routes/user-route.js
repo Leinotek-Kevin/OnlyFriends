@@ -1854,6 +1854,7 @@ router.post("/ana-promoter-data", async (req, res) => {
       // referalAgeArea: {},
       subGenderAgeArea: {},
       // subAgeArea: {},
+      orders: [],
     };
 
     //目標被推廣者們
@@ -1950,6 +1951,8 @@ router.post("/ana-promoter-data", async (req, res) => {
         } else {
           annual += 1;
         }
+
+        orders.push(transaction.transactionID);
       }
 
       result.totalIncome = total;

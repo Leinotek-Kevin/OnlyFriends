@@ -46,7 +46,7 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
       userToken,
       isPromoterMode ? promoterId : "",
       "2025-09-01",
-      "2025-11-30",
+      "2025-12-31",
       isPromoterMode ? "1" : "0"
     );
     setLoading(false);

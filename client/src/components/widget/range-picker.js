@@ -8,7 +8,7 @@ export default function DateRangeSelector({ onChange }) {
   const [dates, setDates] = useState([]);
 
   const fixedStart = dayjs("2025-09-01");
-  const fixedEnd = dayjs("2025-11-30");
+  const fixedEnd = dayjs("2025-12-31");
 
   const handleChange = (values) => {
     setDates(values);

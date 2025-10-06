@@ -35,7 +35,7 @@ const PartherDataComponent = ({ userToken, setUserToken }) => {
         userToken,
         promoterId,
         "2025-09-01",
-        "2025-11-30",
+        "2025-12-31",
         "1"
       );
       if (response.status == 200 && response.data.data) {
