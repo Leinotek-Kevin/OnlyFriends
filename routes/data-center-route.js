@@ -113,6 +113,12 @@ router.post("/general-data", async (req, res) => {
     //小圈圈報名人數
     const circleTickets = await CircleTicket.countDocuments({});
 
+    //Android 存活人數
+    const aliveAndroids = await User.countDocuments({ osType: "0" });
+
+    //iOS 存活人數
+    const aliveiOSs = await User.countDocuments({ osType: "1" });
+
     const data = {
       todayRegisters,
       lastRegisters,
@@ -124,6 +130,10 @@ router.post("/general-data", async (req, res) => {
       allOrders,
       genderCounts,
       circleTickets,
+      os: {
+        aliveAndroids,
+        aliveiOSs,
+      },
     };
 
     return res.status(200).send({

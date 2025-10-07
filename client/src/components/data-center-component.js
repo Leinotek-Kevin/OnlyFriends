@@ -52,7 +52,11 @@ const DataCenterComponent = ({ userToken, setUserToken }) => {
       <h1>目前女生人數：{result && result.genderCounts.female}</h1>
       <h1>目前男生生人數：{result && result.genderCounts.male}</h1>
       <h1>目前特殊人數：{result && result.genderCounts.special}</h1>
+
       <h1>小圈圈報名人數：{result && result.circleTickets}</h1>
+
+      <h1>iOS 存活人數：{result && result.os.aliveiOSs}</h1>
+      <h1>Android 存活人數：{result && result.os.aliveAndroids}</h1>
     </div>
   );
 };
