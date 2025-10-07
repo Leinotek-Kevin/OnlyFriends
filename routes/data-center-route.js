@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const User = require("../models").user;
 const Transcation = require("../models").transcation;
+const CircleTicket = require("../models").circleTicket;
 const passport = require("passport");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -109,6 +110,9 @@ router.post("/general-data", async (req, res) => {
       isAllow: true,
     });
 
+    //小圈圈報名人數
+    const circleTickets = await CircleTicket.countDocuments({});
+
     const data = {
       todayRegisters,
       lastRegisters,
@@ -119,6 +123,7 @@ router.post("/general-data", async (req, res) => {
       yesterdayOrders,
       allOrders,
       genderCounts,
+      circleTickets,
     };
 
     return res.status(200).send({
