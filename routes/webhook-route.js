@@ -309,9 +309,10 @@ router.post("/iOS-purchase", async (req, res) => {
       switch (notificationType) {
         //SUBSCRIBED 事件 (訂閱購買)
         case "SUBSCRIBED":
-          if (subtype === "RESUBSCRIBE") {
-            subscription.status = "active";
-          }
+          // if (subtype === "RESUBSCRIBE" || subtype ===INITIAL_BUY) {
+          //   subscription.status = "active";
+          // }
+          subscription.status = "active";
           break;
         //DID_RENEW 事件 (訂閱續訂)
         case "DID_RENEW":
