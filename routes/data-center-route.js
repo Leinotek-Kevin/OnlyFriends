@@ -68,6 +68,24 @@ router.post("/general-data", async (req, res) => {
       userValidCode: "1",
     });
 
+    //今天登入女生人數
+    const todayLoginFemales = await User.countDocuments({
+      lastLoginTime: { $gte: todayNight },
+      userGender: "0",
+      userValidCode: "1",
+    });
+
+    //今天登入特殊人數
+    const todayLoginSpecials = await User.countDocuments({
+      lastLoginTime: { $gte: todayNight },
+      userGender: "2",
+      userValidCode: "1",
+    });
+
+    //今日登入男生人數
+    const todayLoginMales =
+      todayLogins - todayLoginSpecials - todayLoginFemales;
+
     //昨日登入人數
     const lastLogins = await User.countDocuments({
       lastLoginTime: { $gte: lastNight, $lt: todayNight },
@@ -124,6 +142,9 @@ router.post("/general-data", async (req, res) => {
       lastRegisters,
       allRegisters,
       todayLogins,
+      todayLoginFemales,
+      todayLoginMales,
+      todayLoginSpecials,
       lastLogins,
       todayOrders,
       yesterdayOrders,
