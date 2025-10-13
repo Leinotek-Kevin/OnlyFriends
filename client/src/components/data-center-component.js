@@ -44,6 +44,9 @@ const DataCenterComponent = ({ userToken, setUserToken }) => {
 
       {/* <h1>昨日登入人數：{result && result.lastLogins}</h1> */}
       <h1>今天登入人數：{result && result.todayLogins}</h1>
+      <h1>今天登入女生人數：{result && result.todayLoginFemales}</h1>
+      <h1>今天登入男生生人數：{result && result.todayLoginMales}</h1>
+      <h1>今天登入特殊人數：{result && result.todayLoginSpecials}</h1>
 
       <h1>昨日訂閱人數：{result && result.yesterdayOrders}</h1>
       <h1>今天訂閱人數：{result && result.todayOrders}</h1>
