@@ -123,6 +123,11 @@ const generalMatch = async () => {
         identity: 2,
       });
 
+      //可以配對的用戶數量
+      const aliveUserCounts = allowUsers.length;
+
+      //console.log("可以配對的用戶數量:", aliveUserCounts);
+
       //將存活的用戶隨機排序
       const aliveUsers = allowUsers.sort(() => Math.random() - 0.5);
 
@@ -214,6 +219,14 @@ const generalMatch = async () => {
 
         if (!isDevelop) {
           matchCondition.identity = { $nin: [1, 3] }; // 正式環境排除 identity=3
+        }
+
+        // aliveUserCounts 為總活躍用戶數
+        // 計算 60%，且至少為 1
+        let limitCount = Math.max(1, Math.ceil(aliveUserCounts * 0.6));
+
+        if (limitCount <= targetUserCount) {
+          limitCount = targetUserCount;
         }
 
         // 放入 aggregate pipeline
@@ -308,138 +321,28 @@ const generalMatch = async () => {
               regionScore: -1,
             },
           },
-          { $limit: targetUserCount },
+          { $limit: limitCount },
         ]);
 
-        console.log("這位用戶可以配到的對象是:", targetUsers);
-
-        // const targetUsers = await User.aggregate([
-        //   {
-        //     $match: {
-        //       userID: {
-        //         $ne: currentUser.userID,
-        //         $nin: Array.from(combinedArray), //排除曾經配對及已經用光配對次數的用戶
-        //       },
-        //       lastLoginTime: { $gte: lastNightTimeStamp },
-        //       userValidCode: "1",
-        //       identity: { $ne: 3 }, // 排除 apple / google 官方人員
-        //     },
-        //   },
-        //   {
-        //     $addFields: {
-        //       //篩選對象性別條件
-        //       genderScore: {
-        //         $cond: [{ $eq: ["$userGender", objectGender] }, 1, 0],
-        //       },
-        //       //篩選對象年齡條件
-        //       ageScore: {
-        //         $cond: [
-        //           {
-        //             $and: [
-        //               { $gte: ["$userAge", minAge] },
-        //               { $lte: ["$userAge", maxAge] },
-        //             ],
-        //           },
-        //           1,
-        //           0,
-        //         ],
-        //       },
-        //       //篩選對象是否已通過真人辨識(需要用戶已經通過辨識才開放)
-        //       realVerifyScore: {
-        //         $cond: [
-        //           { $eq: [currentUser.realVerifyStatus, true] },
-        //           {
-        //             $cond: [
-        //               {
-        //                 $eq: [
-        //                   "$realVerifyStatus",
-        //                   currentUser.realVerifyStatus,
-        //                 ],
-        //               },
-        //               1,
-        //               0,
-        //             ],
-        //           },
-        //           0,
-        //         ],
-        //       },
-        //       //篩選對象所在區域條件(需要用戶訂閱才開放)
-        //       regionScore: {
-        //         $cond: [
-        //           { $eq: [currentUser.isSubscription, true] }, // 只有訂閱用戶才有地區篩選
-        //           {
-        //             $cond: [{ $eq: ["$userRegion", objectRegion] }, 1, 6],
-        //           },
-        //           0, // 如果當前用戶沒有訂閱，則區域對象 0
-        //         ],
-        //       },
-        //       //篩選對象的興趣匹配(需要用戶訂閱才開放)
-        //       interestedScore: {
-        //         // $cond: [
-        //         //   {
-        //         //     $and: [
-        //         //       { $eq: [currentUser.isSubscription, true] }, // 用戶必須是訂閱用戶
-        //         //       { $eq: [currentUser.needSameInterested, true] }, // 是否啟用共同興趣開關 true
-        //         //     ],
-        //         //   }, // 只有訂閱用戶才有興趣加權
-        //         //   {
-        //         $cond: [
-        //           {
-        //             $gt: [
-        //               {
-        //                 $size: {
-        //                   $setIntersection: [
-        //                     { $ifNull: ["$userAttribute.interested", []] }, // 確保是陣列
-        //                     {
-        //                       $ifNull: [
-        //                         currentUser.userAttribute.interested,
-        //                         [],
-        //                       ],
-        //                     }, // 確保是陣列
-        //                   ],
-        //                 },
-        //               },
-        //               0,
-        //             ],
-        //           },
-        //           {
-        //             $size: {
-        //               $setIntersection: [
-        //                 { $ifNull: ["$userAttribute.interested", []] }, // 確保是陣列
-        //                 {
-        //                   $ifNull: [currentUser.userAttribute.interested, []],
-        //                 }, // 確保是陣列
-        //               ],
-        //             },
-        //           },
-        //           0,
-        //         ],
-        //         //   },
-        //         //   0, // 如果當前用戶沒有訂閱，興趣加權為 0
-        //         // ],
-        //       },
-        //     },
-        //   },
-        //   {
-        //     $sort: {
-        //       identity: -1, //依照用戶識別->降序 2:真人 ,1：官方, 0：假人
-        //       interestedScore: -1, // 依照興趣匹配分數,降序
-        //       realVerifyScore: -1, // 依照實名驗證匹配分數，降序
-        //       genderScore: -1, //性別匹配的加權分數，降序
-        //       ageScore: -1, // 年齡匹配的加權分數，降序
-        //       regionScore: -1, // 地區匹配的加權分數，降序
-        //     },
-        //   },
-        //   { $limit: targetUserCount },
-        // ]);
-
         consumeUsers.add(currentUser.userID);
+
+        //將 targetUsers 隨機抽樣 targetUserCount 數量
+        const total = targetUsers.length;
+        const pickedIndexes = new Set();
+
+        while (pickedIndexes.size < targetUserCount) {
+          pickedIndexes.add(Math.floor(Math.random() * total));
+        }
+
+        const pickedUsers = Array.from(pickedIndexes).map(
+          (i) => targetUsers[i]
+        );
 
         const matches = [];
 
         //紀錄配對
-        for (let i = 0; i < targetUsers.length; i++) {
-          let targetUser = targetUsers[i];
+        for (let i = 0; i < pickedUsers.length; i++) {
+          let targetUser = pickedUsers[i];
 
           let url =
             Number(currentUser.userID) > Number(targetUser.userID)
